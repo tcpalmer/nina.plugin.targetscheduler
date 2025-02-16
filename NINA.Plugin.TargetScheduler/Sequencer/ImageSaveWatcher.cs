@@ -53,7 +53,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         public void WaitForAllImagesSaved() {
             // Wait for any remaining images to come through: poll every 400ms and bail out after 80 secs
-            TSLogger.Info($"waiting for exposures to complete:\n{ExposureIdsLog()}");
+            TSLogger.Debug($"waiting for exposures to complete:\n{ExposureIdsLog()}");
             int count = 0;
             while (!exposureDictionary.IsEmpty) {
                 if (++count == 200) {
@@ -66,7 +66,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         public void Stop() {
-            TSLogger.Info($"stopping image save watcher");
+            TSLogger.Debug($"stopping image save watcher");
             WaitForAllImagesSaved();
 
             imageSaveMediator.ImageSaved -= ImageSaved;
@@ -109,7 +109,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             IExposure exposure = waitData.Exposure;
 
             try {
-                TSLogger.Info($"starting ImageSaved: eId={exposure.DatabaseId}, imageId={imageSavedEventArgs.MetaData.Image.Id}");
+                TSLogger.Debug($"starting ImageSaved: eId={exposure.DatabaseId}, imageId={imageSavedEventArgs.MetaData.Image.Id}");
                 if (!profilePreference.DoSkipSimulatedUpdates) {
                     bool autoAccepted = !target.Project.EnableGrader;
                     int acquiredImageId = UpdateDatabase(waitData, imageSavedEventArgs, autoAccepted);
@@ -118,12 +118,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         await GetImageGradingController().Enqueue(workData, waitData.Token);
                     }
                 } else {
-                    TSLogger.Info($"simulated run enabled, skipping all database updates associated with image save");
+                    TSLogger.Debug($"simulated run enabled, skipping all database updates associated with image save");
                 }
             } catch (Exception ex) {
                 TSLogger.Error($"exception in ImageSaveWatcher.ImageSaved: {ex.Message}\n{ex.StackTrace}");
             } finally {
-                TSLogger.Info($"ImageSaved completed: {waitData}");
+                TSLogger.Debug($"ImageSaved completed: {waitData}");
                 RemoveWaitData(waitData.ImageId);
             }
         }

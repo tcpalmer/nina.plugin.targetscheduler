@@ -45,7 +45,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             string title = $"PLANNING ENGINE RUN ({type})";
 
             TSLogger.Info($"-- BEGIN {title} ---------------------------------------------------");
-            TSLogger.Debug($"getting current plan for {Utils.FormatDateTimeFull(atTime)}");
+            TSLogger.Info($"getting current plan for {Utils.FormatDateTimeFull(atTime)}");
 
             using (MyStopWatch.Measure("Scheduler Plan Generation")) {
                 try {
@@ -55,7 +55,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
                     // If the previous target still has time in it's initial minimum time span and is still acceptable, then stick with it
                     if (PreviousTargetCanContinue(previousTarget)) {
-                        TSLogger.Debug($"previous target still within min time span, continuing: {previousTarget.Project.Name}/{previousTarget.Name}: {previousTarget.MinimumTimeSpanEnd} < {atTime} ");
+                        TSLogger.Info($"previous target still within min time span, continuing: {previousTarget.Project.Name}/{previousTarget.Name}: {previousTarget.MinimumTimeSpanEnd} < {atTime} ");
                         List<IInstruction> instructions = new InstructionGenerator().Generate(previousTarget, previousTarget);
                         return new SchedulerPlan(atTime, projects, previousTarget, instructions, !checkCondition);
                     }
@@ -123,7 +123,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Recheck exposure completion
             if (previousTarget.ExposurePlans.Count == 0) {
-                TSLogger.Debug($"not continuing previous target {previousTarget.Name}: all exposure plans complete");
+                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all exposure plans complete");
                 return false;
             }
 
@@ -133,14 +133,14 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             bool allRejected = true;
             previousTarget.ExposurePlans.ForEach(ep => { if (!ep.Rejected) { allRejected = false; } });
             if (allRejected) {
-                TSLogger.Debug($"not continuing previous target {previousTarget.Name}: all remaining exposure plans rejected for moon avoidance");
+                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all remaining exposure plans rejected for moon avoidance");
                 return false;
             }
 
             // Determine the next exposure and be sure that it can fit in the remaining minimum time span
             IExposure nextExposure = previousTarget.ExposureSelector.Select(atTime, previousTarget.Project, previousTarget, previousTarget.SelectedExposure);
             if (atTime.AddSeconds(nextExposure.ExposureLength) > previousTarget.MinimumTimeSpanEnd) {
-                TSLogger.Debug($"not continuing previous target {previousTarget.Name}: minimum time window exceeded");
+                TSLogger.Info($"not continuing previous target {previousTarget.Name}: minimum time window exceeded");
                 return false;
             }
 
@@ -355,7 +355,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             double highScore = double.MinValue;
 
             foreach (ITarget target in readyTargets) {
-                TSLogger.Debug($"running scoring engine for project/target {target.Project.Name}/{target.Name}");
+                TSLogger.Trace($"running scoring engine for project/target {target.Project.Name}/{target.Name}");
                 scoringEngine.RuleWeights = target.Project.RuleWeights;
                 double score = scoringEngine.ScoreTarget(target);
                 if (score > highScore) {

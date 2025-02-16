@@ -45,7 +45,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
             BackupPreTS5Database();
 
             base.OnModelCreating(modelBuilder);
-            TSLogger.Debug("Scheduler database: OnModelCreating");
+            TSLogger.Info("Target Scheduler database: OnModelCreating");
 
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
             modelBuilder.Configurations.Add(new ProjectConfiguration());
@@ -892,7 +892,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                         foreach (KeyValuePair<string, IScoringRule> item in rules) {
                             RuleWeight rw = project.RuleWeights.Where(r => r.Name == item.Key).FirstOrDefault();
                             if (rw == null) {
-                                TSLogger.Info($"project '{project.Name}' is missing rule weight record: '{item.Value.Name}': adding");
+                                TSLogger.Debug($"project '{project.Name}' is missing rule weight record: '{item.Value.Name}': adding");
                                 rw = new RuleWeight(item.Value.Name, item.Value.DefaultWeight);
                                 rw.Project = project;
                                 context.RuleWeightSet.Add(rw);
@@ -923,7 +923,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
                         if (updated) {
                             context.SaveChanges();
-                            TSLogger.Info("updated target rotation values for NINA 3");
+                            TSLogger.Debug("updated target rotation values for NINA 3");
                         }
                     }
                 }

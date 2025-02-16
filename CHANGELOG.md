@@ -3,6 +3,7 @@
 ## 5.1.0.0 (beta) - 2025-02-XX
 * Planner will now attempt to stick with a selected target for the minimum time.
 * Fixed display and threading problems with Scheduler Preview.
+* Added profile preference to set the TS log level (independent of NINA log level).
 
 ## 5.0.2.0 (beta) - 2025-02-12
 * Fixed Telescopius CSV format change.

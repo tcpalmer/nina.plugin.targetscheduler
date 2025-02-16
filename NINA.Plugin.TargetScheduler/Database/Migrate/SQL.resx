@@ -145,10 +145,13 @@
   <data name="17" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>17.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
   </data>
-  <data name="18" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>18.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
-  </data>
-  <data name="2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+	<data name="18" type="System.Resources.ResXFileRef, System.Windows.Forms">
+		<value>18.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
+	</data>
+	<data name="19" type="System.Resources.ResXFileRef, System.Windows.Forms">
+		<value>19.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
+	</data>
+	<data name="2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>2.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
   </data>
   <data name="3" type="System.Resources.ResXFileRef, System.Windows.Forms">

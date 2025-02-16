@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.TargetScheduler.SyncService.Sync;
+﻿using NINA.Core.Enum;
+using NINA.Plugin.TargetScheduler.SyncService.Sync;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,6 +11,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         [Key] public int Id { get; set; }
         [Required] public string ProfileId { get; set; }
 
+        public int logLevel { get; set; }
         public int parkOnWait { get; set; }
         public double exposureThrottle { get; set; }
         public int enableSmartPlanWindow { get; set; }
@@ -49,6 +51,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         public ProfilePreference(string profileId) {
+            LogLevel = LogLevelEnum.DEBUG;
             ProfileId = profileId;
             ParkOnWait = false;
             ExposureThrottle = 125;
@@ -82,6 +85,15 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             EnableSimulatedRun = false;
             SkipSimulatedWaits = true;
             SkipSimulatedUpdates = false;
+        }
+
+        [NotMapped]
+        public LogLevelEnum LogLevel {
+            get { return (LogLevelEnum)logLevel; }
+            set {
+                logLevel = (int)value;
+                RaisePropertyChanged(nameof(LogLevel));
+            }
         }
 
         [NotMapped]

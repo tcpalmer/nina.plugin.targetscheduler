@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.Interfaces;
+﻿using NINA.Core.Enum;
+using NINA.Plugin.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,12 @@ namespace NINA.Plugin.TargetScheduler.PubSub {
         public abstract int Version { get; }
 
         public async void Publish(IMessage message) {
-            TSLogger.Info($"publishing to '{Topic}', message:\n{message}");
+            if (TSLogger.IsEnabled(LogLevelEnum.DEBUG)) {
+                TSLogger.Debug($"publishing message to '{Topic}', message:\n{message}");
+            } else {
+                TSLogger.Info($"publishing message to '{Topic}'");
+            }
+
             await MessageBroker.Publish(message);
         }
     }

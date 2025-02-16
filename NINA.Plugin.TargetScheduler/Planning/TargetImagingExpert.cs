@@ -70,7 +70,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
 
             if (!targetVisibility.ImagingPossible) {
-                TSLogger.Debug($"Target not visible at all {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
+                TSLogger.Warning($"Target not visible at all {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
                 SetRejected(target, Reasons.TargetNotVisible);
                 return false;
             }
@@ -78,7 +78,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // Determine the next time interval of visibility of at least the mimimum time
             VisibilityDetermination viz = targetVisibility.NextVisibleInterval(atTime, twilightSpan, project.HorizonDefinition, project.MinimumTime * 60);
             if (!viz.IsVisible) {
-                TSLogger.Debug($"Target not visible for rest of night {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
+                TSLogger.Trace($"Target not visible for rest of night {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
                 SetRejected(target, Reasons.TargetNotVisible);
                 return false;
             }
@@ -90,7 +90,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // Clip time span to optional meridian window
             TimeInterval meridianClippedSpan = null;
             if (project.MeridianWindow > 0) {
-                TSLogger.Debug($"checking meridian window for {project.Name}/{target.Name}");
+                TSLogger.Trace($"checking meridian window for {project.Name}/{target.Name}");
                 meridianClippedSpan = new MeridianWindowClipper().Clip(targetStartTime, targetTransitTime, targetEndTime, project.MeridianWindow);
 
                 if (meridianClippedSpan == null) {
@@ -105,7 +105,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Recheck minimum time after potential meridian clip
             if (project.MeridianWindow > 0 && target.MeridianWindow.Duration < project.MinimumTime * 60) {
-                TSLogger.Debug($"Target not visible for min time after meridian window clip {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
+                TSLogger.Trace($"Target not visible for min time after meridian window clip {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
                 SetRejected(target, Reasons.TargetNotVisible);
                 return false;
             }

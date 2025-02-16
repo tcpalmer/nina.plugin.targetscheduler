@@ -1,4 +1,5 @@
-﻿using NINA.Core.Model;
+﻿using NINA.Core.Enum;
+using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Equipment.Interfaces;
 using NINA.Plugin.Interfaces;
@@ -64,6 +65,7 @@ namespace NINA.Plugin.TargetScheduler {
 
         public override Task Initialize() {
             InitPluginHome();
+            TSLogger.SetLogLevel(ProfileLogLevel(profileService));
 
             if (SyncEnabled(profileService)) {
                 SyncManager.Instance.Start(profileService);
@@ -84,6 +86,11 @@ namespace NINA.Plugin.TargetScheduler {
         public static bool SyncEnabled(IProfileService profileService) {
             ProfilePreference profilePreference = new SchedulerPlanLoader(profileService.ActiveProfile).GetProfilePreferences();
             return profilePreference.EnableSynchronization;
+        }
+
+        private LogLevelEnum ProfileLogLevel(IProfileService profileService) {
+            ProfilePreference profilePreference = new SchedulerPlanLoader(profileService.ActiveProfile).GetProfilePreferences();
+            return profilePreference.LogLevel;
         }
 
         private DatabaseManagerVM databaseManagerVM;
@@ -198,6 +205,8 @@ namespace NINA.Plugin.TargetScheduler {
         }
 
         private void ProfileService_ProfileChanged(object? sender, EventArgs e) {
+            TSLogger.SetLogLevel(ProfileLogLevel(profileService));
+
             DatabaseManagerVM = new DatabaseManagerVM(profileService, applicationMediator, framingAssistantVM, deepSkyObjectSearchVM, planetariumFactory);
             PlanPreviewerViewVM = new PlanPreviewerViewVM(profileService);
             AcquiredImagesManagerViewVM = new AcquiredImagesManagerViewVM(profileService);

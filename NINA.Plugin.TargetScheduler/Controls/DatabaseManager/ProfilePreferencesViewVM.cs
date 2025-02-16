@@ -1,5 +1,6 @@
 ﻿using NINA.Plugin.TargetScheduler.Controls.Converters;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile.Interfaces;
 using NINA.WPF.Base.ViewModel;
 using System.Collections.Generic;
@@ -100,6 +101,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         private void Save() {
+            TSLogger.SetLogLevel(ProfilePreferenceProxy.ProfilePreference.LogLevel);
             managerVM.SaveProfilePreference(ProfilePreferenceProxy.ProfilePreference);
             ProfilePreferenceProxy.OnSave();
             ProfilePreferenceProxy.PropertyChanged -= ProfilePreferenceProxy_PropertyChanged;

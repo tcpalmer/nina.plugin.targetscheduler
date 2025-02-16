@@ -124,11 +124,11 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                                 IsRunning = true;
                                 IsServer = true;
 
-                                TSLogger.Info($"SYNC started synchronization server on pipe {pipeName}");
+                                TSLogger.Debug($"SYNC started synchronization server on pipe {pipeName}");
                                 TSLogger.Info("SYNC running as sync server");
                             } else {
                                 IsRunning = true;
-                                TSLogger.Info($"SYNC named pipe already exists: {pipeName}");
+                                TSLogger.Debug($"SYNC named pipe already exists: {pipeName}");
                                 TSLogger.Info("SYNC running as sync client");
                             }
                         } catch (Exception ex) {

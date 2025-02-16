@@ -169,7 +169,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         private void AddEndTimeTrigger(ITarget planTarget) {
-            TSLogger.Info($"adding target end time trigger, run until: {Utils.FormatDateTimeFull(planTarget.EndTime)}");
+            TSLogger.Debug($"adding target end time trigger, run until: {Utils.FormatDateTimeFull(planTarget.EndTime)}");
             Add(new SchedulerTargetEndTimeTrigger(planTarget.EndTime));
         }
 
@@ -231,7 +231,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             SequenceItem slewCenter;
 
             string with = isPlateSolve ? "with" : "without";
-            TSLogger.Info($"slew ({with} center): {Utils.FormatCoordinates(target.Coordinates)}");
+            TSLogger.Debug($"slew ({with} center): {Utils.FormatCoordinates(target.Coordinates)}");
 
             if (isPlateSolve) {
                 if (rotatorMediator.GetInfo().Connected) {
@@ -261,13 +261,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private void AddBeforeNewTargetInstructions() {
             int? numInstructions = parentContainer.BeforeTargetContainer.Items?.Count;
-            TSLogger.Info($"adding BeforeNewTarget container with {numInstructions} instruction(s)");
+            TSLogger.Debug($"adding BeforeNewTarget container with {numInstructions} instruction(s)");
             parentContainer.BeforeTargetContainer.ResetAll();
             Add(parentContainer.BeforeTargetContainer);
         }
 
         private void AddSwitchFilter(IExposure exposure) {
-            TSLogger.Info($"adding switch filter: {exposure.FilterName}");
+            TSLogger.Debug($"adding switch filter: {exposure.FilterName}");
 
             SwitchFilter switchFilter = new SwitchFilter(profileService, filterWheelMediator);
             SetItemDefaults(switchFilter, nameof(SwitchFilter));
@@ -278,7 +278,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private void AddSetReadoutMode(IExposure exposure) {
             short readoutMode = GetReadoutMode(exposure.ReadoutMode);
-            TSLogger.Info($"adding set readout mode: {readoutMode}");
+            TSLogger.Debug($"adding set readout mode: {readoutMode}");
             SetReadoutMode setReadoutMode = new SetReadoutMode(cameraMediator) { Mode = readoutMode };
             SetItemDefaults(setReadoutMode, nameof(SetReadoutMode));
 
@@ -286,7 +286,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         private void AddTakeExposure(ITarget target, IExposure exposure) {
-            TSLogger.Info($"adding take exposure: {exposure.FilterName} {exposure.ExposureLength}s");
+            TSLogger.Debug($"adding take exposure: {exposure.FilterName} {exposure.ExposureLength}s");
 
             PlanTakeExposure takeExposure = new PlanTakeExposure(
                         parentContainer,
@@ -313,7 +313,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         private void AddDither() {
-            TSLogger.Info("adding dither");
+            TSLogger.Debug("adding dither");
             Dither dither = new Dither(guiderMediator, profileService);
             Add(dither);
         }
@@ -324,7 +324,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private void EnsureUnparked(IProgress<ApplicationStatus> progress, CancellationToken token) {
             if (telescopeMediator.GetInfo().AtPark) {
-                TSLogger.Info("telescope is parked before potential target slew: unparking");
+                TSLogger.Debug("telescope is parked before potential target slew: unparking");
                 try {
                     telescopeMediator.UnparkTelescope(progress, token).Wait();
                 } catch (Exception ex) {

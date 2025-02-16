@@ -45,7 +45,7 @@ namespace NINA.Plugin.TargetScheduler.Shared.Utility {
                     retainedFileCountLimit: null)
                 .CreateLogger();
 
-            // Force this to be debug for now, later can update based on profile setting
+            // Default but should be set from TS profile preferences based on current NINA profile
             SetLogLevel(LogLevelEnum.DEBUG);
         }
 
@@ -75,35 +75,26 @@ namespace NINA.Plugin.TargetScheduler.Shared.Utility {
             return version ?? "<version?>";
         }
 
-        public static bool IsEnabled(LogEventLevel level) {
-            return TSLog.IsEnabled(level);
+        public static bool IsEnabled(LogLevelEnum logLevel) {
+            switch (logLevel) {
+                case LogLevelEnum.TRACE: return levelSwitch.MinimumLevel <= LogEventLevel.Verbose;
+                case LogLevelEnum.DEBUG: return levelSwitch.MinimumLevel <= LogEventLevel.Debug;
+                case LogLevelEnum.INFO: return levelSwitch.MinimumLevel <= LogEventLevel.Information;
+                case LogLevelEnum.WARNING: return levelSwitch.MinimumLevel <= LogEventLevel.Warning;
+                case LogLevelEnum.ERROR: return levelSwitch.MinimumLevel <= LogEventLevel.Error;
+                default: return false;
+            }
         }
 
         public static void SetLogLevel(LogLevelEnum logLevel) {
+            TSLogger.Warning($"setting TS log level to {logLevel}");
             switch (logLevel) {
-                case LogLevelEnum.TRACE:
-                    levelSwitch.MinimumLevel = LogEventLevel.Verbose;
-                    break;
-
-                case LogLevelEnum.DEBUG:
-                    levelSwitch.MinimumLevel = LogEventLevel.Debug;
-                    break;
-
-                case LogLevelEnum.INFO:
-                    levelSwitch.MinimumLevel = LogEventLevel.Information;
-                    break;
-
-                case LogLevelEnum.WARNING:
-                    levelSwitch.MinimumLevel = LogEventLevel.Warning;
-                    break;
-
-                case LogLevelEnum.ERROR:
-                    levelSwitch.MinimumLevel = LogEventLevel.Error;
-                    break;
-
-                default:
-                    levelSwitch.MinimumLevel = LogEventLevel.Information;
-                    break;
+                case LogLevelEnum.TRACE: levelSwitch.MinimumLevel = LogEventLevel.Verbose; break;
+                case LogLevelEnum.DEBUG: levelSwitch.MinimumLevel = LogEventLevel.Debug; break;
+                case LogLevelEnum.INFO: levelSwitch.MinimumLevel = LogEventLevel.Information; break;
+                case LogLevelEnum.WARNING: levelSwitch.MinimumLevel = LogEventLevel.Warning; break;
+                case LogLevelEnum.ERROR: levelSwitch.MinimumLevel = LogEventLevel.Error; break;
+                default: levelSwitch.MinimumLevel = LogEventLevel.Information; break;
             }
         }
 

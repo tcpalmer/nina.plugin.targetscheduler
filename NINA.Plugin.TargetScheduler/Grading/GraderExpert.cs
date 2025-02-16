@@ -33,13 +33,13 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             if (!preferences.EnableGradeRMS) return true;
 
             if (imageData.MetaData?.Image?.RecordedRMS == null) {
-                TSLogger.Info("image grading: guiding RMS not available");
+                TSLogger.Debug("image grading: guiding RMS not available");
                 return true;
             }
 
             double guidingRMSArcSecs = imageData.MetaData.Image.RecordedRMS.Total * imageData.MetaData.Image.RecordedRMS.Scale;
             if (guidingRMSArcSecs <= 0) {
-                TSLogger.Info("image grading: guiding RMS not valid for grading");
+                TSLogger.Debug("image grading: guiding RMS not valid for grading");
                 return true;
             }
 
@@ -50,7 +50,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                 double cameraArcSecsPerPixel = (pixelSize / focalLenth) * 206.265 * binning;
                 double cameraRMSPerPixel = guidingRMSArcSecs * cameraArcSecsPerPixel;
 
-                TSLogger.Info($"image grading: RMS pixelSize={pixelSize} focalLength={focalLenth} bin={binning} cameraArcSecsPerPixel={cameraArcSecsPerPixel} cameraRMSPerPixel={cameraRMSPerPixel}");
+                TSLogger.Debug($"image grading: RMS pixelSize={pixelSize} focalLength={focalLenth} bin={binning} cameraArcSecsPerPixel={cameraArcSecsPerPixel} cameraRMSPerPixel={cameraRMSPerPixel}");
                 return (cameraRMSPerPixel > preferences.RMSPixelThreshold) ? false : true;
             } catch (Exception e) {
                 TSLogger.Warning($"image grading: failed to determine RMS error in main camera pixels: {e.Message}\n{e.StackTrace}");
@@ -62,7 +62,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             if (!preferences.EnableGradeStars) return true;
 
             List<double> samples = GetSamples(population, i => { return i.Metadata.DetectedStars; });
-            TSLogger.Info("image grading: detected star count ->");
+            TSLogger.Debug("image grading: detected star count ->");
             int detectedStars = imageData.StarDetectionAnalysis.DetectedStars;
             if (detectedStars == 0 || !WithinAcceptableVariance(samples, detectedStars, preferences.DetectedStarsSigmaFactor, true)) {
                 return false;
@@ -76,12 +76,12 @@ namespace NINA.Plugin.TargetScheduler.Grading {
 
             double hfr = imageData.StarDetectionAnalysis.HFR;
             if (preferences.AutoAcceptLevelHFR > 0 && hfr <= preferences.AutoAcceptLevelHFR) {
-                TSLogger.Info($"image grading: HFR auto accepted: actual ({hfr}) <= level ({preferences.AutoAcceptLevelHFR})");
+                TSLogger.Debug($"image grading: HFR auto accepted: actual ({hfr}) <= level ({preferences.AutoAcceptLevelHFR})");
                 return true;
             }
 
             List<double> samples = GetSamples(population, i => { return i.Metadata.HFR; });
-            TSLogger.Info("image grading: HFR ->");
+            TSLogger.Debug("image grading: HFR ->");
             if (NearZero(hfr) || !WithinAcceptableVariance(samples, hfr, preferences.HFRSigmaFactor, false)) {
                 return false;
             }
@@ -97,15 +97,15 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                 TSLogger.Warning("image grading: FWHM grading is enabled but image doesn't have FWHM metric.  Is Hocus Focus installed, enabled, and configured for star detection?");
             } else {
                 if (preferences.AutoAcceptLevelFWHM > 0 && fwhm <= preferences.AutoAcceptLevelFWHM) {
-                    TSLogger.Info($"image grading: FWHM auto accepted: actual ({fwhm}) <= level ({preferences.AutoAcceptLevelFWHM})");
+                    TSLogger.Debug($"image grading: FWHM auto accepted: actual ({fwhm}) <= level ({preferences.AutoAcceptLevelFWHM})");
                     return true;
                 }
 
                 List<double> samples = GetSamples(population, i => { return i.Metadata.FWHM; });
                 if (SamplesHaveData(samples)) {
-                    TSLogger.Info("image grading: FWHM ->");
+                    TSLogger.Debug("image grading: FWHM ->");
                     if (NearZero(fwhm) || !WithinAcceptableVariance(samples, fwhm, preferences.FWHMSigmaFactor, false)) {
-                        TSLogger.Info("image grading: failed FWHM grading => NOT accepted");
+                        TSLogger.Debug("image grading: failed FWHM grading => NOT accepted");
                         return false;
                     }
                 } else {
@@ -124,15 +124,15 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                 TSLogger.Warning("image grading: eccentricity grading is enabled but image doesn't have eccentricity metric.  Is Hocus Focus installed, enabled, and configured for star detection?");
             } else {
                 if (preferences.AutoAcceptLevelEccentricity > 0 && eccentricity <= preferences.AutoAcceptLevelEccentricity) {
-                    TSLogger.Info($"image grading: eccentricity auto accepted: actual ({eccentricity}) <= level ({preferences.AutoAcceptLevelEccentricity})");
+                    TSLogger.Debug($"image grading: eccentricity auto accepted: actual ({eccentricity}) <= level ({preferences.AutoAcceptLevelEccentricity})");
                     return true;
                 }
 
                 List<double> samples = GetSamples(population, i => { return i.Metadata.Eccentricity; });
                 if (SamplesHaveData(samples)) {
-                    TSLogger.Info("image grading: eccentricity ->");
+                    TSLogger.Debug("image grading: eccentricity ->");
                     if (NearZero(eccentricity) || !WithinAcceptableVariance(samples, eccentricity, preferences.EccentricitySigmaFactor, false)) {
-                        TSLogger.Info("image grading: failed eccentricity grading => NOT accepted");
+                        TSLogger.Debug("image grading: failed eccentricity grading => NOT accepted");
                         return false;
                     }
                 } else {
@@ -150,22 +150,22 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         }
 
         private bool WithinAcceptableVariance(List<double> samples, double newSample, double sigmaFactor, bool positiveImprovement) {
-            TSLogger.Info($"    samples={SamplesToString(samples)}");
+            TSLogger.Debug($"    samples={SamplesToString(samples)}");
             (double mean, double stddev) = SampleStandardDeviation(samples);
 
             if (preferences.AcceptImprovement) {
                 if (positiveImprovement && newSample > mean) {
-                    TSLogger.Info($"    mean={mean} sample={newSample} (acceptable: improved)");
+                    TSLogger.Debug($"    mean={mean} sample={newSample} (acceptable: improved)");
                     return true;
                 }
                 if (!positiveImprovement && newSample < mean) {
-                    TSLogger.Info($"    mean={mean} sample={newSample} (acceptable: improved)");
+                    TSLogger.Debug($"    mean={mean} sample={newSample} (acceptable: improved)");
                     return true;
                 }
             }
 
             double variance = Math.Abs(mean - newSample);
-            TSLogger.Info($"    mean={mean} stddev={stddev} sample={newSample} variance={variance} sigmaX={sigmaFactor}");
+            TSLogger.Debug($"    mean={mean} stddev={stddev} sample={newSample} variance={variance} sigmaX={sigmaFactor}");
             return variance <= (stddev * sigmaFactor);
         }
 

@@ -122,7 +122,7 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         }
 
         public override Task<StatusResponse> Keepalive(ClientIdRequest request, ServerCallContext context) {
-            TSLogger.Info($"SYNC keepalive {request.Guid} {request.ClientState}");
+            TSLogger.Debug($"SYNC keepalive {request.Guid} {request.ClientState}");
 
             lock (lockObj) {
                 if (registeredClients.ContainsKey(request.Guid)) {

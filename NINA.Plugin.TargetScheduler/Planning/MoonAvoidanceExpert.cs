@@ -63,28 +63,28 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Avoidance is completely off if the moon is below the relaxation min altitude and relaxation applies
             if (moonAltitude <= exposure.MoonRelaxMinAltitude && exposure.MoonRelaxScale > 0) {
-                TSLogger.Info($"moon avoidance off: moon altitude ({moonAltitude}) is below relax min altitude ({exposure.MoonRelaxMinAltitude})");
+                TSLogger.Trace($"moon avoidance off: moon altitude ({moonAltitude}) is below relax min altitude ({exposure.MoonRelaxMinAltitude})");
                 exposure.MoonAvoidanceScore = GetAvoidanceScore(false, exposure, moonAvoidanceSeparation);
                 return false;
             }
 
             // Avoidance is absolute regardless of moon phase or separation if Moon Must Be Down is enabled
             if (moonAltitude >= exposure.MoonRelaxMaxAltitude && exposure.MoonDownEnabled) {
-                TSLogger.Info($"moon avoidance absolute: moon altitude ({moonAltitude}) is above relax max altitude ({exposure.MoonRelaxMaxAltitude}) with Moon Must Be Down enabled");
+                TSLogger.Trace($"moon avoidance absolute: moon altitude ({moonAltitude}) is above relax max altitude ({exposure.MoonRelaxMaxAltitude}) with Moon Must Be Down enabled");
                 exposure.MoonAvoidanceScore = SCORE_OFF;
                 return true;
             }
 
             // If the separation was relaxed into oblivion, avoidance is off
             if (moonSeparationParameter <= 0) {
-                TSLogger.Warning($"moon avoidance separation was relaxed below zero, avoidance off");
+                TSLogger.Trace($"moon avoidance separation was relaxed below zero, avoidance off");
                 exposure.MoonAvoidanceScore = GetAvoidanceScore(false, exposure, moonAvoidanceSeparation);
                 return false;
             }
 
             bool rejected = moonSeparation < moonAvoidanceSeparation;
             exposure.MoonAvoidanceScore = GetAvoidanceScore(rejected, exposure, moonAvoidanceSeparation);
-            TSLogger.Debug($"moon avoidance {target.Name}/{exposure.FilterName} rejected={rejected}, eval time={evaluationTime}, moon alt={moonAltitude}, moonSep={moonSeparation}, moonAvoidSep={moonAvoidanceSeparation}");
+            TSLogger.Trace($"moon avoidance {target.Name}/{exposure.FilterName} rejected={rejected}, eval time={evaluationTime}, moon alt={moonAltitude}, moonSep={moonSeparation}, moonAvoidSep={moonAvoidanceSeparation}");
             return rejected;
         }
 

@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.TargetScheduler.Planning.Entities;
+﻿using NINA.Core.Enum;
+using NINA.Plugin.TargetScheduler.Planning.Entities;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Planning.Scoring.Rules;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
@@ -37,9 +38,19 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             this.WaitForNextTargetTime = null;
 
             if (logPlan) {
-                string log = LogPlanResults();
-                DetailsLog = DetailsLog + log;
-                TSLogger.Info(log);
+                if (TSLogger.IsEnabled(LogLevelEnum.TRACE)) {
+                    string log = LogPlanResultsTrace();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Trace(log);
+                } else if (TSLogger.IsEnabled(LogLevelEnum.DEBUG)) {
+                    string log = LogPlanResultsDebug();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Debug(log);
+                } else {
+                    string log = LogPlanResultsInfo();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Info(log);
+                }
             }
         }
 
@@ -53,9 +64,19 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             this.WaitForNextTargetTime = nextTarget.StartTime;
 
             if (logPlan) {
-                string log = LogPlanResults();
-                DetailsLog = DetailsLog + log;
-                TSLogger.Info(log);
+                if (TSLogger.IsEnabled(LogLevelEnum.TRACE)) {
+                    string log = LogPlanResultsTrace();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Trace(log);
+                } else if (TSLogger.IsEnabled(LogLevelEnum.DEBUG)) {
+                    string log = LogPlanResultsDebug();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Debug(log);
+                } else {
+                    string log = LogPlanResultsInfo();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Info(log);
+                }
             }
         }
 
@@ -71,22 +92,14 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             PlanInstructions.Add(planInstruction);
         }
 
-        public string LogPlanResults() {
-            StringBuilder sb = new StringBuilder();
-            string type = IsWait ? "WAIT" : "TARGET";
+        public string LogPlanResultsTrace() {
+            StringBuilder sb = new StringBuilder(LogPlanResultsDebug());
 
-            sb.AppendLine("\n" + String.Format("{0,-6}", type) + " ==========================================================================================");
-
-            if (type == "WAIT") {
-                sb.AppendLine($"Plan Start:      {DateFmt(PlanTime)}");
-                sb.AppendLine($"Wait Until:      {DateFmt(WaitForNextTargetTime)}");
-            }
-
-            if (type == "TARGET") {
-                sb.AppendLine($"Selected Target: {PlanTarget.Project.Name}/{PlanTarget.Name}");
-                sb.AppendLine($"Plan Start:      {DateFmt(PlanTime)}");
-                sb.AppendLine($"Plan Stop:       {DateFmt(PlanTime.AddSeconds(TimeInterval.Duration))}");
-                sb.AppendLine($"Hard Stop:       {DateFmt(PlanTarget.EndTime)} (target sets)");
+            if (PlanInstructions != null) {
+                sb.AppendLine($"\nPlanner Instructions:");
+                foreach (IInstruction instruction in PlanInstructions) {
+                    sb.AppendLine($"    {instruction}");
+                }
             }
 
             bool haveScoringRuns = false;
@@ -136,6 +149,42 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                         }
                     }
                 }
+            }
+
+            return sb.ToString();
+        }
+
+        public string LogPlanResultsDebug() {
+            StringBuilder sb = new StringBuilder();
+            string type = IsWait ? "WAIT" : "TARGET";
+
+            sb.AppendLine("\n" + String.Format("{0,-6}", type) + " ==========================================================================================");
+
+            if (type == "WAIT") {
+                sb.AppendLine($"Plan Start:      {DateFmt(PlanTime)}");
+                sb.AppendLine($"Wait Until:      {DateFmt(WaitForNextTargetTime)}");
+            }
+
+            if (type == "TARGET") {
+                sb.AppendLine($"Selected Target: {PlanTarget.Project.Name}/{PlanTarget.Name}");
+                sb.AppendLine($"Selected Filter: {PlanTarget.SelectedExposure.FilterName}");
+                sb.AppendLine($"Plan Start:      {DateFmt(PlanTime)}");
+                sb.AppendLine($"Plan Stop:       {DateFmt(PlanTime.AddSeconds(TimeInterval.Duration))}");
+                sb.AppendLine($"Plan Min Expire: {DateFmt(PlanTarget.MinimumTimeSpanEnd)}");
+                sb.AppendLine($"Hard Stop:       {DateFmt(PlanTarget.EndTime)} (target sets)");
+            }
+
+            return sb.ToString();
+        }
+
+        public string LogPlanResultsInfo() {
+            StringBuilder sb = new StringBuilder();
+            string type = IsWait ? "WAIT" : "TARGET";
+
+            if (type == "WAIT") {
+                sb.Append($"WAIT from {DateFmt(PlanTime)} to {DateFmt(WaitForNextTargetTime)}");
+            } else {
+                sb.Append($"TARGET {PlanTarget.Project.Name}/{PlanTarget.Name}, filter {PlanTarget.SelectedExposure.FilterName} at {DateFmt(PlanTime)}");
             }
 
             return sb.ToString();
