@@ -6,6 +6,7 @@ using NINA.Plugin.TargetScheduler.Planning.Scoring.Rules;
 using NINA.Plugin.TargetScheduler.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Planning.Entities {
@@ -53,9 +54,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             this.CompletedExposurePlans = new List<IExposure>();
             ExposureCompletionHelper helper = planProject.ExposureCompletionHelper;
 
+            target.ExposurePlans.ForEach(ep => { this.AllExposurePlans.Add(new PlanningExposure(this, ep, ep.ExposureTemplate)); });
+
             foreach (ExposurePlan plan in GetActiveExposurePlans(target)) {
-                IExposure exposure = new PlanningExposure(this, plan, plan.ExposureTemplate);
-                this.AllExposurePlans.Add(exposure);
+                IExposure exposure = this.AllExposurePlans.Where(ep => ep.DatabaseId == plan.Id).FirstOrDefault();
 
                 if (helper.IsIncomplete(exposure)) {
                     this.ExposurePlans.Add(exposure);

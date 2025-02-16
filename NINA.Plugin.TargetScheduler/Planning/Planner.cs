@@ -58,7 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
                     // If the previous target still has time in it's initial minimum time span and is still acceptable, then stick with it
                     if (PreviousTargetCanContinue(previousTarget)) {
-                        TSLogger.Info($"previous target still within min time span, continuing: {previousTarget.Project.Name}/{previousTarget.Name}: {previousTarget.MinimumTimeSpanEnd} < {atTime} ");
+                        TSLogger.Info($"previous target still within min time span, continuing: {previousTarget.Project.Name}/{previousTarget.Name}: {previousTarget.MinimumTimeSpanEnd} > {atTime} ");
                         List<IInstruction> instructions = new InstructionGenerator().Generate(previousTarget, previousTarget);
                         return new SchedulerPlan(atTime, projects, previousTarget, instructions, !checkCondition);
                     }
@@ -121,8 +121,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             UpdateTargetExposurePlans(previousTarget);
 
             // TODO: NOT working for override exposure order:
-            //   - if not all EPs are in the OEO, those will never get complete
-            //   - even still, the
+            //   - if not all EPs are in the OEO -> exception
 
             // Recheck exposure completion
             if (previousTarget.ExposurePlans.Count == 0) {

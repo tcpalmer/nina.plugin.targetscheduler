@@ -72,9 +72,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Entities {
             target.OverrideExposureOrders.Add(GetOEO(1, 6, OverrideExposureOrderAction.Dither, -1));
 
             PlanningTarget sut = new PlanningTarget(project, target);
+            sut.AllExposurePlans.Count.Should().Be(4);
+            sut.CompletedExposurePlans.Count.Should().Be(0);
             sut.ExposurePlans.Count.Should().Be(2);
             sut.ExposurePlans[0].FilterName.Should().Be("L");
-            sut.ExposurePlans[1].FilterName.Should().Be("R");
+            sut.ExposurePlans[1].FilterName.Should().Be("L");
 
             sut.ExposureSelector.Should().NotBeNull();
             (sut.ExposureSelector is OverrideOrderExposureSelector).Should().BeTrue();
@@ -98,11 +100,13 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Entities {
             et.FilterName = "L";
             et.BinningMode = new BinningMode(1, 1);
             ExposurePlan e1 = new ExposurePlan();
+            e1.Id = 1;
             e1.Desired = 2;
             e1.Accepted = 2;
             e1.Acquired = 2;
             e1.ExposureTemplate = et;
             ExposurePlan e2 = new ExposurePlan();
+            e2.Id = 2;
             e2.Desired = 2;
             e2.Accepted = 0;
             e2.Acquired = 0;
