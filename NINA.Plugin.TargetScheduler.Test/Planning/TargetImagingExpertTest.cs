@@ -30,7 +30,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             e1.TwilightLevel = TwilightLevel.Nighttime;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
             TargetVisibility viz = new TargetVisibility(t1, TestData.North_Mid_Lat, atTime, sunset, sunrise, 60);
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.North_Mid_Lat, atTime);
 
@@ -54,7 +54,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             e1.TwilightLevel = TwilightLevel.Nighttime;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
             TargetVisibility viz = new TargetVisibility(t1, TestData.North_Mid_Lat, atTime, sunset, sunrise, 60);
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.North_Mid_Lat, atTime);
 
@@ -80,7 +80,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             e1.TwilightLevel = TwilightLevel.Nighttime;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
             TargetVisibility viz = new TargetVisibility(t1, TestData.North_Mid_Lat, atTime, sunset, sunrise, 60);
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.North_Mid_Lat, atTime);
 
@@ -106,7 +106,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             t1.ExposurePlans.Add(e1);
 
             // location is way north, target is way south
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
             TargetVisibility viz = new TargetVisibility(t1, TestData.Sanikiluaq_NU, atTime, sunset, sunrise, 60);
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.Sanikiluaq_NU, atTime);
 
@@ -131,7 +131,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             t1.ExposurePlans.Add(e1);
 
             // no night on summer solstice this way north
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
             TargetVisibility viz = new TargetVisibility(t1, TestData.Sanikiluaq_NU, atTime, sunset, sunrise, 60);
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.Sanikiluaq_NU, atTime);
 
@@ -156,7 +156,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             t1.ExposurePlans.Add(e1);
 
             // no night on summer solstice this way north
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
             TargetVisibility viz = new TargetVisibility(t1, TestData.North_Mid_Lat, atTime, sunset, sunrise, 60);
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.North_Mid_Lat, atTime);
 
@@ -178,7 +178,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             e1.TwilightLevel = TwilightLevel.Nighttime;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             sut.TwilightFilter(t1, TwilightLevel.Astronomical);
             e1.Rejected.Should().BeTrue();
@@ -225,7 +225,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             // Not rejected
             sut.MoonAvoidanceFilter(atTime, t1, GetMoonAvoidanceExpert("L"));
@@ -259,7 +259,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             sut.ReadyNow(atTime, t1).Should().BeFalse();
             sut.ReadyNow(atTime.AddHours(1), t1).Should().BeTrue();
@@ -277,7 +277,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             // Visible at target start and exposures good
             IMoonAvoidanceExpert moonExpert = GetMoonAvoidanceExpert("L");
@@ -298,7 +298,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
             t1.ExposurePlans.Add(e1);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             // Above max altitude at start but descending and available later
             sut.CheckFuture(t1, GetMoonAvoidanceExpert("L"));
@@ -320,7 +320,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IExposure e2 = PlanMocks.GetMockPlanExposure("R", 10, 0).Object;
             t1.ExposurePlans.Add(e2);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             // Visible at target start but exposures are rejected for moon - for the rest of the night
             IMoonAvoidanceExpert moonExpert = GetMoonAvoidanceExpert(null);
@@ -343,7 +343,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IExposure e2 = PlanMocks.GetMockPlanExposure("R", 10, 0).Object;
             t1.ExposurePlans.Add(e2);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             // Visible at target start but exposures are rejected for moon until about 10pm
             DateTime moonAcceptTime = atTime.AddHours(2);
@@ -371,7 +371,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IExposure e2 = PlanMocks.GetMockPlanExposure("R", 10, 0).Object;
             t1.ExposurePlans.Add(e2);
 
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             // With the spiked horizon, visibility will be interrupted and have to jump spans.
             // Moon will reject until 00:05:00.  Visibility will resume at 00:04:24am
@@ -387,7 +387,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IProfile profile = GetProfileService();
             DateTime atTime = new DateTime(2024, 12, 1, 20, 0, 0);
             ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M31).Object;
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             sut.VisibleLater(t1).Should().BeFalse();
 
@@ -410,7 +410,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime sunrise = atTime.AddHours(7);
             ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M31).Object;
             TargetVisibility viz = new TargetVisibility(t1, TestData.North_Mid_Lat, atTime, sunset, sunrise, 60);
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             t1.Rejected = false;
             t1.RejectedReason = null;
@@ -439,7 +439,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IProfile profile = GetProfileService();
             DateTime atTime = new DateTime(2024, 12, 1, 20, 0, 0);
             ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M31).Object;
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             sut.AllExposurePlansRejected(t1).Should().BeTrue();
 
@@ -462,7 +462,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IProfile profile = GetProfileService();
             DateTime atTime = new DateTime(2024, 12, 1, 20, 0, 0);
             ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M31).Object;
-            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs());
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
             t1.Rejected = true;
             sut.ClearRejections(t1);

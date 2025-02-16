@@ -249,7 +249,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             while (true) {
                 atTime = GetPlannerTime(DateTime.Now, atTime);
                 profilePreferences = GetProfilePreferences();
-                SchedulerPlan plan = new Planner(atTime, profileService.ActiveProfile, profilePreferences, false).GetPlan(previousPlanTarget);
+                SchedulerPlan plan = new Planner(atTime, profileService.ActiveProfile, profilePreferences, false, false).GetPlan(previousPlanTarget);
                 SetSyncServerState(ServerState.Ready);
 
                 if (plan == null) {

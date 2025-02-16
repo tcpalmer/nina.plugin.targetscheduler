@@ -54,7 +54,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             try {
                 TSLogger.Info("TargetSchedulerBackgroundCondition: running planner");
-                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), true);
+                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), true, false);
                 SchedulerPlan plan = planner.GetPlan(null);
 
                 if (plan == null) {

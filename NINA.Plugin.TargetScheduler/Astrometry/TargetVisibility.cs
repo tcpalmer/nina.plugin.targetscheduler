@@ -93,8 +93,9 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
 
                 TransitTime = GetImagingTransitTime(observerInfo, coordinates);
                 TargetPositions = TargetPositions.AsReadOnly();
+
                 //stopWatch.Stop();
-                //TSLogger.Info($"TargetVisibility timing for {cacheKey}: {stopWatch.Elapsed}");
+                //TSLogger.Info($"TargetVisibility timing for {cacheKey}:\n*** {stopWatch.Elapsed}");
 
                 TargetVisibilityCache.Put(this, cacheKey);
             }

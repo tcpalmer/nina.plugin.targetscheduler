@@ -45,10 +45,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanFilter(pt, pf);
             PlanMocks.AddMockPlanTarget(pp2, pt);
 
-            Assert.That(new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false).FilterForIncomplete(null), Is.Null);
+            Assert.That(new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(null), Is.Null);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object, pp2.Object);
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(2);
 
@@ -92,7 +92,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -148,7 +148,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             // Blue is not complete ...
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, false, false).FilterForIncomplete(projects);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
             projects[0].Targets[0].Rejected.Should().BeFalse();
@@ -160,7 +160,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pt.Object.ExposurePlans = new List<IExposure>() { peRed, peGreen, peBlue };
 
             // All are now complete due to throttle
-            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, false, false).FilterForIncomplete(projects);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeTrue();
             projects[0].RejectedReason.Should().Be(Reasons.ProjectComplete);
@@ -183,7 +183,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -213,7 +213,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -238,7 +238,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 6, 17, 18, 0, 0), profile, GetPrefs(), false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 6, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -264,7 +264,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
             DateTime atTime = new DateTime(2023, 12, 17, 19, 0, 0);
-            projects = new Planner(atTime, profile, GetPrefs(), false).FilterForVisibility(projects);
+            projects = new Planner(atTime, profile, GetPrefs(), false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -293,7 +293,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 23, 36, 0), profile, GetPrefs(), false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 23, 36, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -322,7 +322,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 19, 0, 0), profile, GetPrefs(), false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 19, 0, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -347,7 +347,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 20, 38, 0), profile, GetPrefs(), false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 20, 38, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -377,7 +377,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
             DateTime atTime = new DateTime(2024, 12, 18, 1, 0, 0);
-            projects = new Planner(atTime, profile, GetPrefs(), false).FilterForVisibility(projects);
+            projects = new Planner(atTime, profile, GetPrefs(), false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -414,7 +414,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 25, 18, 0, 0), profile, GetPrefs(), false).FilterForMoonAvoidance(projects);
+            projects = new Planner(new DateTime(2023, 12, 25, 18, 0, 0), profile, GetPrefs(), false, false).FilterForMoonAvoidance(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -439,7 +439,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IProfile profile = profileMock.Object.ActiveProfile;
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 17, 0, 0), profile, GetPrefs(), false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 17, 0, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeTrue();
@@ -459,7 +459,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IProfile profile = profileMock.Object.ActiveProfile;
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 18, 0, 0), profile, GetPrefs(), false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 18, 0, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
@@ -478,7 +478,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IProfile profile = profileMock.Object.ActiveProfile;
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 18, 20, 0), profile, GetPrefs(), false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 18, 20, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
@@ -496,7 +496,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             IProfile profile = profileMock.Object.ActiveProfile;
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 19, 20, 0), profile, GetPrefs(), false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 19, 20, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
@@ -514,7 +514,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime atTime = new DateTime(2023, 12, 25, 18, 0, 0);
 
             List<IProject> projects = new List<IProject>();
-            List<ITarget> targets = new Planner(atTime, profile, GetPrefs(), false).GetTargetsReadyNow(projects);
+            List<ITarget> targets = new Planner(atTime, profile, GetPrefs(), false, false).GetTargetsReadyNow(projects);
             targets.Count.Should().Be(0);
 
             // 2 targets in future
@@ -533,14 +533,14 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             projects = PlanMocks.ProjectsList(pp1.Object);
 
-            targets = new Planner(atTime, profile, GetPrefs(), false).GetTargetsReadyNow(projects);
+            targets = new Planner(atTime, profile, GetPrefs(), false, false).GetTargetsReadyNow(projects);
             targets.Count.Should().Be(0);
 
             // 2 targets ready now
             pt1.SetupProperty(t => t.StartTime, atTime.AddSeconds(10));
             pt2.SetupProperty(t => t.StartTime, atTime.AddSeconds(5));
 
-            targets = new Planner(atTime, profile, GetPrefs(), false).GetTargetsReadyNow(projects);
+            targets = new Planner(atTime, profile, GetPrefs(), false, false).GetTargetsReadyNow(projects);
             targets.Count.Should().Be(2);
         }
 
@@ -551,17 +551,17 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime atTime = new DateTime(2024, 12, 1, 20, 0, 0);
 
             List<ITarget> readyTargets = new List<ITarget>();
-            Action score = () => new Planner(atTime, profile, GetPrefs(), false).SelectTargetByScore(readyTargets, null);
+            Action score = () => new Planner(atTime, profile, GetPrefs(), false, false).SelectTargetByScore(readyTargets, null);
             score.Should().Throw<ArgumentException>().WithMessage("no ready targets in SelectTargetByScore");
 
             ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M31).Object;
             readyTargets.Add(t1);
-            ITarget selected = new Planner(atTime, profile, GetPrefs(), false).SelectTargetByScore(readyTargets, null);
+            ITarget selected = new Planner(atTime, profile, GetPrefs(), false, false).SelectTargetByScore(readyTargets, null);
             (t1 == selected).Should().BeTrue();
 
             ITarget t2 = PlanMocks.GetMockPlanTarget("T2", TestData.M31).Object;
             readyTargets.Add(t2);
-            selected = new Planner(atTime, profile, GetPrefs(), false).SelectTargetByScore(readyTargets, GetTestScoringEngine());
+            selected = new Planner(atTime, profile, GetPrefs(), false, false).SelectTargetByScore(readyTargets, GetTestScoringEngine());
 
             (t2 == selected).Should().BeTrue();
             t1.Rejected.Should().BeTrue();
@@ -590,7 +590,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt2);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            ITarget target = new Planner(atTime, profile, GetPrefs(), false).GetNextPossibleTarget(projects);
+            ITarget target = new Planner(atTime, profile, GetPrefs(), false, false).GetNextPossibleTarget(projects);
             target.Should().Be(pt1.Object);
             target.StartTime.Should().Be(atTime.AddHours(1));
         }

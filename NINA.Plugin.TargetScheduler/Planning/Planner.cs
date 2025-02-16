@@ -18,20 +18,23 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
     public class Planner {
         private bool checkCondition = false;
+        private bool isPreview = false;
         private DateTime atTime;
         private IProfile activeProfile;
         private ProfilePreference profilePreferences;
         private ObserverInfo observerInfo;
         private List<IProject> projects;
 
-        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, bool checkCondition)
-            : this(atTime, profile, profilePreferences, checkCondition, null) { }
+        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, bool checkCondition, bool isPreview)
+            : this(atTime, profile, profilePreferences, checkCondition, isPreview, null) {
+        }
 
-        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, bool checkCondition, List<IProject> projects) {
+        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, bool checkCondition, bool isPreview, List<IProject> projects) {
             this.atTime = atTime;
             this.activeProfile = profile;
             this.profilePreferences = profilePreferences;
             this.checkCondition = checkCondition;
+            this.isPreview = isPreview;
             this.projects = projects;
             this.observerInfo = new ObserverInfo {
                 Latitude = activeProfile.AstrometrySettings.Latitude,
@@ -128,7 +131,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
 
             // Recheck for moon avoidance
-            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences);
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
             targetExpert.MoonAvoidanceFilter(atTime, previousTarget, new MoonAvoidanceExpert(observerInfo));
             bool allRejected = true;
             previousTarget.ExposurePlans.ForEach(ep => { if (!ep.Rejected) { allRejected = false; } });
@@ -181,7 +184,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// <returns></returns>
         public List<IProject> FilterForVisibility(List<IProject> projects) {
             if (NoProjects(projects)) { return null; }
-            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences);
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
 
             foreach (IProject project in projects) {
                 if (project.Rejected) { continue; }
@@ -203,7 +206,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public List<IProject> FilterForMoonAvoidance(List<IProject> projects) {
             if (NoProjects(projects)) { return null; }
             IMoonAvoidanceExpert moonExpert = new MoonAvoidanceExpert(observerInfo);
-            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences);
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
 
             foreach (IProject project in projects) {
                 if (project.Rejected) { continue; }
@@ -226,7 +229,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             if (NoProjects(projects)) { return null; }
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observerInfo, atTime);
             TwilightLevel? currentTwilightLevel = twilightCircumstances.GetCurrentTwilightLevel(atTime);
-            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences);
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
 
             foreach (IProject project in projects) {
                 if (project.Rejected) { continue; }
@@ -248,7 +251,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             List<ITarget> targets = new List<ITarget>();
 
             if (NoProjects(projects)) { return targets; }
-            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences);
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
 
             foreach (IProject project in projects) {
                 if (project.Rejected) { continue; }
@@ -294,7 +297,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // present when visible.  For example, moon conditions later in the night could either reject or allow
             // certain exposures - and perhaps not until later in the target's visibility time span.
             List<ITarget> imagableTargets = new List<ITarget>();
-            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences);
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
             IMoonAvoidanceExpert moonExpert = new MoonAvoidanceExpert(observerInfo);
 
             foreach (ITarget target in potentialTargets) {

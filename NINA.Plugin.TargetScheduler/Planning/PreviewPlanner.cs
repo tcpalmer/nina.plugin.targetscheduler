@@ -35,7 +35,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             try {
                 SchedulerPlan plan;
-                while ((plan = new Planner(currentTime, profileService.ActiveProfile, profilePreferences, false, projects).GetPlan(previousTarget)) != null) {
+                while ((plan = new Planner(currentTime, profileService.ActiveProfile, profilePreferences, false, true, projects).GetPlan(previousTarget)) != null) {
                     plans.Add(plan);
                     currentTime = plan.IsWait ? (DateTime)plan.WaitForNextTargetTime : plan.EndTime;
                     PrepForNextRun(projects, plan);
