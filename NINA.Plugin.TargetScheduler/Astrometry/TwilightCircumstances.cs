@@ -1,7 +1,6 @@
 ﻿using NINA.Astrometry;
 using NINA.Astrometry.RiseAndSet;
 using NINA.Plugin.TargetScheduler.Planning;
-using NINA.Plugin.TargetScheduler.Shared.Utility;
 using System;
 using System.Globalization;
 using System.Runtime.Caching;
@@ -50,7 +49,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             OnDate = atTime.Date.AddHours(12); // fix to noon on date
 
             string cacheKey = GetCacheKey();
-            TSLogger.Trace($"TwilightCircumstances cache key: {cacheKey}");
+            //TSLogger.Trace($"TwilightCircumstances cache key: {cacheKey}");
 
             TwilightCircumstances cached = TwilightCircumstancesCache.Get(cacheKey);
             if (cached == null) {

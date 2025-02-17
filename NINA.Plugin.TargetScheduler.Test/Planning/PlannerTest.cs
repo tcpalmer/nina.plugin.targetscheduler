@@ -4,6 +4,7 @@ using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
 using NINA.Plugin.TargetScheduler.Planning.Entities;
+using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Test.Astrometry;
 using NINA.Profile.Interfaces;
@@ -17,13 +18,168 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
     public class PlannerTest {
 
         [Test]
-        [Ignore("implement PreviousTargetCanContinueTest")]
-        public void PreviousTargetCanContinueTest() {
-            // previous=null -> false
-            // over minimum time -> false
-            // moon comes into play -> false
-            // all exposures complete -> false
-            // OEO
+        public void testPreviousTargetCanContinue() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime start = new DateTime(2023, 12, 17, 18, 0, 0);
+
+            Planner sut = new Planner(start, profile, GetPrefs(), false, true);
+
+            sut.PreviousTargetCanContinue(null).Should().BeFalse();
+
+            Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            pp.SetupProperty(p => p.EnableGrader, true);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
+            pt.SetupProperty(p => p.IsPreview, true);
+            pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddMinutes(1));
+            pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
+
+            IExposure exposure = new PlanningExposure();
+            exposure.PlanTarget = pt.Object;
+            exposure.ExposureLength = 180;
+            exposure.Desired = 10;
+            exposure.Accepted = 0;
+            exposure.Acquired = 0;
+
+            pt.Object.AllExposurePlans.Add(exposure);
+            PlanMocks.AddMockPlanTarget(pp, pt);
+
+            // Next exposure exceeds minimum time span
+            ITarget target = pt.Object;
+            sut.PreviousTargetCanContinue(target).Should().BeFalse();
+
+            // Next exposure will now fit in minimum time span
+            exposure.ExposureLength = 30;
+            target.SelectedExposure.Should().Be(null);
+            sut.PreviousTargetCanContinue(target).Should().BeTrue();
+            target.SelectedExposure.Should().Be(exposure);
+
+            // Exposure plan is now complete
+            exposure.Acquired = 20;
+            sut.PreviousTargetCanContinue(target).Should().BeFalse();
+            target.ExposurePlans.Count.Should().Be(0);
+            target.CompletedExposurePlans.Count.Should().Be(1);
+        }
+
+        [Test]
+        public void testPreviousTargetCanContinueMoon() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime start = new DateTime(2025, 2, 16, 22, 30, 0);
+
+            Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            pp.SetupProperty(p => p.EnableGrader, true);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
+            pt.SetupProperty(p => p.IsPreview, true);
+            pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddHours(1));
+            pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
+
+            IExposure exposure = new PlanningExposure();
+            exposure.PlanTarget = pt.Object;
+            exposure.ExposureLength = 180;
+            exposure.Desired = 10;
+            exposure.Accepted = 0;
+            exposure.Acquired = 0;
+            exposure.MoonAvoidanceEnabled = true;
+            exposure.MoonRelaxMaxAltitude = 5;
+            exposure.MoonDownEnabled = true;
+
+            pt.Object.AllExposurePlans.Add(exposure);
+            PlanMocks.AddMockPlanTarget(pp, pt);
+
+            Planner sut = new Planner(start, profile, GetPrefs(), false, true);
+            ITarget target = pt.Object;
+
+            // At 22:30, the moon is below 5°
+            sut.PreviousTargetCanContinue(target).Should().BeTrue();
+
+            // But by 22:40, it's above 5°
+            sut = new Planner(start.AddMinutes(10), profile, GetPrefs(), false, true);
+            sut.PreviousTargetCanContinue(target).Should().BeFalse();
+            exposure.Rejected.Should().BeTrue();
+            exposure.RejectedReason.Should().Be(Reasons.FilterMoonAvoidance);
+        }
+
+        [Test]
+        public void testPreviousTargetCanContinueOverrideExposureOrder() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime start = new DateTime(2025, 2, 16, 22, 30, 0);
+
+            Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            pp.SetupProperty(p => p.EnableGrader, true);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
+            pt.SetupProperty(p => p.IsPreview, true);
+            pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddHours(1));
+
+            Mock<IExposure> Lpf = PlanMocks.GetMockPlanExposure("L", 10, 0, 30, 1);
+            Mock<IExposure> Rpf = PlanMocks.GetMockPlanExposure("R", 10, 0, 30, 2);
+            Mock<IExposure> Gpf = PlanMocks.GetMockPlanExposure("G", 10, 0, 30, 3);
+            Mock<IExposure> Bpf = PlanMocks.GetMockPlanExposure("B", 10, 0, 30, 4);
+
+            PlanMocks.AddMockPlanFilter(pt, Lpf);
+            PlanMocks.AddMockPlanFilter(pt, Rpf);
+            PlanMocks.AddMockPlanFilter(pt, Gpf);
+            PlanMocks.AddMockPlanFilter(pt, Bpf);
+
+            List<OverrideExposureOrderItem> oeos = new List<OverrideExposureOrderItem>();
+            oeos.Add(new OverrideExposureOrderItem(101, 1, OverrideExposureOrderAction.Exposure, 0));
+            oeos.Add(new OverrideExposureOrderItem(101, 2, OverrideExposureOrderAction.Exposure, 0));
+            oeos.Add(new OverrideExposureOrderItem(101, 3, OverrideExposureOrderAction.Dither, -1));
+            oeos.Add(new OverrideExposureOrderItem(101, 4, OverrideExposureOrderAction.Exposure, 1));
+            oeos.Add(new OverrideExposureOrderItem(101, 5, OverrideExposureOrderAction.Exposure, 1));
+            oeos.Add(new OverrideExposureOrderItem(101, 6, OverrideExposureOrderAction.Dither, -1));
+
+            Target dbTarget = new Target();
+            dbTarget.OverrideExposureOrders = oeos;
+
+            var selector = new OverrideOrderExposureSelector(pp.Object, pt.Object, dbTarget);
+            pt.SetupProperty(p => p.ExposureSelector, selector);
+
+            Planner sut = new Planner(start, profile, GetPrefs(), false, true);
+            ITarget target = pt.Object;
+
+            sut.PreviousTargetCanContinue(target).Should().BeTrue();
+            target.SelectedExposure.Should().Be(Lpf.Object);
+        }
+
+        [Test]
+        public void testPreviousTargetCanContinuePlan() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime start = new DateTime(2023, 12, 17, 18, 0, 0);
+
+            Planner sut = new Planner(start, profile, GetPrefs(), false, true, new List<IProject>());
+
+            Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            pp.SetupProperty(p => p.EnableGrader, true);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
+            pt.SetupProperty(p => p.IsPreview, true);
+            pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddMinutes(1));
+            pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
+
+            IExposure exposure = new PlanningExposure();
+            exposure.PlanTarget = pt.Object;
+            exposure.FilterName = "f123";
+            exposure.ExposureLength = 30;
+            exposure.Desired = 10;
+            exposure.Accepted = 0;
+            exposure.Acquired = 0;
+
+            pt.Object.AllExposurePlans.Add(exposure);
+            PlanMocks.AddMockPlanTarget(pp, pt);
+
+            ITarget target = pt.Object;
+            var plan = sut.GetPlan(target);
+            plan.PlanTarget.Should().Be(target);
+            plan.IsWait.Should().BeFalse();
+            plan.StartTime.Should().Be(start);
+            plan.EndTime.Should().Be(start.AddSeconds(30));
+            plan.PlanTarget.SelectedExposure.FilterName.Should().Be("f123");
         }
 
         [Test]

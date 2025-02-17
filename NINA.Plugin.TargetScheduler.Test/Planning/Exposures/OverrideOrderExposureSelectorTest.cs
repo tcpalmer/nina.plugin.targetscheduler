@@ -75,6 +75,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
             e.FilterName.Should().Be("R");
             e.PreDither.Should().BeFalse();
+
+            sut.ContainsExposurePlanIdx(0).Should().BeTrue();
+            sut.ContainsExposurePlanIdx(1).Should().BeTrue();
+            sut.ContainsExposurePlanIdx(2).Should().BeFalse();
+            sut.ContainsExposurePlanIdx(3).Should().BeFalse();
         }
 
         [Test]
@@ -166,16 +171,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             e.PreDither.Should().BeTrue();
         }
 
-        [Test]
-        [Ignore("implement testContainsExposurePlanIdx")]
-        public void testContainsExposurePlanIdx() {
-        }
-
         private void SetEPs(Mock<ITarget> pt) {
-            Mock<IExposure> Lpf = PlanMocks.GetMockPlanExposure("L", 10, 0);
-            Mock<IExposure> Rpf = PlanMocks.GetMockPlanExposure("R", 10, 0);
-            Mock<IExposure> Gpf = PlanMocks.GetMockPlanExposure("G", 10, 0);
-            Mock<IExposure> Bpf = PlanMocks.GetMockPlanExposure("B", 10, 0);
+            Mock<IExposure> Lpf = PlanMocks.GetMockPlanExposure("L", 10, 0, 30, 1);
+            Mock<IExposure> Rpf = PlanMocks.GetMockPlanExposure("R", 10, 0, 30, 2);
+            Mock<IExposure> Gpf = PlanMocks.GetMockPlanExposure("G", 10, 0, 30, 3);
+            Mock<IExposure> Bpf = PlanMocks.GetMockPlanExposure("B", 10, 0, 30, 4);
 
             PlanMocks.AddMockPlanFilter(pt, Lpf);
             PlanMocks.AddMockPlanFilter(pt, Rpf);

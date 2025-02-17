@@ -80,13 +80,14 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             return pt;
         }
 
-        public static Mock<IExposure> GetMockPlanExposure(string filterName, int desired, int accepted) {
-            return GetMockPlanExposure(filterName, desired, accepted, 30);
+        public static Mock<IExposure> GetMockPlanExposure(string filterName, int desired, int accepted, int databaseId = 0) {
+            return GetMockPlanExposure(filterName, desired, accepted, 30, databaseId);
         }
 
-        public static Mock<IExposure> GetMockPlanExposure(string filterName, int desired, int accepted, int exposureLength) {
+        public static Mock<IExposure> GetMockPlanExposure(string filterName, int desired, int accepted, int exposureLength, int databaseId) {
             Mock<IExposure> pe = new Mock<IExposure>();
             pe.SetupAllProperties();
+            pe.SetupProperty(m => m.DatabaseId, databaseId);
             pe.SetupProperty(m => m.FilterName, filterName);
             pe.SetupProperty(m => m.ExposureLength, exposureLength);
             pe.SetupProperty(m => m.Desired, desired);

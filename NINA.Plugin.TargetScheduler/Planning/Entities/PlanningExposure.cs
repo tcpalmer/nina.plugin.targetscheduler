@@ -70,6 +70,9 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             this.Rejected = false;
         }
 
+        public PlanningExposure() {
+        } // testing only
+
         public int NeededExposures() {
             return PlanTarget.Project.ExposureCompletionHelper.RemainingExposures(this);
         }

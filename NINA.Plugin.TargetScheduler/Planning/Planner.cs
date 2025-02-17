@@ -107,7 +107,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// <summary>
         /// Determine if the previous target can continue.  The first time this target came through the planner,
         /// we save the future time at which it's minimum time window will expire.  We can then compare the current
-        /// time to that to see if the target is still within that window.
+        /// time to that to see if the target is still within that window.  We don't need to check visibility again
+        /// because the first run assures that the target is visible for the entire minimum time.
         ///
         /// However, we also need to re-check completeness for all exposure plans as well as moon avoidance based on
         /// the now current time.  If all exposure plans are complete or all are now rejected for moon avoidance,
@@ -119,9 +120,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             if (previousTarget == null) { return false; }
 
             UpdateTargetExposurePlans(previousTarget);
-
-            // TODO: NOT working for override exposure order:
-            //   - if not all EPs are in the OEO -> exception
 
             // Recheck exposure completion
             if (previousTarget.ExposurePlans.Count == 0) {

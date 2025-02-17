@@ -1,7 +1,7 @@
 # Target Scheduler
 
 ## 5.1.0.0 (beta) - 2025-02-XX
-* Planner will now attempt to stick with a selected target for the minimum time.
+* Planner will now attempt to continue with a selected target for the minimum time.
 * Fixed display and threading problems with Scheduler Preview.
 * Added profile preference to set the TS log level (independent of NINA log level).
 * Improved performance of scheduler preview by decreasing visibility sampling rate.
