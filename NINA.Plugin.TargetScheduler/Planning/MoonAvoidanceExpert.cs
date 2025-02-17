@@ -91,7 +91,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public double GetAvoidanceScore(bool rejected, IExposure planExposure, double moonAvoidanceSeparation) {
             return rejected
                 ? SCORE_OFF
-                : planExposure.MoonDownEnabled
+                : planExposure.MoonDownEnabled || moonAvoidanceSeparation < 0
                     ? SCORE_MAX
                     : moonAvoidanceSeparation / 180;
         }

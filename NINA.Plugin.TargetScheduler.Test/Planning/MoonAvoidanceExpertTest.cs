@@ -132,6 +132,28 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             sut.GetAvoidanceScore(false, planExposure, 120).Should().Be(1);
         }
 
+        /*
+        [Test]
+        public void testAvoidanceScoreRange() {
+            MoonAvoidanceExpert sut = new MoonAvoidanceExpert(TestData.North_Mid_Lat);
+            ITarget planTarget = GetPlanTarget();
+            planTarget.Coordinates = TestData.M42;
+            planTarget.Project = PlanMocks.GetMockPlanProject("", ProjectState.Active).Object;
+            IExposure planExposure = GetPlanExposure(true, 120, 10, 5, 5, -15, false);
+
+            // Feb 17, 2025:
+            //   moon rises just after 11pm
+            planTarget.StartTime = new DateTime(2025, 2, 17, 19, 0, 0);
+            planTarget.EndTime = planTarget.StartTime.AddHours(1);
+
+            for (int i = 0; i < 30; i++) {
+                sut.IsRejected(planTarget.StartTime, planTarget, planExposure).Should().BeFalse();
+                TestContext.WriteLine($"score: {planExposure.MoonAvoidanceScore}, moon alt {sut.GetRelaxationMoonAltitude(planTarget.StartTime)} at {planTarget.StartTime}");
+                planTarget.StartTime = planTarget.StartTime.AddMinutes(10);
+                planTarget.EndTime = planTarget.StartTime.AddHours(1);
+            }
+        }*/
+
         private ITarget GetPlanTarget() {
             Mock<ITarget> pt = new Mock<ITarget>();
             pt.SetupAllProperties();
