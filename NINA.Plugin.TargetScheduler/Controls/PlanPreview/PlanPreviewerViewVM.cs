@@ -279,6 +279,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                         int lastTargetId = -1;
                         string lastFilterName = null;
                         TreeViewItem planItem = null;
+                        SchedulerPlan lastTargetPlan = null;
                         ProfilePreference profilePreference = GetProfilePreference(SelectedProfileId);
 
                         foreach (SchedulerPlan plan in SchedulerPlans) {
@@ -298,6 +299,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                                 list.Add(planItem);
                             }
 
+                            lastTargetPlan = plan;
                             foreach (IInstruction instruction in plan.PlanInstructions) {
                                 TreeViewItem instructionItem = new TreeViewItem();
 
@@ -349,6 +351,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                                 TSLogger.Error($"unknown instruction type in plan preview: {instruction.GetType().FullName}");
                                 throw new Exception($"unknown instruction type in plan preview: {instruction.GetType().FullName}");
                             }
+                        }
+
+                        if (lastTargetPlan != null) {
+                            planItem = new TreeViewItem();
+                            planItem.Header = $"End at {Utils.FormatDateTimeFull(lastTargetPlan.EndTime)}";
+                            list.Add(planItem);
                         }
 
                         InstructionList = list;
