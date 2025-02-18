@@ -38,16 +38,16 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         }
 
         public bool IsRejected(DateTime atTime, ITarget target, IExposure exposure) {
-            DateTime evaluationTime = atTime;
-            double moonAltitude = GetRelaxationMoonAltitude(evaluationTime);
-
             if (!exposure.MoonAvoidanceEnabled) {
                 exposure.MoonAvoidanceScore = SCORE_OFF;
                 return false;
             }
 
+            DateTime evaluationTime = atTime;
+            double moonAltitude = GetRelaxationMoonAltitude(evaluationTime);
             double moonSeparationParameter = exposure.MoonAvoidanceSeparation;
             double moonWidthParameter = exposure.MoonAvoidanceWidth;
+            exposure.MoonAvoidanceScore = GetAvoidanceScore(exposure);
 
             // If moon altitude is in the relaxation zone, then modulate the separation and width parameters
             if (moonAltitude <= exposure.MoonRelaxMaxAltitude && exposure.MoonRelaxScale > 0) {
@@ -64,36 +64,45 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // Avoidance is completely off if the moon is below the relaxation min altitude and relaxation applies
             if (moonAltitude <= exposure.MoonRelaxMinAltitude && exposure.MoonRelaxScale > 0) {
                 TSLogger.Trace($"moon avoidance off: moon altitude ({moonAltitude}) is below relax min altitude ({exposure.MoonRelaxMinAltitude})");
-                exposure.MoonAvoidanceScore = GetAvoidanceScore(false, exposure, moonAvoidanceSeparation);
                 return false;
             }
 
             // Avoidance is absolute regardless of moon phase or separation if Moon Must Be Down is enabled
             if (moonAltitude >= exposure.MoonRelaxMaxAltitude && exposure.MoonDownEnabled) {
                 TSLogger.Trace($"moon avoidance absolute: moon altitude ({moonAltitude}) is above relax max altitude ({exposure.MoonRelaxMaxAltitude}) with Moon Must Be Down enabled");
-                exposure.MoonAvoidanceScore = SCORE_OFF;
                 return true;
             }
 
             // If the separation was relaxed into oblivion, avoidance is off
             if (moonSeparationParameter <= 0) {
                 TSLogger.Trace($"moon avoidance separation was relaxed below zero, avoidance off");
-                exposure.MoonAvoidanceScore = GetAvoidanceScore(false, exposure, moonAvoidanceSeparation);
                 return false;
             }
 
             bool rejected = moonSeparation < moonAvoidanceSeparation;
-            exposure.MoonAvoidanceScore = GetAvoidanceScore(rejected, exposure, moonAvoidanceSeparation);
             TSLogger.Trace($"moon avoidance {target.Name}/{exposure.FilterName} rejected={rejected}, eval time={evaluationTime}, moon alt={moonAltitude}, moonSep={moonSeparation}, moonAvoidSep={moonAvoidanceSeparation}");
             return rejected;
         }
 
-        public double GetAvoidanceScore(bool rejected, IExposure planExposure, double moonAvoidanceSeparation) {
+        /// <summary>
+        /// The moon avoidance/aversion score is statically determined from the avoidance parameters and is
+        /// independent of actual target-moon separation or moon altitude.
+        /// </summary>
+        /// <param name="exposure"></param>
+        /// <returns></returns>
+        public double GetAvoidanceScore(IExposure exposure) {
+            if (!exposure.MoonAvoidanceEnabled) return SCORE_OFF;
+            if (exposure.MoonDownEnabled) return SCORE_MAX;
+
+            return (exposure.MoonAvoidanceSeparation * exposure.MoonAvoidanceWidth) / (180 * 14);
+
+            /*
             return rejected
                 ? SCORE_OFF
                 : planExposure.MoonDownEnabled || moonAvoidanceSeparation < 0
                     ? SCORE_MAX
                     : moonAvoidanceSeparation / 180;
+            */
         }
 
         public virtual double GetRelaxationMoonAltitude(DateTime evaluationTime) {

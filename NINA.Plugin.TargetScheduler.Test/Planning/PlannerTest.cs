@@ -586,7 +586,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             pe1 = pt1.ExposurePlans[1];
             pe1.Rejected.Should().BeFalse();
-            pe1.MoonAvoidanceScore.Should().BeApproximately(.1622, 0.001);
+            pe1.MoonAvoidanceScore.Should().BeApproximately(.0833, 0.001);
         }
 
         [Test]

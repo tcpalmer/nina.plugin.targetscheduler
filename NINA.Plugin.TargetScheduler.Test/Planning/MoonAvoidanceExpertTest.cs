@@ -26,7 +26,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Full moon, sep angle big enough
             sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 14, SeparationAngle = 120 };
             sut.IsRejected(atTime, planTarget, planExposure).Should().BeFalse();
-            planExposure.MoonAvoidanceScore.Should().BeApproximately(.6646, 0.001);
+            planExposure.MoonAvoidanceScore.Should().BeApproximately(.666, 0.001);
 
             // Moon age=10, sep angle too small
             sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 10, SeparationAngle = 107 };
@@ -35,7 +35,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Moon age=10, sep angle just big enough
             sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 10, SeparationAngle = 108 };
             sut.IsRejected(atTime, planTarget, planExposure).Should().BeFalse();
-            planExposure.MoonAvoidanceScore.Should().BeApproximately(.5974, 0.001);
+            planExposure.MoonAvoidanceScore.Should().BeApproximately(.666, 0.001);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Full moon, sep angle big enough
             sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 14, SeparationAngle = 120 };
             sut.IsRejected(atTime, planTarget, planExposure).Should().BeFalse();
-            planExposure.MoonAvoidanceScore.Should().BeApproximately(.6646, 0.001);
+            planExposure.MoonAvoidanceScore.Should().BeApproximately(.666, 0.001);
 
             // Moon age=10, sep angle too small
             sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 10, SeparationAngle = 107 };
@@ -60,7 +60,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Moon age=10, sep angle big enough
             sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 10, SeparationAngle = 108 };
             sut.IsRejected(atTime, planTarget, planExposure).Should().BeFalse();
-            planExposure.MoonAvoidanceScore.Should().BeApproximately(.5974, 0.001);
+            planExposure.MoonAvoidanceScore.Should().BeApproximately(.666, 0.001);
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Less than min altitude, don't reject
             sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = -16, MoonAge = 14, SeparationAngle = 5 };
             sut.IsRejected(atTime, planTarget, planExposure).Should().BeFalse();
-            planExposure.MoonAvoidanceScore.Should().BeApproximately(.1973, 0.001);
+            planExposure.MoonAvoidanceScore.Should().BeApproximately(.666, 0.001);
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             planExposure = GetPlanExposure(true, 90, 11, 0, 5, -15, false);
             sut.IsRejected(planTarget.StartTime, planTarget, planExposure).Should().BeFalse();
-            planExposure.MoonAvoidanceScore.Should().BeApproximately(.3291, 0.001);
+            planExposure.MoonAvoidanceScore.Should().BeApproximately(.3928, 0.001);
         }
 
         [Test]
@@ -121,38 +121,21 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             MoonAvoidanceExpert sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 14, SeparationAngle = 20 };
 
-            IExposure planExposure = GetPlanExposure(true, 180, 14, 0, 5, -15, false);
+            IExposure planExposure = GetPlanExposure(false, 180, 14, 0, 5, -15, false);
+            sut.GetAvoidanceScore(planExposure).Should().Be(MoonAvoidanceExpert.SCORE_OFF);
 
-            sut.GetAvoidanceScore(true, planExposure, 180).Should().Be(MoonAvoidanceExpert.SCORE_OFF);
-            sut.GetAvoidanceScore(false, planExposure, 0).Should().Be(0);
-            sut.GetAvoidanceScore(false, planExposure, 180).Should().Be(1);
-            sut.GetAvoidanceScore(false, planExposure, 170).Should().BeApproximately(0.944, 0.001);
+            planExposure = GetPlanExposure(true, 180, 14, 0, 5, -15, false);
+            sut.GetAvoidanceScore(planExposure).Should().BeApproximately(1, 0.001);
+
+            planExposure = GetPlanExposure(true, 120, 14, 0, 5, -15, false);
+            sut.GetAvoidanceScore(planExposure).Should().BeApproximately(0.6667, 0.001);
+
+            planExposure = GetPlanExposure(true, 60, 7, 0, 5, -15, false);
+            sut.GetAvoidanceScore(planExposure).Should().BeApproximately(0.1667, 0.001);
 
             planExposure = GetPlanExposure(true, 180, 14, 0, 5, -15, true);
-            sut.GetAvoidanceScore(false, planExposure, 120).Should().Be(1);
+            sut.GetAvoidanceScore(planExposure).Should().Be(MoonAvoidanceExpert.SCORE_MAX);
         }
-
-        /*
-        [Test]
-        public void testAvoidanceScoreRange() {
-            MoonAvoidanceExpert sut = new MoonAvoidanceExpert(TestData.North_Mid_Lat);
-            ITarget planTarget = GetPlanTarget();
-            planTarget.Coordinates = TestData.M42;
-            planTarget.Project = PlanMocks.GetMockPlanProject("", ProjectState.Active).Object;
-            IExposure planExposure = GetPlanExposure(true, 120, 10, 5, 5, -15, false);
-
-            // Feb 17, 2025:
-            //   moon rises just after 11pm
-            planTarget.StartTime = new DateTime(2025, 2, 17, 19, 0, 0);
-            planTarget.EndTime = planTarget.StartTime.AddHours(1);
-
-            for (int i = 0; i < 30; i++) {
-                sut.IsRejected(planTarget.StartTime, planTarget, planExposure).Should().BeFalse();
-                TestContext.WriteLine($"score: {planExposure.MoonAvoidanceScore}, moon alt {sut.GetRelaxationMoonAltitude(planTarget.StartTime)} at {planTarget.StartTime}");
-                planTarget.StartTime = planTarget.StartTime.AddMinutes(10);
-                planTarget.EndTime = planTarget.StartTime.AddHours(1);
-            }
-        }*/
 
         private ITarget GetPlanTarget() {
             Mock<ITarget> pt = new Mock<ITarget>();
