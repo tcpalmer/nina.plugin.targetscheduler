@@ -55,6 +55,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             cloneMe.flatDeviceMediator) {
             CopyMetaData(cloneMe);
             AlwaysRepeatFlatSet = cloneMe.AlwaysRepeatFlatSet;
+            FlatCount = cloneMe.FlatCount;
         }
 
         public override object Clone() {

@@ -15,6 +15,16 @@
                     <CheckBox Margin="4,0,4,0"
                               VerticalAlignment="Center"
                               IsChecked="{Binding AlwaysRepeatFlatSet}" />
+                    <TextBlock Margin="7.5,0,7.5,0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Text="|" />
+                    <TextBlock VerticalAlignment="Center"
+                               Text="Flat Count: "
+                               ToolTip="Number of flats to take (defaults to 'Flats to take' setting in Flat Wizard)" />
+                    <TextBox Margin="4,0,4,0"
+                             VerticalAlignment="Center"
+                             Text="{Binding FlatCount}" />
                     <TextBlock VerticalAlignment="Center"
                                Text="{Binding DisplayText}" />
                 </WrapPanel>

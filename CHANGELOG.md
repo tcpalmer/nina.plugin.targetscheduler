@@ -2,6 +2,7 @@
 
 ## 5.1.2.0 (beta) - 2025-02-XX
 * Added 'After Each Exposure' custom event container.
+* Added ability to set the number of flats to take in the TS flats instructions.
 
 ## 5.1.1.0 (beta) - 2025-02-18
 * Reformulated the moon avoidance score.

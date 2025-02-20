@@ -68,6 +68,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             this.filterWheelMediator = filterWheelMediator;
             this.rotatorMediator = rotatorMediator;
             this.flatDeviceMediator = flatDeviceMediator;
+            flatCount = profileService.ActiveProfile.FlatWizardSettings.FlatCount;
         }
 
         public override void Initialize() {
@@ -88,6 +89,17 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             set {
                 alwaysRepeatFlatSet = value;
                 RaisePropertyChanged(nameof(AlwaysRepeatFlatSet));
+            }
+        }
+
+        private int flatCount;
+
+        [JsonProperty]
+        public int FlatCount {
+            get => flatCount;
+            set {
+                flatCount = value;
+                RaisePropertyChanged(nameof(FlatCount));
             }
         }
 
@@ -177,9 +189,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     return false;
                 }
 
-                int count = profileService.ActiveProfile.FlatWizardSettings.FlatCount;
+                int flatCount = FlatCount;
                 DisplayText = $"{flatSpec.FilterName} {setting.Time.ToString("0.##")}s ({GetFlatSpecDisplay(flatSpec)})";
-                Iterations = count;
+                Iterations = flatCount;
                 CompletedIterations = 0;
 
                 // Set rotation angle, if applicable
@@ -219,9 +231,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     ROI = flatSpec.ROI,
                 };
 
-                TSLogger.Info($"TS Flats: {target?.Name} sid: {neededFlat.SessionId}, taking {count} flats: exp:{setting.Time}, brightness: {setting.Brightness}, for {flatSpec}");
+                TSLogger.Info($"TS Flats: {target?.Name} sid: {neededFlat.SessionId}, taking {flatCount} flats: exp:{setting.Time}, brightness: {setting.Brightness}, for {flatSpec}");
 
-                FlatTargetContainer container = new FlatTargetContainer(this, target, count, neededFlat.SessionId);
+                FlatTargetContainer container = new FlatTargetContainer(this, target, flatCount, neededFlat.SessionId);
                 container.Add(takeExposure);
                 await container.Execute(progress, token);
 
