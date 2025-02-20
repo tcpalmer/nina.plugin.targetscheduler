@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.1.2.0 (beta) - 2025-02-XX
+## 5.1.2.0 (beta) - 2025-02-20
 * Added 'After Each Exposure' custom event container.
 * Added ability to set the number of flats to take in the TS flats instructions.
 
