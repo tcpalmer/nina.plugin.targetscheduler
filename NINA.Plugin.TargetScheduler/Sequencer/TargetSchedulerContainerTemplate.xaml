@@ -824,6 +824,38 @@
 
                                 <ninactrl:DetachingExpander>
                                     <ninactrl:DetachingExpander.Header>
+                                        <TextBlock Text="After Each Exposure Instructions" />
+                                    </ninactrl:DetachingExpander.Header>
+                                    <StackPanel Orientation="Vertical">
+                                        <Border MinHeight="50"
+                                                Margin="0,10,0,0"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="1">
+                                            <Grid Background="{StaticResource BackgroundBrush}"
+                                                  DataContext="{Binding AfterEachExposureContainer}">
+                                                <ItemsControl MinHeight="50"
+                                                              ItemsSource="{Binding Items}" />
+                                                <TextBlock Height="18"
+                                                           MaxHeight="18"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           FontStyle="Italic"
+                                                           Opacity="0.4"
+                                                           Text="Drop instructions here to run AFTER each exposure"
+                                                           Visibility="{Binding Items.Count, Converter={StaticResource InverseZeroToVisibilityConverter}}" />
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:DragOverBehavior DragAboveSize="0"
+                                                                                DragBelowSize="0" />
+                                                    <behaviors:DropIntoBehavior AllowedDragDropTypesString="NINA.Sequencer.Container.ISequenceContainer;NINA.Sequencer.SequenceItem.ISequenceItem;NINA.Sequencer.TemplatedSequenceContainer"
+                                                                                OnDropCommand="DropIntoCommand" />
+                                                </i:Interaction.Behaviors>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </ninactrl:DetachingExpander>
+
+                                <ninactrl:DetachingExpander>
+                                    <ninactrl:DetachingExpander.Header>
                                         <TextBlock Text="After New Target Instructions" />
                                     </ninactrl:DetachingExpander.Header>
                                     <StackPanel Orientation="Vertical">
@@ -910,6 +942,11 @@
                     </Grid>
                     <Grid Background="{StaticResource BackgroundBrush}"
                           DataContext="{Binding BeforeTargetContainer}">
+                        <ItemsControl MinHeight="35"
+                                      ItemsSource="{Binding Items}" />
+                    </Grid>
+                    <Grid Background="{StaticResource BackgroundBrush}"
+                          DataContext="{Binding AfterEachExposureContainer}">
                         <ItemsControl MinHeight="35"
                                       ItemsSource="{Binding Items}" />
                     </Grid>

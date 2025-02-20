@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.1.2.0 (beta) - 2025-02-XX
+* Added 'After Each Exposure' custom event container.
+
 ## 5.1.1.0 (beta) - 2025-02-18
 * Reformulated the moon avoidance score.
 * Scheduler Preview now includes an end time.

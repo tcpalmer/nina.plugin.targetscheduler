@@ -80,6 +80,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         [JsonProperty] public InstructionContainer BeforeWaitContainer { get; set; }
         [JsonProperty] public InstructionContainer AfterWaitContainer { get; set; }
         [JsonProperty] public InstructionContainer BeforeTargetContainer { get; set; }
+        [JsonProperty] public InstructionContainer AfterEachExposureContainer { get; set; }
         [JsonProperty] public InstructionContainer AfterTargetContainer { get; set; }
         [JsonProperty] public InstructionContainer AfterAllTargetsContainer { get; set; }
 
@@ -132,6 +133,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             BeforeWaitContainer = new InstructionContainer(EventContainerType.BeforeWait, Parent);
             AfterWaitContainer = new InstructionContainer(EventContainerType.AfterWait, Parent);
             BeforeTargetContainer = new InstructionContainer(EventContainerType.BeforeTarget, Parent);
+            AfterEachExposureContainer = new InstructionContainer(EventContainerType.AfterEachExposure, Parent);
             AfterTargetContainer = new InstructionContainer(EventContainerType.AfterTarget, Parent);
             AfterAllTargetsContainer = new InstructionContainer(EventContainerType.AfterEachTarget, this);
 
@@ -163,6 +165,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             BeforeWaitContainer.Initialize(profileService);
             AfterWaitContainer.Initialize(profileService);
             BeforeTargetContainer.Initialize(profileService);
+            AfterEachExposureContainer.Initialize(profileService);
             AfterTargetContainer.Initialize(profileService);
             AfterAllTargetsContainer.Initialize(profileService);
         }
@@ -176,6 +179,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 BeforeWaitContainer.AttachNewParent(Parent);
                 AfterWaitContainer.AttachNewParent(Parent);
                 BeforeTargetContainer.AttachNewParent(Parent);
+                AfterEachExposureContainer.AttachNewParent(Parent);
                 AfterTargetContainer.AttachNewParent(Parent);
                 AfterAllTargetsContainer.AttachNewParent(this);
 
@@ -191,6 +195,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             BeforeWaitContainer.ResetProgress();
             AfterWaitContainer.ResetProgress();
             BeforeTargetContainer.ResetProgress();
+            AfterEachExposureContainer.ResetProgress();
             AfterTargetContainer.ResetProgress();
             AfterAllTargetsContainer.ResetProgress();
 
@@ -452,10 +457,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             bool beforeWaitValid = BeforeWaitContainer.Validate();
             bool afterWaitValid = AfterWaitContainer.Validate();
             bool beforeTargetValid = BeforeTargetContainer.Validate();
+            bool afterExposureValid = AfterEachExposureContainer.Validate();
             bool afterTargetValid = AfterTargetContainer.Validate();
             bool afterAllTargetsValid = AfterAllTargetsContainer.Validate();
 
-            if (!triggersValid || !beforeWaitValid || !afterWaitValid || !beforeTargetValid || !afterTargetValid || !afterAllTargetsValid) {
+            if (!triggersValid || !beforeWaitValid || !afterWaitValid || !beforeTargetValid ||
+                !afterExposureValid || !afterTargetValid || !afterAllTargetsValid) {
                 issues.Add("One or more triggers or custom containers is not valid");
             }
 
@@ -570,6 +577,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private void SetTargetForCustomEventContainers() {
             CoordinatesInjector injector = new CoordinatesInjector(Target);
             injector.Inject(BeforeTargetContainer);
+            injector.Inject(AfterEachExposureContainer);
             injector.Inject(AfterTargetContainer);
             injector.Inject(AfterAllTargetsContainer);
         }
@@ -652,8 +660,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 cloneMe.domeMediator,
                 cloneMe.domeFollower,
                 cloneMe.plateSolverFactory,
-        cloneMe.nighttimeCalculator,
-        cloneMe.windowServiceFactory,
+                cloneMe.nighttimeCalculator,
+                cloneMe.windowServiceFactory,
                 cloneMe.framingAssistantVM,
                 cloneMe.applicationMediator,
                 cloneMe.messageBroker
@@ -693,12 +701,14 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             clone.BeforeWaitContainer = (InstructionContainer)BeforeWaitContainer.Clone();
             clone.AfterWaitContainer = (InstructionContainer)AfterWaitContainer.Clone();
             clone.BeforeTargetContainer = (InstructionContainer)BeforeTargetContainer.Clone();
+            clone.AfterEachExposureContainer = (InstructionContainer)AfterEachExposureContainer.Clone();
             clone.AfterTargetContainer = (InstructionContainer)AfterTargetContainer.Clone();
             clone.AfterAllTargetsContainer = (InstructionContainer)AfterAllTargetsContainer.Clone();
 
             clone.BeforeWaitContainer.AttachNewParent(clone);
             clone.AfterWaitContainer.AttachNewParent(clone);
             clone.BeforeTargetContainer.AttachNewParent(clone);
+            clone.AfterEachExposureContainer.AttachNewParent(clone);
             clone.AfterTargetContainer.AttachNewParent(clone);
             clone.AfterAllTargetsContainer.AttachNewParent(clone);
 

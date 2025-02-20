@@ -58,6 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         [JsonProperty] public InstructionContainer SyncBeforeWaitContainer { get; set; }
         [JsonProperty] public InstructionContainer SyncAfterWaitContainer { get; set; }
         [JsonProperty] public InstructionContainer SyncBeforeTargetContainer { get; set; }
+        [JsonProperty] public InstructionContainer SyncAfterEachExposureContainer { get; set; }
         [JsonProperty] public InstructionContainer SyncAfterTargetContainer { get; set; }
         [JsonProperty] public InstructionContainer SyncAfterAllTargetsContainer { get; set; }
 
@@ -97,6 +98,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             SyncBeforeWaitContainer = new InstructionContainer(EventContainerType.BeforeWait, Parent);
             SyncAfterWaitContainer = new InstructionContainer(EventContainerType.AfterWait, Parent);
             SyncBeforeTargetContainer = new InstructionContainer(EventContainerType.BeforeTarget, Parent);
+            SyncAfterEachExposureContainer = new InstructionContainer(EventContainerType.AfterEachExposure, Parent);
             SyncAfterTargetContainer = new InstructionContainer(EventContainerType.AfterTarget, Parent);
             SyncAfterAllTargetsContainer = new InstructionContainer(EventContainerType.AfterEachTarget, Parent);
         }
@@ -118,12 +120,14 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             clone.SyncBeforeWaitContainer = (InstructionContainer)SyncBeforeWaitContainer.Clone();
             clone.SyncAfterWaitContainer = (InstructionContainer)SyncAfterWaitContainer.Clone();
             clone.SyncBeforeTargetContainer = (InstructionContainer)SyncBeforeTargetContainer.Clone();
+            clone.SyncAfterEachExposureContainer = (InstructionContainer)SyncAfterEachExposureContainer.Clone();
             clone.SyncAfterTargetContainer = (InstructionContainer)SyncAfterTargetContainer.Clone();
             clone.SyncAfterAllTargetsContainer = (InstructionContainer)SyncAfterAllTargetsContainer.Clone();
 
             clone.SyncBeforeWaitContainer.AttachNewParent(clone);
             clone.SyncAfterWaitContainer.AttachNewParent(clone);
             clone.SyncBeforeTargetContainer.AttachNewParent(clone);
+            clone.SyncAfterEachExposureContainer.AttachNewParent(clone);
             clone.SyncAfterTargetContainer.AttachNewParent(clone);
             clone.SyncAfterAllTargetsContainer.AttachNewParent(clone);
         }
@@ -141,6 +145,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 SyncBeforeWaitContainer.Initialize(profileService);
                 SyncAfterWaitContainer.Initialize(profileService);
                 SyncBeforeTargetContainer.Initialize(profileService);
+                SyncAfterEachExposureContainer.Initialize(profileService);
                 SyncAfterTargetContainer.Initialize(profileService);
                 SyncAfterAllTargetsContainer.Initialize(profileService);
             }
@@ -155,6 +160,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 SyncBeforeWaitContainer.AttachNewParent(Parent);
                 SyncAfterWaitContainer.AttachNewParent(Parent);
                 SyncBeforeTargetContainer.AttachNewParent(Parent);
+                SyncAfterEachExposureContainer.AttachNewParent(Parent);
                 SyncAfterTargetContainer.AttachNewParent(Parent);
                 SyncAfterAllTargetsContainer.AttachNewParent(Parent);
 
@@ -173,6 +179,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 SyncBeforeWaitContainer.ResetProgress();
                 SyncAfterWaitContainer.ResetProgress();
                 SyncBeforeTargetContainer.ResetProgress();
+                SyncAfterEachExposureContainer.ResetProgress();
                 SyncAfterTargetContainer.ResetProgress();
                 SyncAfterAllTargetsContainer.ResetProgress();
             }
@@ -273,10 +280,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             bool beforeWaitValid = SyncBeforeWaitContainer.Validate();
             bool afterWaitValid = SyncAfterWaitContainer.Validate();
             bool beforeNewTargetValid = SyncBeforeTargetContainer.Validate();
+            bool afterExposureValid = SyncAfterEachExposureContainer.Validate();
             bool afterNewTargetValid = SyncAfterTargetContainer.Validate();
             bool afterEachTargetValid = SyncAfterAllTargetsContainer.Validate();
 
-            if (!beforeWaitValid || !afterWaitValid || !beforeNewTargetValid || !afterNewTargetValid || !afterEachTargetValid) {
+            if (!beforeWaitValid || !afterWaitValid || !beforeNewTargetValid ||
+                !afterExposureValid || !afterNewTargetValid || !afterEachTargetValid) {
                 issues.Add("One or more custom containers is not valid");
             }
 
@@ -381,6 +390,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 case EventContainerType.BeforeWait: { targetContainer = SyncBeforeWaitContainer; break; }
                 case EventContainerType.AfterWait: { targetContainer = SyncAfterWaitContainer; break; }
                 case EventContainerType.BeforeTarget: { targetContainer = SyncBeforeTargetContainer; break; }
+                case EventContainerType.AfterEachExposure: { targetContainer = SyncAfterEachExposureContainer; break; }
                 case EventContainerType.AfterTarget: { targetContainer = SyncAfterTargetContainer; break; }
                 case EventContainerType.AfterEachTarget: { targetContainer = SyncAfterAllTargetsContainer; break; }
             }

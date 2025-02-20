@@ -81,6 +81,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             SyncWaitTimeout = SyncManager.DEFAULT_SYNC_WAIT_TIMEOUT;
             SyncActionTimeout = SyncManager.DEFAULT_SYNC_ACTION_TIMEOUT;
             SyncSolveRotateTimeout = SyncManager.DEFAULT_SYNC_SOLVEROTATE_TIMEOUT;
+            SyncEventContainerTimeout = SyncManager.DEFAULT_SYNC_ACTION_TIMEOUT;
 
             EnableSimulatedRun = false;
             SkipSimulatedWaits = true;

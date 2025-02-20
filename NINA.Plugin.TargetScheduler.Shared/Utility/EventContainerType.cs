@@ -4,6 +4,7 @@
         BeforeWait,
         AfterWait,
         BeforeTarget,
+        AfterEachExposure,
         AfterTarget,
         AfterEachTarget
     }
@@ -25,6 +26,10 @@
 
             if (eventContainerType == EventContainerType.BeforeTarget.ToString()) {
                 return EventContainerType.BeforeTarget;
+            }
+
+            if (eventContainerType == EventContainerType.AfterEachExposure.ToString()) {
+                return EventContainerType.AfterEachExposure;
             }
 
             if (eventContainerType == EventContainerType.AfterTarget.ToString()) {

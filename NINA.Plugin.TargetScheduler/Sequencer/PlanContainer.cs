@@ -146,6 +146,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 throw;
             } finally {
                 imageSaveWatcher.WaitForAllImagesSaved();
+                parentContainer.ExecuteEventContainer(parentContainer.AfterEachExposureContainer, progress, token).Wait();
 
                 foreach (var item in Items) {
                     item.AttachNewParent(null);
