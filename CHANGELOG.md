@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.1.3.0 (beta) - 2025-02-XX
+* Added details on the next target and the number of seconds until the wait ends to the message published when starting a planned wait period.
+
 ## 5.1.2.0 (beta) - 2025-02-20
 * Added 'After Each Exposure' custom event container.
 * Added ability to set the number of flats to take in the TS flats instructions.

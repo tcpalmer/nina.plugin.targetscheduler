@@ -279,7 +279,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     }
 
                     TSLogger.Info($"waiting for next target to become available: {Utils.FormatDateTimeFull(plan.WaitForNextTargetTime)}");
-                    waitStartPublisher.Publish((DateTime)plan.WaitForNextTargetTime);
+                    waitStartPublisher.Publish(plan.PlanTarget, (DateTime)plan.WaitForNextTargetTime);
                     var historyItem = new PlanExecutionHistoryItem(DateTime.Now, plan);
 
                     SetSyncServerState(ServerState.PlanWait);
