@@ -6,7 +6,8 @@
         BeforeTarget,
         AfterEachExposure,
         AfterTarget,
-        AfterEachTarget
+        AfterEachTarget,
+        AfterTargetComplete
     }
 
     public static class EventContainerHelper {
@@ -38,6 +39,10 @@
 
             if (eventContainerType == EventContainerType.AfterEachTarget.ToString()) {
                 return EventContainerType.AfterEachTarget;
+            }
+
+            if (eventContainerType == EventContainerType.AfterTargetComplete.ToString()) {
+                return EventContainerType.AfterTargetComplete;
             }
 
             throw new ArgumentException($"unknown event container type : {eventContainerType}");

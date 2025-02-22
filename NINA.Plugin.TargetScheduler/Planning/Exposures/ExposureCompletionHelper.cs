@@ -42,6 +42,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             return list.Sum(PercentComplete) / list.Count;
         }
 
+        public bool IsIncomplete(ITarget target) {
+            return PercentComplete(target) < 100;
+        }
+
         public int RemainingExposures(IExposureCounts exposurePlan) {
             if (imageGradingEnabled) {
                 return exposurePlan.Accepted >= exposurePlan.Desired ? 0 : exposurePlan.Desired - exposurePlan.Accepted;

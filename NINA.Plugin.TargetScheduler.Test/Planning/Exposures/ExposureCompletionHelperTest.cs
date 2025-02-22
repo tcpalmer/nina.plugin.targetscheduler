@@ -170,40 +170,48 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             ITarget target = new TestPlanTarget();
 
             sut.PercentComplete(target).Should().Be(0);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().Be(0);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 10, 100));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 100));
             sut.PercentComplete(target).Should().Be(50);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 10, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().Be(50);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 10, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 5, 0));
             sut.PercentComplete(target).Should().Be(75);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 20, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 5, 0));
             sut.PercentComplete(target).Should().Be(75);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 10, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 10, 0));
             sut.PercentComplete(target).Should().Be(100);
+            sut.IsIncomplete(target).Should().BeFalse();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 20, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 10, 0));
             sut.PercentComplete(target).Should().Be(100);
+            sut.IsIncomplete(target).Should().BeFalse();
 
             sut = new ExposureCompletionHelper(false, 100);
 
@@ -211,37 +219,44 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().Be(0);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 10));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().Be(50);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().Be(50);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 5));
             sut.PercentComplete(target).Should().Be(75);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 10));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 10));
             sut.PercentComplete(target).Should().Be(100);
+            sut.IsIncomplete(target).Should().BeFalse();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 30));
             sut.PercentComplete(target).Should().Be(100);
+            sut.IsIncomplete(target).Should().BeFalse();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 30));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().BeApproximately(66.66667, 0.00001);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             sut = new ExposureCompletionHelper(false, 150);
 
@@ -249,22 +264,26 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().Be(0);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 15));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().Be(50);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 15));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             sut.PercentComplete(target).Should().Be(100);
+            sut.IsIncomplete(target).Should().BeFalse();
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 15));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().BeApproximately(66.66667, 0.00001);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.CompletedExposurePlans.Clear();
@@ -272,12 +291,14 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             target.CompletedExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
             sut.PercentComplete(target).Should().BeApproximately(66.66667, 0.00001);
+            sut.IsIncomplete(target).Should().BeTrue();
 
             target.ExposurePlans.Clear();
             target.CompletedExposurePlans.Clear();
             target.CompletedExposurePlans.Add(new TestPlanExposure(10, 0, 15));
             target.CompletedExposurePlans.Add(new TestPlanExposure(10, 0, 20));
             sut.PercentComplete(target).Should().Be(100);
+            sut.IsIncomplete(target).Should().BeFalse();
         }
 
         private ExposurePlan GetExposurePlan(int desired, int accepted, int acquired) {

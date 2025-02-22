@@ -73,6 +73,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private IImageSaveWatcher imageSaveWatcher;
         private bool synchronizationEnabled;
         private WaitStartPublisher waitStartPublisher;
+        public TargetCompletePublisher targetCompletePublisher;
 
         /* Before renaming BeforeTargetContainer and AfterTargetContainer to contain 'New'
          * (again) consider that it would break any existing sequence using those. */
@@ -83,6 +84,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         [JsonProperty] public InstructionContainer AfterEachExposureContainer { get; set; }
         [JsonProperty] public InstructionContainer AfterTargetContainer { get; set; }
         [JsonProperty] public InstructionContainer AfterAllTargetsContainer { get; set; }
+        [JsonProperty] public InstructionContainer AfterTargetCompleteContainer { get; set; }
 
         private ProfilePreference profilePreferences;
 
@@ -136,6 +138,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             AfterEachExposureContainer = new InstructionContainer(EventContainerType.AfterEachExposure, Parent);
             AfterTargetContainer = new InstructionContainer(EventContainerType.AfterTarget, Parent);
             AfterAllTargetsContainer = new InstructionContainer(EventContainerType.AfterEachTarget, this);
+            AfterTargetCompleteContainer = new InstructionContainer(EventContainerType.AfterTargetComplete, this);
 
             Task.Run(() => NighttimeData = nighttimeCalculator.Calculate());
             Target = new InputTarget(Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Latitude), Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Longitude), profileService.ActiveProfile.AstrometrySettings.Horizon);
@@ -145,6 +148,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             imageSaveWatcher = new ImageSaveWatcher(profileService.ActiveProfile, imageSaveMediator);
             waitStartPublisher = new WaitStartPublisher(messageBroker);
+            targetCompletePublisher = new TargetCompletePublisher(messageBroker);
 
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.LocationChanged), ProfileService_LocationChanged);
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.HorizonChanged), ProfileService_HorizonChanged);
@@ -168,6 +172,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             AfterEachExposureContainer.Initialize(profileService);
             AfterTargetContainer.Initialize(profileService);
             AfterAllTargetsContainer.Initialize(profileService);
+            AfterTargetCompleteContainer.Initialize(profileService);
         }
 
         public override void AfterParentChanged() {
@@ -182,6 +187,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 AfterEachExposureContainer.AttachNewParent(Parent);
                 AfterTargetContainer.AttachNewParent(Parent);
                 AfterAllTargetsContainer.AttachNewParent(this);
+                AfterTargetCompleteContainer.AttachNewParent(Parent);
 
                 if (Parent.Status == SequenceEntityStatus.RUNNING) {
                     SequenceBlockInitialize();
@@ -198,6 +204,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             AfterEachExposureContainer.ResetProgress();
             AfterTargetContainer.ResetProgress();
             AfterAllTargetsContainer.ResetProgress();
+            AfterTargetCompleteContainer.ResetProgress();
 
             if (SchedulerProgress != null) {
                 SchedulerProgress.Reset();
@@ -460,9 +467,10 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             bool afterExposureValid = AfterEachExposureContainer.Validate();
             bool afterTargetValid = AfterTargetContainer.Validate();
             bool afterAllTargetsValid = AfterAllTargetsContainer.Validate();
+            bool afterTargetCompleteValid = AfterTargetCompleteContainer.Validate();
 
             if (!triggersValid || !beforeWaitValid || !afterWaitValid || !beforeTargetValid ||
-                !afterExposureValid || !afterTargetValid || !afterAllTargetsValid) {
+                !afterExposureValid || !afterTargetValid || !afterAllTargetsValid || !afterTargetCompleteValid) {
                 issues.Add("One or more triggers or custom containers is not valid");
             }
 
@@ -580,6 +588,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             injector.Inject(AfterEachExposureContainer);
             injector.Inject(AfterTargetContainer);
             injector.Inject(AfterAllTargetsContainer);
+            injector.Inject(AfterTargetCompleteContainer);
         }
 
         private void SchedulerProgress_PropertyChanged(object sender, PropertyChangedEventArgs e) {
@@ -704,6 +713,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             clone.AfterEachExposureContainer = (InstructionContainer)AfterEachExposureContainer.Clone();
             clone.AfterTargetContainer = (InstructionContainer)AfterTargetContainer.Clone();
             clone.AfterAllTargetsContainer = (InstructionContainer)AfterAllTargetsContainer.Clone();
+            clone.AfterTargetCompleteContainer = (InstructionContainer)AfterTargetCompleteContainer.Clone();
 
             clone.BeforeWaitContainer.AttachNewParent(clone);
             clone.AfterWaitContainer.AttachNewParent(clone);
@@ -711,6 +721,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             clone.AfterEachExposureContainer.AttachNewParent(clone);
             clone.AfterTargetContainer.AttachNewParent(clone);
             clone.AfterAllTargetsContainer.AttachNewParent(clone);
+            clone.AfterTargetCompleteContainer.AttachNewParent(clone);
 
             foreach (var item in clone.Items) {
                 item.AttachNewParent(clone);

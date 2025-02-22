@@ -148,6 +148,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 imageSaveWatcher.WaitForAllImagesSaved();
                 parentContainer.ExecuteEventContainer(parentContainer.AfterEachExposureContainer, progress, token).Wait();
 
+                ITarget target = ReloadTarget(plan.PlanTarget);
+                if (!target.Project.ExposureCompletionHelper.IsIncomplete(target)) {
+                    parentContainer.ExecuteEventContainer(parentContainer.AfterTargetCompleteContainer, progress, token).Wait();
+                    parentContainer.targetCompletePublisher.Publish(plan);
+                }
+
                 foreach (var item in Items) {
                     item.AttachNewParent(null);
                 }
@@ -340,6 +346,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 ProfilePreference profilePreference = context.GetProfilePreference(profileService.ActiveProfile.Id.ToString());
                 syncActionTimeout = profilePreference != null ? profilePreference.SyncActionTimeout : SyncManager.DEFAULT_SYNC_ACTION_TIMEOUT;
                 syncSolveRotateTimeout = profilePreference != null ? profilePreference.SyncSolveRotateTimeout : SyncManager.DEFAULT_SYNC_SOLVEROTATE_TIMEOUT;
+            }
+        }
+
+        private ITarget ReloadTarget(ITarget reference) {
+            using (var context = new SchedulerDatabaseInteraction().GetContext()) {
+                Target t = context.GetTarget(reference.Project.DatabaseId, reference.DatabaseId);
+                return new PlanningTarget(reference.Project, t);
             }
         }
 
