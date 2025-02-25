@@ -374,7 +374,14 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         private IExposure GetPlanExposure(ITarget target, int exposurePlanDatabaseId) {
-            return target.AllExposurePlans.FirstOrDefault(ep => ep.DatabaseId == exposurePlanDatabaseId);
+            IExposure exposure = target.AllExposurePlans.FirstOrDefault(ep => ep.DatabaseId == exposurePlanDatabaseId);
+            // We have to go back to the database to see if this exposure plan is overriding the exposure length
+            using (var context = new SchedulerDatabaseInteraction().GetContext()) {
+                ExposurePlan exposurePlan = context.ExposurePlanSet.Where(ep => ep.Id == exposurePlanDatabaseId).FirstOrDefault();
+                if (exposurePlan?.Exposure <= 0) { exposure.ExposureLength = -1; }
+            }
+
+            return exposure;
         }
 
         private async Task DoSyncedSolveRotate(SyncedSolveRotate syncedSolveRotate, IProgress<ApplicationStatus> progress, CancellationToken token) {

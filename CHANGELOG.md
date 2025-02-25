@@ -2,6 +2,7 @@
 
 ## 5.1.3.0 (beta) - 2025-02-XX
 * Added 'After Target Complete' custom event container.
+* Fixed bug where sync client was ignoring exposure length on exp template of same name.
 * Added new published message for target complete (developers only).
 * Added details to the message published when starting a planned wait: the next target and the number of seconds until the wait ends (developers only).
 
