@@ -1,48 +1,54 @@
-﻿<ResourceDictionary x:Class="NINA.Plugin.TargetScheduler.Sequencer.TargetSchedulerFlatsTemplate"
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Sequencer"
-                    xmlns:mini="clr-namespace:NINA.View.Sequencer.MiniSequencer;assembly=NINA.Sequencer"
-                    xmlns:nina="clr-namespace:NINA.View.Sequencer;assembly=NINA.Sequencer">
+﻿<ResourceDictionary
+    x:Class="NINA.Plugin.TargetScheduler.Sequencer.TargetSchedulerFlatsTemplate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Sequencer"
+    xmlns:mini="clr-namespace:NINA.View.Sequencer.MiniSequencer;assembly=NINA.Sequencer"
+    xmlns:nina="clr-namespace:NINA.View.Sequencer;assembly=NINA.Sequencer">
 
     <DataTemplate DataType="{x:Type local:TargetSchedulerFlats}">
         <nina:SequenceBlockView DataContext="{Binding}">
             <nina:SequenceBlockView.SequenceItemContent>
                 <WrapPanel Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center"
-                               Text="Repeat Flat Sets: "
-                               ToolTip="Repeat flat sets, even if duplicates" />
-                    <CheckBox Margin="4,0,4,0"
-                              VerticalAlignment="Center"
-                              IsChecked="{Binding AlwaysRepeatFlatSet}" />
-                    <TextBlock Margin="7.5,0,7.5,0"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Text="|" />
-                    <TextBlock VerticalAlignment="Center"
-                               Text="Flat Count: "
-                               ToolTip="Number of flats to take (defaults to 'Flats to take' setting in Flat Wizard)" />
-                    <TextBox Margin="4,0,4,0"
-                             VerticalAlignment="Center"
-                             Text="{Binding FlatCount}" />
-                    <TextBlock VerticalAlignment="Center"
-                               Text="{Binding DisplayText}" />
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Text="Repeat Flat Sets: "
+                        ToolTip="Repeat flat sets, even if duplicates" />
+                    <CheckBox
+                        Margin="4,0,4,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding AlwaysRepeatFlatSet}" />
+                    <TextBlock
+                        Margin="7.5,0,7.5,0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Text="|" />
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Text="Flat Count: "
+                        ToolTip="Number of flats to take (defaults to 'Flats to take' setting in Flat Wizard)" />
+                    <TextBox
+                        Margin="4,0,4,0"
+                        VerticalAlignment="Center"
+                        Text="{Binding FlatCount}" />
+                    <TextBlock VerticalAlignment="Center" Text="{Binding DisplayText}" />
                 </WrapPanel>
             </nina:SequenceBlockView.SequenceItemContent>
             <nina:SequenceBlockView.SequenceItemProgressContent>
-                <StackPanel HorizontalAlignment="Right"
-                            Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center"
-                               Text="Flat Sets" />
-                    <TextBlock Margin="5,0,0,0"
-                               VerticalAlignment="Center"
-                               Text="{Binding TotalProgressDisplay}" />
-                    <TextBlock Margin="5,0,0,0"
-                               VerticalAlignment="Center"
-                               Text="Set Progress" />
-                    <TextBlock Margin="5,0,0,0"
-                               VerticalAlignment="Center"
-                               Text="{Binding SetProgressDisplay}" />
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <TextBlock VerticalAlignment="Center" Text="Flat Sets" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{Binding TotalProgressDisplay}" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="Set Progress" />
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="{Binding SetProgressDisplay}" />
                 </StackPanel>
             </nina:SequenceBlockView.SequenceItemProgressContent>
         </nina:SequenceBlockView>

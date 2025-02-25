@@ -167,7 +167,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             if (type == "TARGET") {
                 sb.AppendLine($"Selected Target: {PlanTarget.Project.Name}/{PlanTarget.Name}");
-                sb.AppendLine($"Selected Filter: {PlanTarget.SelectedExposure.FilterName}, moon avoid score: {PlanTarget.SelectedExposure.MoonAvoidanceScore}");
+                sb.AppendLine($"Selected Filter: {PlanTarget.SelectedExposure.FilterName}, moon avoid score: {Utils.FormatDbl(PlanTarget.SelectedExposure.MoonAvoidanceScore)}");
                 sb.AppendLine($"Plan Start:      {DateFmt(PlanTime)}");
                 sb.AppendLine($"Plan Stop:       {DateFmt(PlanTime.AddSeconds(TimeInterval.Duration))}");
                 sb.AppendLine($"Plan Min Expire: {DateFmt(PlanTarget.MinimumTimeSpanEnd)}");
