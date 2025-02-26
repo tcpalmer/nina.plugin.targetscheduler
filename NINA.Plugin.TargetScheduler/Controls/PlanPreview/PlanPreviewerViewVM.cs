@@ -279,24 +279,29 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                         int lastTargetId = -1;
                         string lastFilterName = null;
                         TreeViewItem planItem = null;
+                        TreeViewItem lastItem = null;
                         SchedulerPlan lastTargetPlan = null;
                         ProfilePreference profilePreference = GetProfilePreference(SelectedProfileId);
 
                         foreach (SchedulerPlan plan in SchedulerPlans) {
                             if (plan.IsWait) {
+                                AddLastItemEndTime(lastItem, plan.StartTime);
                                 planItem = new TreeViewItem();
                                 planItem.Header = $"Wait until {Utils.FormatDateTimeFull(plan.WaitForNextTargetTime)}";
                                 list.Add(planItem);
                                 lastTargetId = -1;
+                                lastItem = planItem;
                                 continue;
                             }
 
                             if (plan.PlanTarget.DatabaseId != lastTargetId) {
+                                AddLastItemEndTime(lastItem, plan.StartTime);
                                 lastTargetId = plan.PlanTarget.DatabaseId;
                                 planItem = new TreeViewItem();
                                 planItem.Header = GetTargetLabel(plan);
                                 planItem.IsExpanded = false;
                                 list.Add(planItem);
+                                lastItem = planItem;
                             }
 
                             lastTargetPlan = plan;
@@ -353,6 +358,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                             }
                         }
 
+                        AddLastItemEndTime(lastItem, lastTargetPlan?.EndTime);
                         if (lastTargetPlan != null) {
                             planItem = new TreeViewItem();
                             planItem.Header = $"End at {Utils.FormatDateTimeFull(lastTargetPlan.EndTime)}";
@@ -371,6 +377,15 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                 TableLoading = false;
                 return true;
             });
+        }
+
+        private void AddLastItemEndTime(TreeViewItem lastItem, DateTime? endTime) {
+            if (lastItem != null && endTime != null) {
+                string header = lastItem.Header.ToString();
+                if (!header.StartsWith("Wait")) {
+                    lastItem.Header = lastItem.Header + $",  end: {Utils.FormatDateTimeFull(endTime)}";
+                }
+            }
         }
 
         private string planPreviewResultsLog;
