@@ -4,6 +4,7 @@
 * Added 'After Target Complete' custom event container.
 * Fixed bug where sync client was ignoring exposure length on exp template of same name.
 * Sync client can now take multiple exposures per server exposure.
+* Location in sequence of a Center After Drift trigger is relaxed, can now be in any container above TS container.
 * Added new published message for target complete (developers only).
 * Added details to the message published when starting a planned wait: the next target and the number of seconds until the wait ends (developers only).
 

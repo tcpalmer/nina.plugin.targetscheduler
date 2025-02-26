@@ -554,7 +554,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private CenterAfterDriftTrigger GetCenterAfterDriftTrigger() {
             SequenceContainer container = (Parent as SequenceContainer);
-            if (container != null) {
+            while (container != null) {
                 var triggers = container.GetTriggersSnapshot();
                 foreach (ISequenceTrigger trigger in triggers) {
                     CenterAfterDriftTrigger centerAfterDriftTrigger = trigger as CenterAfterDriftTrigger;
@@ -562,6 +562,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         return centerAfterDriftTrigger;
                     }
                 }
+
+                container = container.Parent as SequenceContainer;
             }
 
             return null;
