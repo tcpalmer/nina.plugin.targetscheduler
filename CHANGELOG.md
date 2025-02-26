@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.1.3.0 (beta) - 2025-02-XX
+## 5.1.3.0 (beta) - 2025-02-26
 * Added 'After Target Complete' custom event container.
 * Fixed bug where sync client was ignoring exposure length on exp template of same name.
 * Sync client can now take multiple exposures per server exposure.
