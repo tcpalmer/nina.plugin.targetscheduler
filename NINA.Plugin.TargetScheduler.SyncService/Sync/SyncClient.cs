@@ -131,7 +131,8 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                     if (response.ExposureReady) {
                         await AcceptExposure(response.ExposureId);
                         SetClientState(ClientState.Exposing);
-                        return new SyncedExposure(response.ExposureId, response.TargetName, response.TargetRa, response.TargetDec, response.TargetPositionAngle, response.TargetDatabaseId, response.ExposurePlanDatabaseId);
+                        return new SyncedExposure(response.ExposureId, response.TargetName, response.TargetRa, response.TargetDec, response.TargetPositionAngle,
+                                                  response.TargetDatabaseId, response.ExposurePlanDatabaseId, response.ExposureLength);
                     }
 
                     if (response.SolveRotateReady) {
@@ -327,8 +328,9 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         public double TargetPositionAngle { get; private set; }
         public int TargetDatabaseId { get; private set; }
         public int ExposurePlanDatabaseId { get; private set; }
+        public double ExposureLength { get; private set; }
 
-        public SyncedExposure(string exposureId, string targetName, string targetRA, string targetDec, double targetPositionAngle, int targetDatabaseId, int exposurePlanDatabaseId) {
+        public SyncedExposure(string exposureId, string targetName, string targetRA, string targetDec, double targetPositionAngle, int targetDatabaseId, int exposurePlanDatabaseId, double exposureLength) {
             ExposureId = exposureId;
             TargetName = targetName;
             TargetRA = targetRA;
@@ -336,6 +338,7 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
             TargetPositionAngle = targetPositionAngle;
             TargetDatabaseId = targetDatabaseId;
             ExposurePlanDatabaseId = exposurePlanDatabaseId;
+            ExposureLength = exposureLength;
         }
 
         public override string? ToString() {

@@ -3,6 +3,7 @@ using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.SyncService.Sync;
 using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile.Interfaces;
@@ -67,7 +68,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public override Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
             Add(GetSwitchFilter());
             Add(GetSetReadoutMode());
-            Add(GetTakeExposure());
+
+            int repeatCount = ExposureRepeatCount();
+            if (repeatCount > 1) { TSLogger.Info($"SYNC client taking {repeatCount} exposures for each server exposure"); }
+            for (int i = 0; i < repeatCount; i++) {
+                Add(GetTakeExposure());
+            }
 
             return base.Execute(progress, token);
         }
@@ -80,7 +86,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             using (var context = new SchedulerDatabaseInteraction().GetContext()) {
                 this.exposurePlan = context.GetExposurePlan(syncedExposure.ExposurePlanDatabaseId);
                 this.exposureTemplate = GetExposureTemplate(context, exposurePlan);
-                //TODO remove: this.target = GetTarget(context, exposurePlan);
             }
         }
 
@@ -98,8 +103,10 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             return serverExposureTemplate;
         }
 
-        private Target GetTarget(SchedulerDatabaseContext context, ExposurePlan exposurePlan) {
-            return context.GetTargetOnly(exposurePlan.TargetId);
+        private int ExposureRepeatCount() {
+            double clientExposureLength = exposure.ExposureLength > 0 ? exposure.ExposureLength : exposureTemplate.defaultExposure;
+            int count = (int)Math.Truncate(syncedExposure.ExposureLength / clientExposureLength);
+            return count < 1 ? 1 : count;
         }
 
         private ISequenceItem GetSwitchFilter() {

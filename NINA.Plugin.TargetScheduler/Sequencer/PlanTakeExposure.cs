@@ -144,7 +144,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         private async Task TrySendExposureToClients(string exposureId, InputTarget inputTarget, CancellationToken token) {
-            await SyncServer.Instance.SyncExposure(exposureId, inputTarget, target.DatabaseId, exposure.DatabaseId, syncExposureTimeout, token);
+            await SyncServer.Instance.SyncExposure(exposureId, inputTarget, target.DatabaseId, exposure.DatabaseId, exposure.ExposureLength, syncExposureTimeout, token);
         }
 
         private InputTarget RetrieveTarget(ISequenceContainer parent) {

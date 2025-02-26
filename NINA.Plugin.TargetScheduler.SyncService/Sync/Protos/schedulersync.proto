@@ -75,9 +75,10 @@ message ActionResponse {
 	int32 pierSide = 11;
 	int32 targetDatabaseId = 12;
 	int32 exposurePlanDatabaseId = 13;
-	bool eventContainer = 14;
-	string eventContainerType = 15;
-	string eventContainerId = 16;
+	double exposureLength = 14;
+	bool eventContainer = 15;
+	string eventContainerType = 16;
+	string eventContainerId = 17;
 }
 
 message ExposureRequest {

@@ -137,7 +137,7 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
             }
         }
 
-        public async Task SyncExposure(string exposureId, InputTarget target, int targetDatabaseId, int exposurePlanDatabaseId, int syncExposureTimeout, CancellationToken token) {
+        public async Task SyncExposure(string exposureId, InputTarget target, int targetDatabaseId, int exposurePlanDatabaseId, double exposureLength, int syncExposureTimeout, CancellationToken token) {
             activeActionResponse = new ActionResponse {
                 Success = true,
                 ExposureReady = true,
@@ -150,7 +150,8 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                 TargetDec = target.InputCoordinates.Coordinates.DecString,
                 TargetPositionAngle = target.PositionAngle,
                 TargetDatabaseId = targetDatabaseId,
-                ExposurePlanDatabaseId = exposurePlanDatabaseId
+                ExposurePlanDatabaseId = exposurePlanDatabaseId,
+                ExposureLength = exposureLength,
             };
 
             SetServerState(ServerState.ExposureReady);
