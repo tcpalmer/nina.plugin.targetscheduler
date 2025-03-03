@@ -62,7 +62,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         private ExposureCompletionHelper GetExposureCompletionHelper(Project project) {
             ProfilePreference profilePreference = managerVM.Database.GetContext().GetProfilePreference(project.ProfileId, true);
-            return new ExposureCompletionHelper(project.EnableGrader, profilePreference.ExposureThrottle);
+            return new ExposureCompletionHelper(project.EnableGrader, profilePreference.DelayGrading, profilePreference.ExposureThrottle);
         }
 
         private bool ActiveNowWithActiveTargets(Project project) {

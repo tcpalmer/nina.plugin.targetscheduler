@@ -47,7 +47,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                 ProfilePreference profilePreference = GetProfilePreferences();
 
                 foreach (Project project in projects) {
-                    ExposureCompletionHelper helper = new ExposureCompletionHelper(project.EnableGrader, profilePreference.ExposureThrottle);
+                    ExposureCompletionHelper helper = new ExposureCompletionHelper(project.EnableGrader, profilePreference.DelayGrading, profilePreference.ExposureThrottle);
                     foreach (Target target in project.Targets) {
                         if (target.Enabled) {
                             foreach (ExposurePlan plan in target.ExposurePlans) {
@@ -70,7 +70,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
                 List<IProject> planProjects = new List<IProject>();
                 foreach (Project project in projects) {
-                    ExposureCompletionHelper helper = new ExposureCompletionHelper(project.EnableGrader, profilePreference.ExposureThrottle);
+                    ExposureCompletionHelper helper = new ExposureCompletionHelper(project.EnableGrader, profilePreference.DelayGrading, profilePreference.ExposureThrottle);
                     PlanningProject planProject = new PlanningProject(activeProfile, project, helper);
                     planProjects.Add(planProject);
                 }

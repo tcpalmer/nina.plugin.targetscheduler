@@ -32,7 +32,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         [TestCase(10, 0, 15, false, 150, 100)]
         [TestCase(10, 0, 20, false, 150, 100)]
         public void TestPercentCompletePlan(int desired, int accepted, int acquired, bool gradingEnabled, double exposureThrottle, double expected) {
-            ExposureCompletionHelper sut = new ExposureCompletionHelper(gradingEnabled, exposureThrottle);
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(gradingEnabled, 0, exposureThrottle);
             TestPlan plan = new TestPlan(desired, accepted, acquired);
             sut.PercentComplete(plan).Should().BeApproximately(expected, 0.00001);
 
@@ -43,6 +43,20 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
                 sut.IsIncomplete(plan).Should().BeFalse();
                 sut.RemainingExposures(plan).Should().Be(0);
             }
+        }
+
+        [Test]
+        [TestCase(10, 0, 0, 80, 0)]
+        [TestCase(10, 0, 4, 80, 40)]
+        [TestCase(10, 0, 7, 80, 70)]
+        [TestCase(10, 0, 12, 80, 0)]
+        [TestCase(10, 0, 8, 80, 0)]
+        [TestCase(10, 5, 8, 80, 50)]
+        [TestCase(10, 12, 12, 80, 100)]
+        public void TestPercentCompleteDelayed(int desired, int accepted, int acquired, double delayGrading, double expected) {
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, delayGrading, 100);
+            TestPlan plan = new TestPlan(desired, accepted, acquired);
+            sut.PercentComplete(plan).Should().BeApproximately(expected, 0.00001);
         }
 
         [Test]
@@ -57,7 +71,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         [TestCase(10, 0, 0, false, 150, 15)]
         [TestCase(10, 0, 10, false, 150, 5)]
         public void TestRemainingExposures(int desired, int accepted, int acquired, bool gradingEnabled, double exposureThrottle, int expected) {
-            ExposureCompletionHelper sut = new ExposureCompletionHelper(gradingEnabled, exposureThrottle);
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(gradingEnabled, 0, exposureThrottle);
             TestPlan plan = new TestPlan(desired, accepted, acquired);
             sut.RemainingExposures(plan).Should().Be(expected);
 
@@ -66,11 +80,15 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             } else {
                 if (desired > 0) sut.IsIncomplete(plan).Should().BeFalse();
             }
+
+            // remaining exposures is uneffected by delayed grading
+            sut = new ExposureCompletionHelper(gradingEnabled, 50, exposureThrottle);
+            sut.RemainingExposures(plan).Should().Be(expected);
         }
 
         [Test]
         public void TestPercentCompleteTarget() {
-            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, 100);
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, 0, 100);
             Target target = new Target();
 
             sut.PercentComplete(target).Should().Be(0);
@@ -104,7 +122,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             target.ExposurePlans.Add(GetExposurePlan(10, 7, 0));
             sut.PercentComplete(target).Should().Be(85);
 
-            sut = new ExposureCompletionHelper(false, 100);
+            sut = new ExposureCompletionHelper(false, 0, 100);
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(GetExposurePlan(10, 0, 0));
@@ -136,7 +154,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             target.ExposurePlans.Add(GetExposurePlan(10, 0, 10));
             sut.PercentComplete(target).Should().Be(100);
 
-            sut = new ExposureCompletionHelper(false, 150);
+            sut = new ExposureCompletionHelper(false, 0, 150);
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(GetExposurePlan(10, 0, 0));
@@ -166,7 +184,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
 
         [Test]
         public void TestPercentCompletePlanTarget() {
-            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, 100);
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, 0, 100);
             ITarget target = new TestPlanTarget();
 
             sut.PercentComplete(target).Should().Be(0);
@@ -213,7 +231,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             sut.PercentComplete(target).Should().Be(100);
             sut.IsIncomplete(target).Should().BeFalse();
 
-            sut = new ExposureCompletionHelper(false, 100);
+            sut = new ExposureCompletionHelper(false, 0, 100);
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));
@@ -258,7 +276,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             sut.PercentComplete(target).Should().BeApproximately(66.66667, 0.00001);
             sut.IsIncomplete(target).Should().BeTrue();
 
-            sut = new ExposureCompletionHelper(false, 150);
+            sut = new ExposureCompletionHelper(false, 0, 150);
 
             target.ExposurePlans.Clear();
             target.ExposurePlans.Add(new TestPlanExposure(10, 0, 0));

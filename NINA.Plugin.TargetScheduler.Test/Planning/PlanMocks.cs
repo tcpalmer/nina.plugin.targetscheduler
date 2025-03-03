@@ -49,7 +49,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pp.SetupProperty(m => m.DitherEvery, 0);
             pp.SetupProperty(m => m.EnableGrader, false);
             pp.SetupProperty(m => m.IsMosaic, false);
-            pp.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(false, 125));
+            pp.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(false, 0, 125));
 
             Dictionary<string, double> rw = new Dictionary<string, double>();
             Dictionary<string, IScoringRule> allRules = ScoringRule.GetAllScoringRules();
@@ -73,7 +73,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             Mock<IProject> pp = new Mock<IProject>();
             pp.SetupAllProperties();
-            pp.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 100));
+            pp.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 0, 100));
 
             pt.SetupProperty(m => m.Project, pp.Object);
 

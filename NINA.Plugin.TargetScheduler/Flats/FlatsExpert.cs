@@ -494,7 +494,7 @@ namespace NINA.Plugin.TargetScheduler.Flats {
 
         private ExposureCompletionHelper GetExposureCompletionHelper(Project project) {
             ProfilePreference profilePreference = GetDatabase().GetContext().GetProfilePreference(project.ProfileId, true);
-            return new ExposureCompletionHelper(project.EnableGrader, profilePreference.ExposureThrottle);
+            return new ExposureCompletionHelper(project.EnableGrader, profilePreference.DelayGrading, profilePreference.ExposureThrottle);
         }
 
         private SchedulerDatabaseInteraction GetDatabase() {

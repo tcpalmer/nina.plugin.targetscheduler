@@ -7,15 +7,22 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
     public class ExposureCompletionHelper {
         private bool imageGradingEnabled;
+        private double delayGrading;
         private double exposureThrottle;
 
-        public ExposureCompletionHelper(bool imageGradingEnabled, double exposureThrottle) {
+        public ExposureCompletionHelper(bool imageGradingEnabled, double delayGrading, double exposureThrottle) {
             this.imageGradingEnabled = imageGradingEnabled;
+            this.delayGrading = delayGrading;
             this.exposureThrottle = exposureThrottle / 100;
         }
 
         public double PercentComplete(IExposureCounts exposurePlan) {
             if (imageGradingEnabled) {
+                // If delayed grading threshold has not been reached, then 'provisional' completion is based on raw number acquired
+                if (delayGrading > 0 && CurrentDelayThreshold(exposurePlan) < delayGrading) {
+                    return Percentage(exposurePlan.Acquired, exposurePlan.Desired);
+                }
+
                 return Percentage(exposurePlan.Accepted, exposurePlan.Desired);
             }
 
@@ -63,6 +70,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             if (denom == 0) { return 0; }
             double percent = (num / denom) * 100;
             return percent < 100 ? percent : 100;
+        }
+
+        private double CurrentDelayThreshold(IExposureCounts exposurePlan) {
+            return exposurePlan.Desired == 0 ? 0 : ((double)exposurePlan.Acquired / (double)exposurePlan.Desired) * 100;
         }
     }
 }

@@ -81,7 +81,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Scoring.Rules {
             Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
             projectMock.SetupProperty(m => m.IsMosaic, true);
             projectMock.SetupProperty(m => m.EnableGrader, true);
-            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 125));
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 0, 125));
 
             Mock<ITarget> targetMock1 = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
             targetMock1.SetupProperty(m => m.Project, projectMock.Object);
@@ -110,7 +110,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Scoring.Rules {
             Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
             projectMock.SetupProperty(m => m.IsMosaic, true);
             projectMock.SetupProperty(m => m.EnableGrader, true);
-            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 125));
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 0, 125));
 
             Mock<ITarget> targetMock1 = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
             targetMock1.SetupProperty(m => m.Project, projectMock.Object);
@@ -154,7 +154,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Scoring.Rules {
             Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
             projectMock.SetupProperty(m => m.IsMosaic, true);
             projectMock.SetupProperty(m => m.EnableGrader, false);
-            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(false, 125));
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(false, 0, 125));
 
             Mock<ITarget> targetMock1 = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
             targetMock1.SetupProperty(m => m.Project, projectMock.Object);

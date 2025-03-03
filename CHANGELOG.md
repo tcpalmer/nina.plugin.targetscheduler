@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.1.4.0 (beta) - 2025-03-XX
+* Revised target/exposure plan percent complete calculation to handle delayed grading.
+
 ## 5.1.3.0 (beta) - 2025-02-26
 * Added 'After Target Complete' custom event container.
 * Fixed bug where sync client was ignoring exposure length on exp template of same name.

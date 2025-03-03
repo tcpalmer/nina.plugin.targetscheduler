@@ -87,7 +87,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         private ExposureCompletionHelper GetExposureCompletionHelper(Project project) {
             ProfilePreference profilePreference = managerVM.Database.GetContext().GetProfilePreference(project.ProfileId, true);
-            return new ExposureCompletionHelper(project.EnableGrader, profilePreference.ExposureThrottle);
+            return new ExposureCompletionHelper(project.EnableGrader, profilePreference.DelayGrading, profilePreference.ExposureThrottle);
         }
 
         private bool ActiveWithActiveExposurePlans(Target target) {
@@ -128,7 +128,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public DeepSkyObject TargetDSO {
             get {
                 Target target = TargetProxy.Target;
-                DeepSkyObject dso = new DeepSkyObject(string.Empty, target.Coordinates, profileService.ActiveProfile.ApplicationSettings.SkyAtlasImageRepository, profileService.ActiveProfile.AstrometrySettings.Horizon);
+                DeepSkyObject dso = new DeepSkyObject(string.Empty, target.Coordinates, string.Empty, profileService.ActiveProfile.AstrometrySettings.Horizon);
                 dso.Name = target.Name;
                 dso.RotationPositionAngle = target.Rotation;
                 return dso;

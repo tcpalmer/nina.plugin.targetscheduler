@@ -58,10 +58,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
                 plan.PlanTarget.ExposureSelector.ExposureTaken(plan.PlanTarget.SelectedExposure);
 
+                plan.PlanTarget.SelectedExposure.Acquired++;
                 if (plan.PlanTarget.Project.EnableGrader) {
                     plan.PlanTarget.SelectedExposure.Accepted++;
-                } else {
-                    plan.PlanTarget.SelectedExposure.Acquired++;
                 }
 
                 previousTarget = plan.PlanTarget;

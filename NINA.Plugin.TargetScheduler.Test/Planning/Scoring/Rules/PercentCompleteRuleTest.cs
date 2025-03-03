@@ -40,7 +40,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Scoring.Rules {
 
             Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
             projectMock.SetupProperty(m => m.EnableGrader, true);
-            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 125));
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 0, 125));
 
             Mock<ITarget> targetMock = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
             targetMock.SetupProperty(m => m.Project, projectMock.Object);
@@ -61,7 +61,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Scoring.Rules {
 
             Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
             projectMock.SetupProperty(m => m.EnableGrader, true);
-            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 125));
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 0, 125));
 
             Mock<ITarget> targetMock = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
             targetMock.SetupProperty(m => m.Project, projectMock.Object);
@@ -82,7 +82,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Scoring.Rules {
 
             Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
             projectMock.SetupProperty(m => m.EnableGrader, true);
-            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 125));
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 0, 125));
 
             Mock<ITarget> targetMock = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
             targetMock.SetupProperty(m => m.Project, projectMock.Object);
@@ -98,6 +98,64 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Scoring.Rules {
 
             PercentCompleteRule sut = new PercentCompleteRule();
             sut.Score(scoringEngineMock.Object, targetMock.Object).Should().BeApproximately(0.66667, 0.0001);
+        }
+
+        [Test]
+        public void testPercentCompleteDelayedGradingNotReached() {
+            ProfilePreference profilePreference = new ProfilePreference("abcd-1234");
+            Mock<IScoringEngine> scoringEngineMock = PlanMocks.GetMockScoringEnging();
+            scoringEngineMock.SetupProperty(se => se.ProfilePreference, profilePreference);
+
+            Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
+            projectMock.SetupProperty(m => m.EnableGrader, true);
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 80, 125));
+
+            Mock<ITarget> targetMock = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
+            targetMock.SetupProperty(m => m.Project, projectMock.Object);
+            projectMock.Object.Targets.Add(targetMock.Object);
+
+            Mock<IExposure> exposurePlanMock = PlanMocks.GetMockPlanExposure("A", 10, 0);
+            exposurePlanMock.SetupProperty(m => m.Acquired, 2);
+            PlanMocks.AddMockPlanFilter(targetMock, exposurePlanMock);
+            exposurePlanMock = PlanMocks.GetMockPlanExposure("B", 10, 0);
+            exposurePlanMock.SetupProperty(m => m.Acquired, 2);
+            PlanMocks.AddMockPlanFilter(targetMock, exposurePlanMock);
+
+            exposurePlanMock = PlanMocks.GetMockPlanExposure("C", 10, 0);
+            exposurePlanMock.SetupProperty(m => m.Acquired, 2);
+            PlanMocks.AddMockPlanFilterToCompleted(targetMock, exposurePlanMock);
+
+            PercentCompleteRule sut = new PercentCompleteRule();
+            sut.Score(scoringEngineMock.Object, targetMock.Object).Should().BeApproximately(0.2, 0.0001);
+        }
+
+        [Test]
+        public void testPercentCompleteDelayedGradingReached() {
+            ProfilePreference profilePreference = new ProfilePreference("abcd-1234");
+            Mock<IScoringEngine> scoringEngineMock = PlanMocks.GetMockScoringEnging();
+            scoringEngineMock.SetupProperty(se => se.ProfilePreference, profilePreference);
+
+            Mock<IProject> projectMock = PlanMocks.GetMockPlanProject("p1", ProjectState.Active);
+            projectMock.SetupProperty(m => m.EnableGrader, true);
+            projectMock.SetupProperty(m => m.ExposureCompletionHelper, new ExposureCompletionHelper(true, 80, 125));
+
+            Mock<ITarget> targetMock = PlanMocks.GetMockPlanTarget("", TestData.SPICA);
+            targetMock.SetupProperty(m => m.Project, projectMock.Object);
+            projectMock.Object.Targets.Add(targetMock.Object);
+
+            Mock<IExposure> exposurePlanMock = PlanMocks.GetMockPlanExposure("A", 10, 5);
+            exposurePlanMock.SetupProperty(m => m.Acquired, 8);
+            PlanMocks.AddMockPlanFilter(targetMock, exposurePlanMock);
+            exposurePlanMock = PlanMocks.GetMockPlanExposure("B", 10, 5);
+            exposurePlanMock.SetupProperty(m => m.Acquired, 8);
+            PlanMocks.AddMockPlanFilter(targetMock, exposurePlanMock);
+
+            exposurePlanMock = PlanMocks.GetMockPlanExposure("C", 10, 5);
+            exposurePlanMock.SetupProperty(m => m.Acquired, 8);
+            PlanMocks.AddMockPlanFilterToCompleted(targetMock, exposurePlanMock);
+
+            PercentCompleteRule sut = new PercentCompleteRule();
+            sut.Score(scoringEngineMock.Object, targetMock.Object).Should().BeApproximately(0.5, 0.0001);
         }
 
         [Test]

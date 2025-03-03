@@ -30,7 +30,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Entities {
             project.SmartExposureOrder = true;
             project.FlatsHandling = Project.FLATS_HANDLING_TARGET_COMPLETION;
 
-            PlanningProject sut = new PlanningProject(profileMock.Object, project, new ExposureCompletionHelper(false, 0));
+            PlanningProject sut = new PlanningProject(profileMock.Object, project, new ExposureCompletionHelper(false, 0, 0));
 
             sut.PlanId.Should().NotBeNull();
             sut.DatabaseId.Should().Be(101);
