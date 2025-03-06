@@ -19,7 +19,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
         public double PercentComplete(IExposureCounts exposurePlan) {
             if (imageGradingEnabled) {
                 // If delayed grading threshold has not been reached, then 'provisional' completion is based on raw number acquired
-                if (delayGrading > 0 && CurrentDelayThreshold(exposurePlan) < delayGrading) {
+                if (IsProvisionalPercentComplete(exposurePlan)) {
                     return Percentage(exposurePlan.Acquired, exposurePlan.Desired);
                 }
 
@@ -51,6 +51,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
         public bool IsIncomplete(ITarget target) {
             return PercentComplete(target) < 100;
+        }
+
+        public bool IsProvisionalPercentComplete(IExposureCounts exposurePlan) {
+            return imageGradingEnabled && delayGrading > 0 && CurrentDelayThreshold(exposurePlan) < delayGrading;
         }
 
         public int RemainingExposures(IExposureCounts exposurePlan) {

@@ -35,6 +35,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             ExposureCompletionHelper sut = new ExposureCompletionHelper(gradingEnabled, 0, exposureThrottle);
             TestPlan plan = new TestPlan(desired, accepted, acquired);
             sut.PercentComplete(plan).Should().BeApproximately(expected, 0.00001);
+            sut.IsProvisionalPercentComplete(plan).Should().BeFalse();
 
             if (expected < 100) {
                 sut.IsIncomplete(plan).Should().BeTrue();
@@ -57,6 +58,20 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             ExposureCompletionHelper sut = new ExposureCompletionHelper(true, delayGrading, 100);
             TestPlan plan = new TestPlan(desired, accepted, acquired);
             sut.PercentComplete(plan).Should().BeApproximately(expected, 0.00001);
+        }
+
+        [Test]
+        [TestCase(10, 0, 0, 80, true)]
+        [TestCase(10, 0, 4, 80, true)]
+        [TestCase(10, 0, 7, 80, true)]
+        [TestCase(10, 0, 12, 80, false)]
+        [TestCase(10, 0, 8, 80, false)]
+        [TestCase(10, 5, 8, 80, false)]
+        [TestCase(10, 12, 12, 80, false)]
+        public void TestIsProvisionalPercentComplete(int desired, int accepted, int acquired, double delayGrading, bool expected) {
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, delayGrading, 100);
+            TestPlan plan = new TestPlan(desired, accepted, acquired);
+            sut.IsProvisionalPercentComplete(plan).Should().Be(expected);
         }
 
         [Test]

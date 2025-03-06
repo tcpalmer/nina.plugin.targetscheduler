@@ -461,7 +461,7 @@
                   CanUserAddRows="False"
                   HorizontalScrollBarVisibility="Disabled"
                   IsReadOnly="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                  ItemsSource="{Binding ExposurePlans}"
+                  ItemsSource="{Binding ExposurePlanVMList}"
                   RowHeight="25"
                   VerticalScrollBarVisibility="Auto">
 
@@ -693,7 +693,20 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding PercentComplete, StringFormat={}{0:0}%}" />
+                            <TextBlock Text="{Binding PercentComplete}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
+                    <DataGridTemplateColumn.Header>
+                        <TextBlock Text="%*"
+                                   ToolTip="Provisional percent complete when delayed grading has not yet triggered" />
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ProvisionalPercentComplete}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -725,6 +738,12 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+
+        <TextBlock Margin="12,6,0,12"
+                   VerticalAlignment="Center"
+                   FontStyle="Italic"
+                   Text="* There are two versions of percent complete, depending on the state of an exposure plan.  If grading is off, delayed grading is off, or delayed grading is on and has triggered, then normal percent complete applies and is Accepted/Desired or based on profile exposure throttle.  Otherwise, grading has not occurred so a provisional percent complete is used: Acquired/Desired."
+                   TextWrapping="Wrap" />
 
         <StackPanel Visibility="{Binding HaveFSFExposureOrder, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
             <StackPanel Name="ExposureOrderDefault"

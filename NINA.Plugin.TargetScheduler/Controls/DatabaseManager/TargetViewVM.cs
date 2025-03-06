@@ -146,6 +146,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             });
 
             ExposurePlans = exposurePlans;
+
+            List<ExposurePlanVM> vmList = new List<ExposurePlanVM>(ExposurePlans.Count);
+            ExposurePlans.ForEach((plan) => { vmList.Add(new ExposurePlanVM(exposureCompletionHelper, plan)); });
+            ExposurePlanVMList = vmList;
         }
 
         private List<ExposurePlan> exposurePlans = new List<ExposurePlan>();
@@ -156,6 +160,16 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 exposurePlans = value;
                 RaisePropertyChanged(nameof(ExposurePlans));
                 SetExposureOrderDisplay();
+            }
+        }
+
+        private List<ExposurePlanVM> exposurePlanVMList = new List<ExposurePlanVM>();
+
+        public List<ExposurePlanVM> ExposurePlanVMList {
+            get => exposurePlanVMList;
+            set {
+                exposurePlanVMList = value;
+                RaisePropertyChanged(nameof(ExposurePlanVMList));
             }
         }
 
@@ -597,5 +611,33 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             // Note that IFramingAssistantVM doesn't expose any properties to set the rotation, although they are on the impl
             return await framingAssistantVM.SetCoordinates(TargetDSO);
         }
+    }
+
+    public class ExposurePlanVM {
+        public ExposurePlan ExposurePlan { get; private set; }
+        public bool IsProvisional { get; private set; }
+        public string PercentComplete { get; private set; }
+        public string ProvisionalPercentComplete { get; private set; }
+
+        public ExposurePlanVM(ExposureCompletionHelper helper, ExposurePlan exposurePlan) {
+            ExposurePlan = exposurePlan;
+            string pc = string.Format("{0:0}%", helper.PercentComplete(exposurePlan));
+            if (helper.IsProvisionalPercentComplete(exposurePlan)) {
+                IsProvisional = true;
+                PercentComplete = "-";
+                ProvisionalPercentComplete = pc;
+            } else {
+                IsProvisional = false;
+                PercentComplete = pc;
+                ProvisionalPercentComplete = "-";
+            }
+        }
+
+        public ExposureTemplate ExposureTemplate { get => ExposurePlan.ExposureTemplate; set => ExposurePlan.ExposureTemplate = value; }
+        public int ExposureTemplateId { get => ExposurePlan.ExposureTemplateId; set => ExposurePlan.ExposureTemplateId = value; }
+        public double Exposure { get => ExposurePlan.Exposure; set => ExposurePlan.Exposure = value; }
+        public int Desired { get => ExposurePlan.Desired; set => ExposurePlan.Desired = value; }
+        public int Accepted { get => ExposurePlan.Accepted; set => ExposurePlan.Accepted = value; }
+        public int Acquired { get => ExposurePlan.Acquired; set => ExposurePlan.Acquired = value; }
     }
 }

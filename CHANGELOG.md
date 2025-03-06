@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.1.5.0 (beta) - 2025-03-06
+* Added explicit display of regular or provisional percent complete on exposure plans.
+
 ## 5.1.4.0 (beta) - 2025-03-XX
 * Revised target/exposure plan percent complete calculation to handle delayed grading.
 
