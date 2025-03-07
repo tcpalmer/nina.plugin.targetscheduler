@@ -4,10 +4,10 @@ using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile.Interfaces;
-using NINA.WPF.Base.Interfaces.Mediator;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace NINA.Plugin.TargetScheduler.Test.Grading {
 
@@ -18,7 +18,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         public void testLegacyNoCriteriaEnabled() {
             IProfile profile = GraderExpertTest.GetMockProfile(3.8, 700);
             ImageGraderPreferences prefs = GraderExpertTest.GetPreferences(profile, 0, 10, false, false, 0, false, 0, false, 0, false, 0, false, 0);
-            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
+            ImageMetadata imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
 
             List<AcquiredImage> pop = GraderExpertTest.GetTestImages(10, 101, "L", 60, 10, 20, "1x1", 100, 0, GradingStatus.Pending);
 
@@ -34,7 +34,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             List<GradingResult> results = new List<GradingResult>();
             mock.Setup(m => m.UpdateDatabase(Capture.In(results), It.IsAny<ExposurePlan>(), It.IsAny<AcquiredImage>()));
 
-            GradingWorkData workData = new GradingWorkData(101, 201, 301, imageData, prefs);
+            GradingWorkData workData = new GradingWorkData(101, 201, 301, 1, prefs);
 
             // No grading criteria enabled => accepted
             ImageGrader sut = mock.Object;
@@ -47,7 +47,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         public void testLegacyNotEnoughToCompare() {
             IProfile profile = GraderExpertTest.GetMockProfile(3.8, 700);
             ImageGraderPreferences prefs = GraderExpertTest.GetPreferences(profile, 0, 10, false, false, 0, true, 2, false, 0, false, 0, false, 0);
-            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
+            ImageMetadata imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
 
             List<AcquiredImage> pop = GraderExpertTest.GetTestImages(1, 101, "L", 60, 10, 20, "1x1", 100, 0, GradingStatus.Pending);
 
@@ -63,7 +63,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             List<GradingResult> results = new List<GradingResult>();
             mock.Setup(m => m.UpdateDatabase(Capture.In(results), It.IsAny<ExposurePlan>(), It.IsAny<AcquiredImage>()));
 
-            GradingWorkData workData = new GradingWorkData(101, 201, 301, imageData, prefs);
+            GradingWorkData workData = new GradingWorkData(101, 201, 301, 1, prefs);
 
             // Not enough to compare against => accepted
             ImageGrader sut = mock.Object;
@@ -76,13 +76,13 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         public void testLegacyBadStars() {
             IProfile profile = GraderExpertTest.GetMockProfile(3.8, 700);
             ImageGraderPreferences prefs = GraderExpertTest.GetPreferences(profile, 0, 10, false, false, 0, true, 2, false, 0, false, 0, false, 0);
-            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 100, 0, 1.5, 0);
 
             List<AcquiredImage> pop = GraderExpertTest.GetTestImages(10, 101, "L", 60, 10, 20, "1x1", 100, 0, GradingStatus.Pending);
 
             Mock<ImageGrader> mock = new Mock<ImageGrader>() { CallBase = true };
             ExposurePlan exposurePlan = GetExposurePlan(201, "L", 10, 0);
-            AcquiredImage ai = GetAcquiredImage(301, 101, "L");
+            ImageMetadata imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 100, 0, 1.5, 0);
+            AcquiredImage ai = GetAcquiredImage(301, 101, "L", 60, 10, 20, "1x1", 100, 0, GradingStatus.Pending, imageData);
 
             mock.Setup(m => m.GetExposurePlan(201)).Returns(exposurePlan);
             mock.Setup(m => m.GetTarget(101)).Returns(GetTarget(101, "T1", 100));
@@ -92,7 +92,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             List<GradingResult> results = new List<GradingResult>();
             mock.Setup(m => m.UpdateDatabase(Capture.In(results), It.IsAny<ExposurePlan>(), It.IsAny<AcquiredImage>()));
 
-            GradingWorkData workData = new GradingWorkData(101, 201, 301, imageData, prefs);
+            GradingWorkData workData = new GradingWorkData(101, 201, 301, 1, prefs);
 
             // Enough to compare against, bad star count (100) => rejected
             ImageGrader sut = mock.Object;
@@ -105,21 +105,23 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         public void testDelayedNotTime() {
             IProfile profile = GraderExpertTest.GetMockProfile(3.8, 700);
             ImageGraderPreferences prefs = GraderExpertTest.GetPreferences(profile, 60, 10, false, false, 0, true, 2, false, 0, false, 0, false, 0);
-            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 100, 0, 1.5, 0);
+            ImageMetadata imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 100, 0, 1.5, 0);
 
             List<AcquiredImage> pop = GraderExpertTest.GetTestImages(10, 101, "L", 60, 10, 20, "1x1", 100, 0, GradingStatus.Pending);
 
             Mock<ImageGrader> mock = new Mock<ImageGrader>() { CallBase = true };
             ExposurePlan exposurePlan = GetExposurePlan(201, "L", 20, 3);
+            AcquiredImage ai = GetAcquiredImage(301, 101, "L");
 
             mock.Setup(m => m.GetExposurePlan(201)).Returns(exposurePlan);
             mock.Setup(m => m.GetTarget(101)).Returns(GetTarget(101, "T1", 100));
             mock.Setup(m => m.GetAllAcquired(exposurePlan)).Returns(pop);
+            mock.Setup(m => m.GetCurrentAcquired(It.IsAny<int>())).Returns(ai);
 
             List<GradingResult> results = new List<GradingResult>();
             mock.Setup(m => m.UpdateDatabase(Capture.In(results), It.IsAny<ExposurePlan>(), It.IsAny<AcquiredImage>()));
 
-            GradingWorkData workData = new GradingWorkData(101, 201, 301, imageData, prefs);
+            GradingWorkData workData = new GradingWorkData(101, 201, 301, 1, prefs);
 
             // Delayed enabled but not triggered yet so no calls to UpdateDatabase
             ImageGrader sut = mock.Object;
@@ -131,27 +133,36 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         public void testDelayedReady() {
             IProfile profile = GraderExpertTest.GetMockProfile(3.8, 700);
             ImageGraderPreferences prefs = GraderExpertTest.GetPreferences(profile, 60, 10, false, false, 0, true, 2, false, 0, false, 0, false, 0);
-            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 100, 0, 1.5, 0);
 
             List<AcquiredImage> pop = GraderExpertTest.GetTestImages(10, 101, "L", 60, 10, 20, "1x1", 100, 0, GradingStatus.Pending);
 
+            // two should fail with low stars
+            ImageMetadata imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 100, 0, 1.5, 0);
+            pop[1].Metadata = imageData;
+            pop[5].Metadata = imageData;
+
             Mock<ImageGrader> mock = new Mock<ImageGrader>() { CallBase = true };
             ExposurePlan exposurePlan = GetExposurePlan(201, "L", 14, 0);
+            imageData = GraderExpertTest.GetMockImageData(0, 0, "L", 100, 0, 1.5, 0);
+            AcquiredImage ai = GetAcquiredImage(301, 101, "L", 60, 10, 20, "1x1", 100, 0, GradingStatus.Pending, imageData);
 
             mock.Setup(m => m.GetExposurePlan(201)).Returns(exposurePlan);
             mock.Setup(m => m.GetTarget(101)).Returns(GetTarget(101, "T1", 100));
+
+            mock.Setup(m => m.GetCurrentAcquired(301)).Returns(ai);
             mock.Setup(m => m.GetAllAcquired(exposurePlan)).Returns(pop);
 
             List<GradingResult> results = new List<GradingResult>();
             mock.Setup(m => m.UpdateDatabase(Capture.In(results), It.IsAny<ExposurePlan>(), It.IsAny<AcquiredImage>()));
 
-            GradingWorkData workData = new GradingWorkData(101, 201, 301, imageData, prefs);
+            GradingWorkData workData = new GradingWorkData(101, 201, 301, 1, prefs);
 
-            // Delayed enabled and triggered => all pending get graded, rejected for stars (100)
+            // Delayed enabled and triggered => all pending get graded with 2 rejected for stars (100)
             ImageGrader sut = mock.Object;
             sut.Grade(workData);
             results.Count.Should().Be(10);
-            results.ForEach(r => r.Should().Be(GradingResult.Rejected_Stars));
+            results.Where(r => r == GradingResult.Accepted).ToList().Count.Should().Be(8);
+            results.Where(r => r == GradingResult.Rejected_Stars).ToList().Count.Should().Be(2);
         }
 
         [Test]
@@ -220,6 +231,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             }
 
             return GraderExpertTest.GetAcquiredImage(id, targetId, filterName, duration, gain, offset, binning, roi, rotatorPosition, status, metaData);
+        }
+
+        private AcquiredImage GetAcquiredImage(int id, int targetId, string filterName, ImageMetadata imageData, GradingStatus status = GradingStatus.Pending) {
+            return GraderExpertTest.GetAcquiredImage(id, targetId, filterName, imageData.ExposureDuration, imageData.Gain, imageData.Offset,
+                imageData.Binning, imageData.ROI, imageData.RotatorPosition, status, imageData);
         }
     }
 }

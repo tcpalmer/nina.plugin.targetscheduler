@@ -52,7 +52,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Sequencer {
             CancellationToken token = new CancellationToken();
 
             int imageId = 22;
-            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageData(0, 0, "Ha", 0, 0, 1.5, 0);
+            // TODO: this needs to be a real ImageSavedEventArgs
+            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageSavedEventArgs(0, 0, "Ha", 0, 0, 1.5, 0);
             imageData.MetaData.Image.Id = imageId;
 
             Mock<ImageSaveWatcher> mock = new Mock<ImageSaveWatcher>(profile, imageSaveMediator) { CallBase = true };
@@ -91,7 +92,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Sequencer {
             CancellationToken token = new CancellationToken();
 
             int imageId = 23;
-            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageData(0, 0, "OIII", 0, 0, 1.5, 0);
+            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageSavedEventArgs(0, 0, "OIII", 0, 0, 1.5, 0);
             imageData.MetaData.Image.Id = imageId;
 
             Mock<ImageSaveWatcher> mock = new Mock<ImageSaveWatcher>(profile, imageSaveMediator) { CallBase = true };

@@ -36,6 +36,7 @@ namespace NINA.Plugin.TargetScheduler.Shared.Utility {
         public int ADUMin { get; set; }
         public int ADUMax { get; set; }
 
+        public double GuidingRMSScale { get; set; }
         public double GuidingRMS { get; set; }
         public double GuidingRMSArcSec { get; set; }
         public double GuidingRMSRA { get; set; }
@@ -86,6 +87,7 @@ namespace NINA.Plugin.TargetScheduler.Shared.Utility {
             FWHM = GetHocusFocusMetric(msg.StarDetectionAnalysis, "FWHM");
             Eccentricity = GetHocusFocusMetric(msg.StarDetectionAnalysis, "Eccentricity");
 
+            GuidingRMSScale = GetGuidingMetric(msg.MetaData.Image, msg.MetaData.Image?.RecordedRMS?.Scale);
             GuidingRMS = GetGuidingMetric(msg.MetaData.Image, msg.MetaData.Image?.RecordedRMS?.Total);
             GuidingRMSArcSec = GetGuidingMetricArcSec(msg.MetaData.Image, msg.MetaData.Image?.RecordedRMS?.Total);
             GuidingRMSRA = GetGuidingMetric(msg.MetaData.Image, msg.MetaData.Image?.RecordedRMS?.RA);
@@ -150,6 +152,7 @@ namespace NINA.Plugin.TargetScheduler.Shared.Utility {
             sb.AppendLine($"ADUMedian: {ADUMedian}");
             sb.AppendLine($"ADUMin: {ADUMin}");
             sb.AppendLine($"ADUMax: {ADUMax}");
+            sb.AppendLine($"GuidingRMSScale: {GuidingRMSScale}");
             sb.AppendLine($"GuidingRMS: {GuidingRMS}");
             sb.AppendLine($"GuidingRMSArcSec: {GuidingRMSArcSec}");
             sb.AppendLine($"GuidingRMSRA: {GuidingRMSRA}");

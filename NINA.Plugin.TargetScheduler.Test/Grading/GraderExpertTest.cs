@@ -116,29 +116,28 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         public void testGradeFWHM() {
             IProfile profile = GetMockProfile(3.8, 700);
             ImageGraderPreferences prefs = GetPreferences(profile, 0, 10, false, false, 0, false, 0, false, 0, false, 0, false, 0);
-            ImageSavedEventArgs imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
+            ImageMetadata imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
             List<AcquiredImage> pop = GetTestImages(10, 1, "L", 60);
 
             GraderExpert sut = new GraderExpert(prefs, imageData);
             sut.GradeFWHM(pop).Should().BeTrue(); // not enabled
 
             prefs = GetPreferences(profile, 0, 10, false, false, 0, false, 0, false, 0, true, 2, false, 0);
-            Mock<GraderExpert> mock = new Mock<GraderExpert>(prefs, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM")).Returns(2.234);
 
-            sut = mock.Object;
+            imageData.FWHM = 2.234;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeFWHM(pop).Should().BeTrue(); // enabled, within variance
 
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM")).Returns(6);
+            imageData.FWHM = 6;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeFWHM(pop).Should().BeFalse(); // enabled, outside variance
 
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM")).Returns(.1);
+            imageData.FWHM = 0.1;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeFWHM(pop).Should().BeFalse(); // enabled, outside variance, don't accept improvements
 
             prefs = GetPreferences(profile, 0, 10, true, false, 0, false, 0, false, 0, true, 2, false, 0);
-            mock = new Mock<GraderExpert>(prefs, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM")).Returns(.1);
-            sut = mock.Object;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeFWHM(pop).Should().BeTrue(); // enabled, outside variance, accept improvements
         }
 
@@ -146,29 +145,28 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         public void testGradeEccentricity() {
             IProfile profile = GetMockProfile(3.8, 700);
             ImageGraderPreferences prefs = GetPreferences(profile, 0, 10, false, false, 0, false, 0, false, 0, false, 0, false, 0);
-            ImageSavedEventArgs imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
+            ImageMetadata imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
             List<AcquiredImage> pop = GetTestImages(10, 1, "L", 60);
 
             GraderExpert sut = new GraderExpert(prefs, imageData);
             sut.GradeEccentricity(pop).Should().BeTrue(); // not enabled
 
             prefs = GetPreferences(profile, 0, 10, false, false, 0, false, 0, false, 0, false, 0, true, 2);
-            Mock<GraderExpert> mock = new Mock<GraderExpert>(prefs, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity")).Returns(3.456);
 
-            sut = mock.Object;
+            imageData.Eccentricity = 3.456;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeEccentricity(pop).Should().BeTrue(); // enabled, within variance
 
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity")).Returns(10.456);
+            imageData.Eccentricity = 10.456;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeEccentricity(pop).Should().BeFalse(); // enabled, outside variance
 
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity")).Returns(1);
+            imageData.Eccentricity = 1;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeEccentricity(pop).Should().BeFalse(); // enabled, outside variance, don't accept improvements
 
             prefs = GetPreferences(profile, 0, 10, true, false, 0, false, 0, false, 0, false, 0, true, 2);
-            mock = new Mock<GraderExpert>(prefs, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity")).Returns(1);
-            sut = mock.Object;
+            sut = new GraderExpert(prefs, imageData);
             sut.GradeEccentricity(pop).Should().BeTrue(); // enabled, outside variance, accept improvements
         }
 
@@ -220,27 +218,22 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             mockPrefs.SetupProperty(m => m.EnableGradeFWHM, true);
             mockPrefs.SetupProperty(m => m.AutoAcceptLevelFWHM, 4);
             List<AcquiredImage> pop = GetTestImages(10, 1, "L", 60);
-            ImageSavedEventArgs imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
-
-            Mock<GraderExpert> mock = new Mock<GraderExpert>(mockPrefs.Object, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM")).Returns(3.99);
+            ImageMetadata imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
 
             // auto enabled and permissive
-            GraderExpert sut = mock.Object;
+            imageData.FWHM = 3.99;
+            GraderExpert sut = new GraderExpert(mockPrefs.Object, imageData);
             sut.GradeFWHM(pop).Should().BeTrue();
 
             // auto disabled
             mockPrefs.SetupProperty(m => m.AutoAcceptLevelFWHM, 0);
-            mock = new Mock<GraderExpert>(mockPrefs.Object, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM")).Returns(3.99);
-            sut = mock.Object;
+            imageData.FWHM = 3.99;
+            sut = new GraderExpert(mockPrefs.Object, imageData);
             sut.GradeFWHM(pop).Should().BeFalse();
 
             // auto enabled but too tight
             mockPrefs.SetupProperty(m => m.AutoAcceptLevelFWHM, 3.9);
-            mock = new Mock<GraderExpert>(mockPrefs.Object, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM")).Returns(3.99);
-            sut = mock.Object;
+            sut = new GraderExpert(mockPrefs.Object, imageData);
             sut.GradeFWHM(pop).Should().BeFalse();
         }
 
@@ -251,27 +244,21 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             mockPrefs.SetupProperty(m => m.EnableGradeEccentricity, true);
             mockPrefs.SetupProperty(m => m.AutoAcceptLevelEccentricity, 4);
             List<AcquiredImage> pop = GetTestImages(10, 1, "L", 60);
-            ImageSavedEventArgs imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
-
-            Mock<GraderExpert> mock = new Mock<GraderExpert>(mockPrefs.Object, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity")).Returns(3.99);
+            ImageMetadata imageData = GetMockImageData(0, 0, "L", 0, 0, 1.5, 0);
 
             // auto enabled and permissive
-            GraderExpert sut = mock.Object;
+            imageData.Eccentricity = 3.99;
+            GraderExpert sut = new GraderExpert(mockPrefs.Object, imageData);
             sut.GradeEccentricity(pop).Should().BeTrue();
 
             // auto disabled
             mockPrefs.SetupProperty(m => m.AutoAcceptLevelEccentricity, 0);
-            mock = new Mock<GraderExpert>(mockPrefs.Object, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity")).Returns(3.99);
-            sut = mock.Object;
+            sut = new GraderExpert(mockPrefs.Object, imageData);
             sut.GradeEccentricity(pop).Should().BeFalse();
 
             // auto enabled but too tight
             mockPrefs.SetupProperty(m => m.AutoAcceptLevelEccentricity, 3.9);
-            mock = new Mock<GraderExpert>(mockPrefs.Object, imageData) { CallBase = true };
-            mock.Setup(m => m.GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity")).Returns(3.99);
-            sut = mock.Object;
+            sut = new GraderExpert(mockPrefs.Object, imageData);
             sut.GradeEccentricity(pop).Should().BeFalse();
         }
 
@@ -296,7 +283,27 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
                                               GradeFWHM, FWHMSigmaFactor, GradeEccentricity, EccentricitySigmaFactor);
         }
 
-        public static ImageSavedEventArgs GetMockImageData(double rmsTotal, double rmsScale, string filter, int detectedStars, double HFR, double FWHM = Double.NaN, double eccentricity = Double.NaN, double duration = 60,
+        public static ImageMetadata GetMockImageData(double rmsTotal, double rmsScale, string filter, int detectedStars, double HFR, double FWHM = Double.NaN, double eccentricity = Double.NaN, double duration = 60,
+                                               int gain = 10, int offset = 20, string binning = "1x1", double rotation = 0) {
+            ImageMetadata imageMetadata = new ImageMetadata {
+                ExposureDuration = duration,
+                Gain = gain,
+                Offset = offset,
+                Binning = binning,
+                RotatorPosition = rotation,
+                ROI = 100,
+                GuidingRMSScale = rmsScale,
+                GuidingRMS = rmsTotal,
+                DetectedStars = detectedStars,
+                HFR = HFR,
+                FWHM = FWHM,
+                Eccentricity = eccentricity,
+            };
+
+            return imageMetadata;
+        }
+
+        public static ImageSavedEventArgs GetMockImageSavedEventArgs(double rmsTotal, double rmsScale, string filter, int detectedStars, double HFR, double FWHM = Double.NaN, double eccentricity = Double.NaN, double duration = 60,
                                                int gain = 10, int offset = 20, string binning = "1x1", double rotation = 0) {
             ImageSavedEventArgs msg = new ImageSavedEventArgs();
             ImageMetaData metadata = new ImageMetaData();

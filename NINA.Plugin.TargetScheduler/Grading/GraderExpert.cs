@@ -1,10 +1,7 @@
-﻿using Namotion.Reflection;
-using NINA.Image.Interfaces;
-using NINA.Plugin.TargetScheduler.Database.Schema;
+﻿using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.SyncService.Sync;
 using NINA.Profile.Interfaces;
-using NINA.WPF.Base.Interfaces.Mediator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,29 +12,29 @@ namespace NINA.Plugin.TargetScheduler.Grading {
     public class GraderExpert {
         private IProfile profile;
         private IImageGraderPreferences preferences;
-        private ImageSavedEventArgs imageData;
+        private ImageMetadata imageMetadata;
 
         public bool NoGradingMetricsEnabled => noGradingMetricsEnabled();
         public bool EnableGradeRMS => enableGradeRMS();
 
-        public GraderExpert(GradingWorkData workData) : this(workData.GraderPreferences, workData.ImageSavedEventArgs) {
+        public GraderExpert(GradingWorkData workData, ImageMetadata imageMetadata) : this(workData.GraderPreferences, imageMetadata) {
         }
 
-        public GraderExpert(IImageGraderPreferences preferences, ImageSavedEventArgs imageData) {
+        public GraderExpert(IImageGraderPreferences preferences, ImageMetadata imageMetadata) {
             this.profile = preferences.Profile;
             this.preferences = preferences;
-            this.imageData = imageData;
+            this.imageMetadata = imageMetadata;
         }
 
         public bool GradeRMS() {
             if (!preferences.EnableGradeRMS) return true;
 
-            if (imageData.MetaData?.Image?.RecordedRMS == null) {
+            if (imageMetadata.GuidingRMS == 0 || imageMetadata.GuidingRMSScale == 0) {
                 TSLogger.Debug("image grading: guiding RMS not available");
                 return true;
             }
 
-            double guidingRMSArcSecs = imageData.MetaData.Image.RecordedRMS.Total * imageData.MetaData.Image.RecordedRMS.Scale;
+            double guidingRMSArcSecs = imageMetadata.GuidingRMS * imageMetadata.GuidingRMSScale;
             if (guidingRMSArcSecs <= 0) {
                 TSLogger.Debug("image grading: guiding RMS not valid for grading");
                 return true;
@@ -63,7 +60,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
 
             List<double> samples = GetSamples(population, i => { return i.Metadata.DetectedStars; });
             TSLogger.Debug("image grading: detected star count ->");
-            int detectedStars = imageData.StarDetectionAnalysis.DetectedStars;
+            int detectedStars = imageMetadata.DetectedStars;
             if (detectedStars == 0 || !WithinAcceptableVariance(samples, detectedStars, preferences.DetectedStarsSigmaFactor, true)) {
                 return false;
             }
@@ -74,7 +71,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public bool GradeHFR(List<AcquiredImage> population) {
             if (!preferences.EnableGradeHFR) return true;
 
-            double hfr = imageData.StarDetectionAnalysis.HFR;
+            double hfr = imageMetadata.HFR;
             if (preferences.AutoAcceptLevelHFR > 0 && hfr <= preferences.AutoAcceptLevelHFR) {
                 TSLogger.Debug($"image grading: HFR auto accepted: actual ({hfr}) <= level ({preferences.AutoAcceptLevelHFR})");
                 return true;
@@ -92,7 +89,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public bool GradeFWHM(List<AcquiredImage> population) {
             if (!preferences.EnableGradeFWHM) return true;
 
-            double fwhm = GetHocusFocusMetric(imageData.StarDetectionAnalysis, "FWHM");
+            double fwhm = imageMetadata.FWHM;
             if (Double.IsNaN(fwhm)) {
                 TSLogger.Warning("image grading: FWHM grading is enabled but image doesn't have FWHM metric.  Is Hocus Focus installed, enabled, and configured for star detection?");
             } else {
@@ -119,7 +116,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public bool GradeEccentricity(List<AcquiredImage> population) {
             if (!preferences.EnableGradeEccentricity) return true;
 
-            double eccentricity = GetHocusFocusMetric(imageData.StarDetectionAnalysis, "Eccentricity");
+            double eccentricity = imageMetadata.Eccentricity;
             if (eccentricity == Double.NaN) {
                 TSLogger.Warning("image grading: eccentricity grading is enabled but image doesn't have eccentricity metric.  Is Hocus Focus installed, enabled, and configured for star detection?");
             } else {
@@ -169,12 +166,6 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             return variance <= (stddev * sigmaFactor);
         }
 
-        public virtual double GetHocusFocusMetric(IStarDetectionAnalysis starDetectionAnalysis, string propertyName) {
-            return starDetectionAnalysis.HasProperty(propertyName) ?
-                (Double)starDetectionAnalysis.GetType().GetProperty(propertyName).GetValue(starDetectionAnalysis) :
-                Double.NaN;
-        }
-
         /// <summary>
         /// Determine the mean and the sample (not population) standard deviation of a set of samples.
         /// </summary>
@@ -209,7 +200,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
 
         private double GetBinning() {
             try {
-                string bin = imageData.MetaData?.Image?.Binning;
+                string bin = imageMetadata.Binning;
                 if (string.IsNullOrEmpty(bin)) {
                     return 1;
                 }

@@ -3,7 +3,6 @@ using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile.Interfaces;
-using NINA.WPF.Base.Interfaces.Mediator;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Migrations;
@@ -34,12 +33,13 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public void Grade(GradingWorkData workData) {
             ExposurePlan exposurePlan = GetExposurePlan(workData.ExposurePlanId);
             Target target = GetTarget(workData.TargetId);
-            string tag = $"target {target.Name}, expId={exposurePlan.Id}, imageId={workData.ImageSavedEventArgs.MetaData.Image.Id}";
+            AcquiredImage currentAcquiredImage = GetCurrentAcquired(workData.AcquiredImageId);
+            string tag = $"target {target.Name}, expId={exposurePlan.Id}, imageId={workData.ImageId}";
 
             try {
                 TSLogger.Info($"starting image grading on {tag}");
                 IImageGraderPreferences graderPreferences = workData.GraderPreferences;
-                List<AcquiredImage> population = GetMatchingAcquired(workData, target, GetAllAcquired(exposurePlan));
+                List<AcquiredImage> population = GetMatchingAcquired(target, currentAcquiredImage, GetAllAcquired(exposurePlan));
 
                 lock (lockObj) {
                     if (DelayedGradingEnabled(graderPreferences)) {
@@ -77,9 +77,9 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             }
         }
 
-        private GradingResult GradeImage(ExposurePlan exposurePlan, AcquiredImage acquiredImage, GradingWorkData workData, List<AcquiredImage> population) {
+        private GradingResult GradeImage(ExposurePlan exposurePlan, AcquiredImage gradingImage, GradingWorkData workData, List<AcquiredImage> aggregatePopulation) {
             IImageGraderPreferences prefs = workData.GraderPreferences;
-            GraderExpert expert = new GraderExpert(workData);
+            GraderExpert expert = new GraderExpert(workData, gradingImage.Metadata);
 
             try {
                 if (!expert.EnableGradeRMS && expert.NoGradingMetricsEnabled) {
@@ -96,6 +96,11 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                     TSLogger.Info("image grading: no additional metrics enabled => accepted");
                     return GradingResult.Accepted;
                 }
+
+                // Remove current acquired image from population before running stats
+                List<AcquiredImage> population = Common.IsNotEmpty(aggregatePopulation)
+                        ? aggregatePopulation.Where(ai => ai.Id != gradingImage.Id).ToList()
+                        : null;
 
                 // If not delayed and we don't yet have enough images to compare against, assume acceptable
                 if (Common.IsEmpty(population) || population.Count < 3) {
@@ -195,19 +200,19 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             }
         }
 
-        private List<AcquiredImage> GetMatchingAcquired(GradingWorkData workData, Target target, List<AcquiredImage> acquiredImages) {
+        private List<AcquiredImage> GetMatchingAcquired(Target target, AcquiredImage currentAcquiredImage, List<AcquiredImage> acquiredImages) {
             if (Common.IsEmpty(acquiredImages)) {
                 return new List<AcquiredImage>(Array.Empty<AcquiredImage>());
             }
 
-            ImageSavedEventArgs imageSavedEventArgs = workData.ImageSavedEventArgs;
-
+            // note this will include the current acquired image but will be removed later ...
+            ImageMetadata metadata = currentAcquiredImage.Metadata;
             return acquiredImages.Where(a =>
-                a.ProfileId == workData.GraderPreferences.Profile.Id.ToString() &&
-                a.Metadata.ExposureDuration == imageSavedEventArgs.Duration &&
-                a.Metadata.Gain == imageSavedEventArgs.MetaData.Camera.Gain &&
-                a.Metadata.Offset == imageSavedEventArgs.MetaData.Camera.Offset &&
-                a.Metadata.Binning == imageSavedEventArgs.MetaData.Image.Binning &&
+                a.ProfileId == currentAcquiredImage.ProfileId &&
+                a.Metadata.ExposureDuration == metadata.ExposureDuration &&
+                a.Metadata.Gain == metadata.Gain &&
+                a.Metadata.Offset == metadata.Offset &&
+                a.Metadata.Binning == metadata.Binning &&
                 a.Metadata.ROI == target.ROI
             ).ToList();
         }

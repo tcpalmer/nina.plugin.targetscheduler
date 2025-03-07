@@ -1,5 +1,4 @@
 ﻿using NINA.Plugin.TargetScheduler.Shared.Utility;
-using NINA.WPF.Base.Interfaces.Mediator;
 using Nito.AsyncEx;
 using System;
 using System.Threading;
@@ -63,16 +62,13 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public int ExposurePlanId { get; private set; }
         public int AcquiredImageId { get; private set; }
         public int ImageId { get; private set; }
-        public ImageSavedEventArgs ImageSavedEventArgs { get; private set; }
         public IImageGraderPreferences GraderPreferences { get; private set; }
 
-        public GradingWorkData(int targetId, int exposurePlanId, int acquiredImageId,
-            ImageSavedEventArgs imageSavedEventArgs, IImageGraderPreferences graderPreferences) {
+        public GradingWorkData(int targetId, int exposurePlanId, int acquiredImageId, int imageId, IImageGraderPreferences graderPreferences) {
             TargetId = targetId;
             ExposurePlanId = exposurePlanId;
             AcquiredImageId = acquiredImageId;
-            ImageId = imageSavedEventArgs.MetaData.Image.Id;
-            ImageSavedEventArgs = imageSavedEventArgs;
+            ImageId = imageId;
             GraderPreferences = graderPreferences;
         }
 
