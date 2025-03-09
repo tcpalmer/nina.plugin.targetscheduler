@@ -28,12 +28,12 @@ namespace NINA.Plugin.TargetScheduler.Test.Util {
         }
 
         [Test]
-        [TestCase(0, "0h 0m 0s")]
-        [TestCase(32, "0h 0m 32s")]
-        [TestCase(61, "0h 1m 1s")]
-        [TestCase(3600, "1h 0m 0s")]
-        [TestCase(3601, "1h 0m 1s")]
-        [TestCase(10000, "2h 46m 40s")]
+        [TestCase(0, "  0h 00m 00s")]
+        [TestCase(32, "  0h 00m 32s")]
+        [TestCase(61, "  0h 01m 01s")]
+        [TestCase(3600, "  1h 00m 00s")]
+        [TestCase(3601, "  1h 00m 01s")]
+        [TestCase(10000, "  2h 46m 40s")]
         public void TestStoHMS(int secs, string expected) {
             Utils.StoHMS(secs).Should().Be(expected);
         }

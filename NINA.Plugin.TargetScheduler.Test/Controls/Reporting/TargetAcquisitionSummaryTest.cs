@@ -16,61 +16,62 @@ namespace NINA.Plugin.TargetScheduler.Test.Controls.Reporting {
             Target target = new Target();
             List<AcquiredImage> list = new List<AcquiredImage>();
             list.Add(GetAI("Lum", 300, GradingStatus.Accepted));
-            TargetAcquisitionSummary sut = new TargetAcquisitionSummary(target, list);
+            TargetAcquisitionSummary sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(2);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, "0h 5m 0s", "0h 5m 0s", "0h 0m 0s", "0h 0m 0s");
-            AssertRow(sut.Rows[1], "Lum", "0h 5m 0s", "0h 5m 0s", "0h 0m 0s", "0h 0m 0s");
+            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 1, 300, 300, 0, 0);
+            AssertRow(sut.Rows[1], "Lum", 1, 300, 300, 0, 0);
 
             list.Add(GetAI("Lum", 300, GradingStatus.Rejected));
-            sut = new TargetAcquisitionSummary(target, list);
+            sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(2);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, "0h 10m 0s", "0h 5m 0s", "0h 5m 0s", "0h 0m 0s");
-            AssertRow(sut.Rows[1], "Lum", "0h 10m 0s", "0h 5m 0s", "0h 5m 0s", "0h 0m 0s");
+            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 2, 600, 300, 300, 0);
+            AssertRow(sut.Rows[1], "Lum", 2, 600, 300, 300, 0);
 
             list.Add(GetAI("Lum", 300, GradingStatus.Pending));
-            sut = new TargetAcquisitionSummary(target, list);
+            sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(2);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, "0h 15m 0s", "0h 5m 0s", "0h 5m 0s", "0h 5m 0s");
-            AssertRow(sut.Rows[1], "Lum", "0h 15m 0s", "0h 5m 0s", "0h 5m 0s", "0h 5m 0s");
+            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
 
             list.Add(GetAI("Red", 180, GradingStatus.Accepted));
-            sut = new TargetAcquisitionSummary(target, list);
+            sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(3);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, "0h 18m 0s", "0h 8m 0s", "0h 5m 0s", "0h 5m 0s");
-            AssertRow(sut.Rows[1], "Lum", "0h 15m 0s", "0h 5m 0s", "0h 5m 0s", "0h 5m 0s");
-            AssertRow(sut.Rows[2], "Red", "0h 3m 0s", "0h 3m 0s", "0h 0m 0s", "0h 0m 0s");
+            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 4, 1080, 480, 300, 300);
+            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[2], "Red", 1, 180, 180, 0, 0);
 
             list.Add(GetAI("Grn", 600, GradingStatus.Rejected));
-            sut = new TargetAcquisitionSummary(target, list);
+            sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(4);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, "0h 28m 0s", "0h 8m 0s", "0h 15m 0s", "0h 5m 0s");
-            AssertRow(sut.Rows[1], "Lum", "0h 15m 0s", "0h 5m 0s", "0h 5m 0s", "0h 5m 0s");
-            AssertRow(sut.Rows[2], "Red", "0h 3m 0s", "0h 3m 0s", "0h 0m 0s", "0h 0m 0s");
-            AssertRow(sut.Rows[3], "Grn", "0h 10m 0s", "0h 0m 0s", "0h 10m 0s", "0h 0m 0s");
+            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 5, 1680, 480, 900, 300);
+            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[2], "Red", 1, 180, 180, 0, 0);
+            AssertRow(sut.Rows[3], "Grn", 1, 600, 0, 600, 0);
 
             for (int i = 0; i < 21; i++) {
                 list.Add(GetAI("Blu", 610, GradingStatus.Pending));
             }
 
-            sut = new TargetAcquisitionSummary(target, list);
+            sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(5);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, "4h 1m 30s", "0h 8m 0s", "0h 15m 0s", "3h 38m 30s");
-            AssertRow(sut.Rows[1], "Lum", "0h 15m 0s", "0h 5m 0s", "0h 5m 0s", "0h 5m 0s");
-            AssertRow(sut.Rows[2], "Red", "0h 3m 0s", "0h 3m 0s", "0h 0m 0s", "0h 0m 0s");
-            AssertRow(sut.Rows[3], "Grn", "0h 10m 0s", "0h 0m 0s", "0h 10m 0s", "0h 0m 0s");
-            AssertRow(sut.Rows[4], "Blu", "3h 33m 30s", "0h 0m 0s", "0h 0m 0s", "3h 33m 30s");
+            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 26, 14490, 480, 900, 13110);
+            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[2], "Red", 1, 180, 180, 0, 0);
+            AssertRow(sut.Rows[3], "Grn", 1, 600, 0, 600, 0);
+            AssertRow(sut.Rows[4], "Blu", 21, 12810, 0, 0, 12810);
         }
 
         [Test]
         public void testEmpty() {
-            TargetAcquisitionSummary sut = new TargetAcquisitionSummary(null, null);
+            TargetAcquisitionSummary sut = new TargetAcquisitionSummary(null);
             sut.Rows.Count.Should().Be(0);
 
-            TargetAcquisitionRow row = new TargetAcquisitionRow(null, null);
-            row.TotalTime.Should().BeNull();
-            row.AcceptedTime.Should().BeNull();
-            row.RejectedTime.Should().BeNull();
-            row.PendingTime.Should().BeNull();
+            TargetAcquisitionSummaryRow row = new TargetAcquisitionSummaryRow(null, null);
+            row.Exposures.Should().Be(0);
+            row.TotalTime.Should().Be(0);
+            row.AcceptedTime.Should().Be(0);
+            row.RejectedTime.Should().Be(0);
+            row.PendingTime.Should().Be(0);
         }
 
         private AcquiredImage GetAI(string filterName, double duration, GradingStatus status) {
@@ -80,8 +81,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Controls.Reporting {
             return ai;
         }
 
-        private void AssertRow(TargetAcquisitionRow row, string key, string tt, string at, string rt, string pt) {
+        private void AssertRow(TargetAcquisitionSummaryRow row, string key, int exp, int tt, int at, int rt, int pt) {
             row.Key.Should().Be(key);
+            row.Exposures.Should().Be(exp);
             row.TotalTime.Should().Be(tt);
             row.AcceptedTime.Should().Be(at);
             row.RejectedTime.Should().Be(rt);

@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using LinqKit;
-using NINA.Core.Locale;
 using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Controls.AcquiredImages;
 using NINA.Plugin.TargetScheduler.Database;
@@ -40,10 +39,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         private void InitializeCriteria() {
             SearchCriteraKey = null;
             selectedTargetId = 0;
-            selectedFilterId = -1;
             selectedTarget = null;
             TargetChoices = GetTargetChoices();
-            FilterChoices = GetFilterChoices();
         }
 
         private bool tableLoading = false;
@@ -97,9 +94,6 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             set {
                 selectedTargetId = value;
                 SelectedTarget = selectedTargetId != 0 ? GetTarget(selectedTargetId) : null;
-
-                SelectedFilterId = -1;
-                FilterChoices = GetFilterChoices();
                 RaisePropertyChanged(nameof(SelectedTargetId));
                 _ = LoadRecords();
             }
@@ -117,50 +111,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             }
         }
 
-        private AsyncObservableCollection<KeyValuePair<int, string>> GetFilterChoices() {
-            AsyncObservableCollection<KeyValuePair<int, string>> choices = new AsyncObservableCollection<KeyValuePair<int, string>> {
-                new KeyValuePair<int, string>(-1, Loc.Instance["LblAny"])
-            };
-
-            if (SelectedTargetId == 0) {
-                return choices;
-            }
-
-            for (int i = 0; i < SelectedTarget.ExposurePlans.Count; i++) {
-                ExposurePlan exposurePlan = SelectedTarget.ExposurePlans[i];
-                choices.Add(new KeyValuePair<int, string>(i, exposurePlan.ExposureTemplate.FilterName));
-            }
-
-            return choices;
-        }
-
-        private AsyncObservableCollection<KeyValuePair<int, string>> filterChoices;
-
-        public AsyncObservableCollection<KeyValuePair<int, string>> FilterChoices {
-            get => filterChoices;
-            set {
-                filterChoices = value;
-                RaisePropertyChanged(nameof(FilterChoices));
-            }
-        }
-
-        private int selectedFilterId = -1;
-
-        public int SelectedFilterId {
-            get => selectedFilterId;
-            set {
-                selectedFilterId = value;
-                RaisePropertyChanged(nameof(SelectedFilterId));
-                _ = LoadRecords();
-            }
-        }
-
         public ICommand RefreshTableCommand { get; private set; }
 
         private async Task<bool> RefreshTable() {
             InitializeCriteria();
             RaisePropertyChanged(nameof(SelectedTargetId));
-            RaisePropertyChanged(nameof(SelectedFilterId));
             await LoadRecords();
             return true;
         }
@@ -231,27 +186,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 try {
                     SearchCriteraKey = newSearchCriteraKey;
 
-                    List<int> exposurePlanIds = new List<int>();
-                    string filterName = "any";
-                    if (SelectedFilterId != -1) {
-                        exposurePlanIds.Add(SelectedTarget.ExposurePlans[SelectedFilterId].Id);
-                        filterName = SelectedTarget.ExposurePlans[SelectedFilterId].ExposureTemplate.FilterName;
-                    } else {
-                        SelectedTarget.ExposurePlans.ForEach(ep => exposurePlanIds.Add(ep.Id));
-                    }
-
                     List<AcquiredImage> acquiredImages;
                     using (var context = database.GetContext()) {
                         acquiredImages = context.AcquiredImageSet
                         .AsNoTracking()
-                        .Where(ai => ai.TargetId == SelectedTargetId && exposurePlanIds.Contains(ai.ExposureId))
+                        .Where(ai => ai.TargetId == SelectedTargetId)
                         .ToList();
                     }
 
                     // Create an intermediate list so we can add it to the display collection via AddRange while suppressing notifications
                     List<ReportRowVM> reportRowVMs = new List<ReportRowVM>(acquiredImages.Count);
                     acquiredImages.ForEach(ai => { reportRowVMs.Add(new ReportRowVM(database, ai)); });
-                    ReportTableSummary = new ReportTableSummary(acquiredImages, SelectedTarget.Project.Name, SelectedTarget.Name, filterName);
+                    ReportTableSummary = new ReportTableSummary(acquiredImages, SelectedTarget.Project.Name, SelectedTarget.Name);
 
                     _dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => {
                         ReportRowCollection.Clear();
@@ -272,11 +218,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         private string SearchCriteraKey;
 
         private string GetSearchCriteraKey() {
-            return $"{SelectedTargetId}_{SelectedFilterId}";
+            return $"{SelectedTargetId}";
         }
     }
 
     public class ReportTableSummary {
+        public List<SummaryRow> AcquisitionSummary { get; private set; }
         public string Title { get; private set; }
         public string DateRange { get; private set; }
         public string StarsRange { get; private set; }
@@ -284,18 +231,21 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         public string FWHMRange { get; private set; }
         public string EccentricityRange { get; private set; }
 
-        public ReportTableSummary(List<AcquiredImage> acquiredImages, string projectName, string targetName, string filterName) {
-            // TODO: should do fixed formatting so they line up
-
-            Title = $"{projectName} / {targetName} ({filterName})";
+        public ReportTableSummary(List<AcquiredImage> acquiredImages, string projectName, string targetName) {
+            Title = $"{projectName} / {targetName}";
 
             if (Common.IsEmpty(acquiredImages)) return;
+
+            AcquisitionSummary = new List<SummaryRow>();
+            new TargetAcquisitionSummary(acquiredImages).Rows.ForEach(row => { AcquisitionSummary.Add(new SummaryRow(row)); });
 
             DateTime minDate = DateTime.MaxValue;
             acquiredImages.ForEach(x => { if (x.AcquiredDate < minDate) minDate = x.AcquiredDate; });
             DateTime maxDate = DateTime.MinValue;
             acquiredImages.ForEach(x => { if (x.AcquiredDate > maxDate) maxDate = x.AcquiredDate; });
             DateRange = $"{Utils.FormatDateTimeFull(minDate)}  to  {Utils.FormatDateTimeFull(maxDate)}";
+
+            // TODO: should do fixed formatting so they line up
 
             List<double> samples = GetSamples(acquiredImages, i => { return i.Metadata.DetectedStars; });
             StarsRange = $"{samples.Min()} - {samples.Max()}";
@@ -375,5 +325,20 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
         public int ThumbnailWidth { get => ImageData != null ? ImageData.Width : 0; }
         public int ThumbnailHeight { get => ImageData != null ? ImageData.Height : 0; }
+    }
+
+    public class SummaryRow {
+        private TargetAcquisitionSummaryRow row;
+
+        public string RowName { get { return row.Key; } }
+        public int Exposures { get { return row.Exposures; } }
+        public string Total { get { return Utils.StoHMS(row.TotalTime); } }
+        public string Accepted { get { return Utils.StoHMS(row.AcceptedTime); } }
+        public string Rejected { get { return Utils.StoHMS(row.RejectedTime); } }
+        public string Pending { get { return Utils.StoHMS(row.PendingTime); } }
+
+        public SummaryRow(TargetAcquisitionSummaryRow row) {
+            this.row = row;
+        }
     }
 }

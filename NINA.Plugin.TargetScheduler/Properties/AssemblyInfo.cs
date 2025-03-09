@@ -11,8 +11,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
-[assembly: AssemblyVersion("5.1.5.0")]
-[assembly: AssemblyFileVersion("5.1.5.0")]
+[assembly: AssemblyVersion("5.1.6.0")]
+[assembly: AssemblyFileVersion("5.1.6.0")]
 
 // The minimum Version of N.I.N.A. that this plugin is compatible with
 [assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
@@ -33,6 +33,7 @@ using System.Runtime.InteropServices;
 * Flexible exposure/filter planning including enhanced moon avoidance
 * Plan previewing
 * Image grading
+* Reporting
 * Automated flats support
 * Synchronization across multiple instances of NINA
 * Support for 24x7 sequences for long term unattended operation

@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.1.6.0 (beta) - 2025-03-XX
+* Added target summary report to Reporting display.
+
 ## 5.1.5.0 (beta) - 2025-03-07
 * Added explicit display of regular or provisional percent complete on exposure plans.
 * Fixed bug with grading (was impacting all previous delayed grading runs).

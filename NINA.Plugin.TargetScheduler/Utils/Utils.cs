@@ -36,7 +36,7 @@ namespace NINA.Plugin.TargetScheduler.Util {
 
         public static string StoHMS(int seconds) {
             TimeSpan time = TimeSpan.FromSeconds(seconds);
-            return $"{time.Hours}h {time.Minutes}m {time.Seconds}s";
+            return string.Format("{0,3:##0}h {1,2:00}m {2,2:00}s", time.Hours, time.Minutes, time.Seconds);
         }
 
         public static int HMtoM(string hm) {

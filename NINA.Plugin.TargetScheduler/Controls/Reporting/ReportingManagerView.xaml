@@ -30,11 +30,10 @@
                           Margin="15,20,5,12"
                           HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition Width="100" />
                             <ColumnDefinition Width="260" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
                         </Grid.RowDefinitions>
@@ -54,23 +53,6 @@
                                   DisplayMemberPath="Value"
                                   ItemsSource="{Binding TargetChoices}"
                                   SelectedValue="{Binding SelectedTargetId}"
-                                  SelectedValuePath="Key" />
-
-                        <TextBlock Grid.Row="1"
-                                   Grid.Column="0"
-                                   MaxWidth="80"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center"
-                                   FontWeight="Bold"
-                                   Text="Filter" />
-                        <ComboBox Grid.Row="1"
-                                  Grid.Column="1"
-                                  MinWidth="233"
-                                  HorizontalAlignment="Left"
-                                  VerticalAlignment="Center"
-                                  DisplayMemberPath="Value"
-                                  ItemsSource="{Binding FilterChoices}"
-                                  SelectedValue="{Binding SelectedFilterId}"
                                   SelectedValuePath="Key" />
 
                         <StackPanel Grid.Row="2"
@@ -116,6 +98,163 @@
                        FontWeight="Bold"
                        Text="{Binding ReportTableSummary.Title}" />
 
+            <TextBlock MaxWidth="500"
+                       Margin="12,20,0,0"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Text="Acqusition Summary" />
+
+            <DataGrid Width="500"
+                      Height="200"
+                      Margin="12,8,0,0"
+                      HorizontalAlignment="Left"
+                      AutoGenerateColumns="False"
+                      BorderThickness="0"
+                      CanUserAddRows="False"
+                      CanUserSortColumns="False"
+                      HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                      HorizontalScrollBarVisibility="Disabled"
+                      IsReadOnly="True"
+                      IsSynchronizedWithCurrentItem="False"
+                      ItemsSource="{Binding ReportTableSummary.AcquisitionSummary}"
+                      RowHeight="25"
+                      ScrollViewer.CanContentScroll="False"
+                      VerticalScrollBarVisibility="Auto">
+
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="HorizontalAlignment"
+                                Value="Center" />
+                        <Setter Property="BorderBrush"
+                                Value="{StaticResource BorderBrush}" />
+                        <Setter Property="BorderThickness"
+                                Value="0" />
+                        <Setter Property="MinHeight"
+                                Value="25" />
+                        <Setter Property="Margin"
+                                Value="5,3,5,3" />
+                        <Setter Property="FontWeight"
+                                Value="Bold" />
+                        <Setter Property="FontSize"
+                                Value="12" />
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderBrush"
+                                Value="{StaticResource BorderBrush}" />
+                        <Setter Property="BorderThickness"
+                                Value="0" />
+                        <Setter Property="MinHeight"
+                                Value="22" />
+                        <Setter Property="VerticalAlignment"
+                                Value="Top" />
+                        <Setter Property="Margin"
+                                Value="5,3,5,3" />
+                        <Setter Property="Background"
+                                Value="Transparent" />
+                    </Style>
+                </DataGrid.CellStyle>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="MinHeight"
+                                Value="22" />
+                        <Setter Property="Background"
+                                Value="Transparent" />
+                        <Setter Property="VerticalAlignment"
+                                Value="Center" />
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <DataGrid.Columns>
+
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock HorizontalAlignment="Left"
+                                       Text="Filter             " />
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Width="Auto"
+                                           Text="{Binding RowName}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="Exposures     " />
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Width="Auto"
+                                           Text="{Binding Exposures}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="Total" />
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Width="Auto"
+                                           Text="{Binding Total}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="Accepted" />
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Width="Auto"
+                                           Text="{Binding Accepted}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="Rejected" />
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Width="Auto"
+                                           Text="{Binding Rejected}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="Pending" />
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Width="Auto"
+                                           Text="{Binding Pending}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock MaxWidth="500"
+                       Margin="12,20,0,0"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Text="Details" />
+
             <Grid Width="600"
                   Margin="15,12,5,12"
                   HorizontalAlignment="Left">
@@ -154,7 +293,7 @@
                            Text="Star Count:" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="1"
-                           MaxWidth="80"
+                           MaxWidth="200"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
                            Text="{Binding ReportTableSummary.StarsRange}" />
@@ -168,7 +307,7 @@
                            Text="HFR:" />
                 <TextBlock Grid.Row="2"
                            Grid.Column="1"
-                           MaxWidth="80"
+                           MaxWidth="200"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
                            Text="{Binding ReportTableSummary.HFRRange}" />
@@ -182,7 +321,7 @@
                            Text="FWHM:" />
                 <TextBlock Grid.Row="3"
                            Grid.Column="1"
-                           MaxWidth="80"
+                           MaxWidth="200"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
                            Text="{Binding ReportTableSummary.FWHMRange}" />
@@ -196,7 +335,7 @@
                            Text="Eccentricity:" />
                 <TextBlock Grid.Row="4"
                            Grid.Column="1"
-                           MaxWidth="80"
+                           MaxWidth="200"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
                            Text="{Binding ReportTableSummary.EccentricityRange}" />
