@@ -468,8 +468,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         private void DeleteExposurePlan(object obj) {
-            ExposurePlan item = obj as ExposurePlan;
-            ExposurePlan exposurePlan = TargetProxy.Original.ExposurePlans.Where(ep => ep.Id == item.Id).FirstOrDefault();
+            ExposurePlanVM item = obj as ExposurePlanVM;
+            ExposurePlan exposurePlan = TargetProxy.Original.ExposurePlans.Where(ep => ep.Id == item?.ExposurePlan.Id).FirstOrDefault();
             if (exposurePlan != null) {
                 string message = $"Delete exposure plan using template '{exposurePlan.ExposureTemplate?.Name}'?  This cannot be undone.";
                 if (MyMessageBox.Show(message, "Delete Exposure Plan?", MessageBoxButton.YesNo, MessageBoxResult.No) == MessageBoxResult.Yes) {
@@ -483,7 +483,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                     }
                 }
             } else {
-                TSLogger.Error($"failed to find original exposure plan: {item.Id}");
+                TSLogger.Error($"failed to find original exposure plan: {item?.ExposurePlan.Id}");
             }
         }
 
