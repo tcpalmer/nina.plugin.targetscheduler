@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using LinqKit;
+﻿using LinqKit;
 using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Controls.AcquiredImages;
 using NINA.Plugin.TargetScheduler.Database;
@@ -19,6 +18,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
 namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
@@ -27,7 +27,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
         public ReportingManagerViewVM(IProfileService profileService) : base(profileService) {
             database = new SchedulerDatabaseInteraction();
-            RefreshTableCommand = new AsyncRelayCommand(RefreshTable);
+            RefreshTableCommand = new RelayCommand(RefreshTable);
             InitializeCriteria();
 
             ReportRowCollection = new ReportRowCollection();
@@ -113,11 +113,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
         public ICommand RefreshTableCommand { get; private set; }
 
-        private async Task<bool> RefreshTable() {
+        private void RefreshTable() {
+            var currentSelectedTargetId = SelectedTargetId;
             InitializeCriteria();
-            RaisePropertyChanged(nameof(SelectedTargetId));
-            await LoadRecords();
-            return true;
+            SelectedTargetId = currentSelectedTargetId;
         }
 
         private ReportRowCollection reportRowCollection;
@@ -141,23 +140,6 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         }
 
         private static Dispatcher _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-
-        /* TODO:
-         *   - Additional summary - sounds like a table
-         *
-         *                           Total         Accepted      Rejected       Pending
-         *                All:        2h0m            1h32m
-         *                Lum:        0h8m             0h7m
-         *                Red:        0h8m             0h7m
-         *
-         *   Should pull exposure duration from AI, not from EP(ET) which could change
-         *
-         *   To fit this, may want to reorg:
-         *   - When you select a target, generate new table plus existing with Filter=Any
-         *   - The Filter dropdown moves below the table and drives existing summary and AI rows
-         *
-         *
-*/
 
         private async Task<bool> LoadRecords() {
             return await Task.Run(() => {
@@ -190,6 +172,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                     using (var context = database.GetContext()) {
                         acquiredImages = context.AcquiredImageSet
                         .AsNoTracking()
+                        .AsExpandable()
                         .Where(ai => ai.TargetId == SelectedTargetId)
                         .ToList();
                     }
@@ -274,57 +257,47 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
     public class ReportRowCollection : RangeObservableCollection<ReportRowVM> { }
 
-    public class ReportRowVM {
-        private AcquiredImage acquiredImage;
-        private SchedulerDatabaseInteraction database;
+    public class ReportRowVM : BaseINPC {
+        public DateTime AcquiredDate { get; }
+        public string FilterName { get; }
+        public string ExposureDuration { get; }
+        public string GradingStatus { get; }
+        public string RejectReason { get; }
 
-        public ReportRowVM(SchedulerDatabaseInteraction database, AcquiredImage acquiredImage) {
-            this.acquiredImage = acquiredImage;
-            this.database = database;
-        }
+        public int DetectedStars { get; }
+        public string HFR { get; }
+        public string FWHM { get; }
+        public string Eccentricity { get; }
+        public string GuidingRMS { get; }
 
-        public DateTime AcquiredDate { get { return acquiredImage.AcquiredDate; } }
-        public string FilterName { get { return acquiredImage.FilterName; } }
-        public string ExposureDuration { get { return Utils.FormatDbl(acquiredImage.Metadata.ExposureDuration); } }
-        public string GradingStatus { get { return acquiredImage.GradingStatus.ToString(); } }
-        public string RejectReason { get { return acquiredImage.RejectReason; } }
-
-        public string DetectedStars { get { return Utils.FormatInt(acquiredImage.Metadata.DetectedStars); } }
-        public string HFR { get { return Utils.FormatDbl(acquiredImage.Metadata.HFR); } }
-        public string FWHM { get { return Utils.FormatHF(acquiredImage.Metadata.FWHM); } }
-        public string Eccentricity { get { return Utils.FormatHF(acquiredImage.Metadata.Eccentricity); } }
-        public string GuidingRMS { get { return Utils.FormatDbl(acquiredImage.Metadata.GuidingRMS); } }
-
-        private ImageData imageData;
-
-        public ImageData ImageData {
-            get {
-                if (imageData == null) {
-                    using (var context = database.GetContext()) {
-                        imageData = context.GetImageData(acquiredImage.Id);
-                    }
-                }
-
-                return imageData;
-            }
-        }
-
-        private ImageSource thumbnail;
-
-        public ImageSource Thumbnail {
-            get {
-                if (thumbnail == null) {
-                    thumbnail = ImageData != null
-                            ? Thumbnails.RestoreThumbnail(imageData.Data)
-                            : null;
-                }
-
-                return thumbnail;
-            }
-        }
+        public ImageData ImageData { get; }
+        public ImageSource Thumbnail { get; }
 
         public int ThumbnailWidth { get => ImageData != null ? ImageData.Width : 0; }
         public int ThumbnailHeight { get => ImageData != null ? ImageData.Height : 0; }
+
+        public ReportRowVM() {
+        }
+
+        public ReportRowVM(SchedulerDatabaseInteraction database, AcquiredImage acquiredImage) {
+            AcquiredDate = acquiredImage.AcquiredDate;
+            FilterName = acquiredImage.FilterName;
+            ExposureDuration = Utils.FormatDbl(acquiredImage.Metadata.ExposureDuration);
+            GradingStatus = acquiredImage.GradingStatus.ToString();
+            RejectReason = acquiredImage.RejectReason;
+            DetectedStars = acquiredImage.Metadata.DetectedStars;
+            HFR = Utils.FormatDbl(acquiredImage.Metadata.HFR);
+            FWHM = Utils.FormatHF(acquiredImage.Metadata.FWHM);
+            Eccentricity = Utils.FormatHF(acquiredImage.Metadata.Eccentricity);
+            GuidingRMS = Utils.FormatDbl(acquiredImage.Metadata.GuidingRMS);
+
+            using (var context = database.GetContext()) {
+                ImageData = context.GetImageData(acquiredImage.Id);
+                if (ImageData != null) {
+                    Thumbnail = Thumbnails.RestoreThumbnail(ImageData.Data);
+                }
+            }
+        }
     }
 
     public class SummaryRow {
@@ -332,13 +305,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
         public string RowName { get { return row.Key; } }
         public int Exposures { get { return row.Exposures; } }
-        public string Total { get { return Utils.StoHMS(row.TotalTime); } }
-        public string Accepted { get { return Utils.StoHMS(row.AcceptedTime); } }
-        public string Rejected { get { return Utils.StoHMS(row.RejectedTime); } }
-        public string Pending { get { return Utils.StoHMS(row.PendingTime); } }
+        public string Total { get { return Display(row.TotalTime); } }
+        public string Accepted { get { return Display(row.AcceptedTime); } }
+        public string Rejected { get { return Display(row.RejectedTime); } }
+        public string Pending { get { return Display(row.PendingTime); } }
 
         public SummaryRow(TargetAcquisitionSummaryRow row) {
             this.row = row;
+        }
+
+        private string Display(int seconds) {
+            var s = Utils.StoHMS(seconds);
+            return s == "  0h 00m 00s" ? "         -  " : s;
         }
     }
 }

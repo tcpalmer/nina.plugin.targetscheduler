@@ -49,6 +49,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 case "HFR": return "HFR";
                 case "FWHM": return "FWHM";
                 case "Eccentricity": return "Eccentricity";
+                case "Guiding RMS": return "GuidingRMS";
                 case "Grading": return "GradingStatus";
                 case "Reject Reason": return "RejectReason";
                 default: return null;

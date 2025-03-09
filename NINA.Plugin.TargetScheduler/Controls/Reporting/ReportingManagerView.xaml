@@ -107,7 +107,7 @@
                        Text="Acqusition Summary" />
 
             <DataGrid Width="500"
-                      Height="200"
+                      Height="160"
                       Margin="12,8,0,0"
                       HorizontalAlignment="Left"
                       AutoGenerateColumns="False"
@@ -498,6 +498,18 @@
                             <DataTemplate>
                                 <TextBlock Width="Auto"
                                            Text="{Binding Eccentricity}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="Guiding RMS" />
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Width="Auto"
+                                           Text="{Binding GuidingRMS}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
