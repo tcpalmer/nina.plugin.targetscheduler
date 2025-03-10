@@ -2,6 +2,7 @@
 
 ## 5.1.6.0 (beta) - 2025-03-XX
 * Added target summary report to Reporting display.
+* Fixed issues with last flat image missing TS image file pattern variable substitution.
 
 ## 5.1.5.0 (beta) - 2025-03-07
 * Added explicit display of regular or provisional percent complete on exposure plans.

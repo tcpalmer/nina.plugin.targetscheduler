@@ -315,8 +315,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         }
 
         private string Display(int seconds) {
-            var s = Utils.StoHMS(seconds);
-            return s == "  0h 00m 00s" ? "         -  " : s;
+            return seconds > 0 ? Utils.StoHMS(seconds) : "         -  ";
         }
     }
 }

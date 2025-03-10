@@ -34,6 +34,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Util {
         [TestCase(3600, "  1h 00m 00s")]
         [TestCase(3601, "  1h 00m 01s")]
         [TestCase(10000, "  2h 46m 40s")]
+        [TestCase(105924, " 29h 25m 24s")]
         public void TestStoHMS(int secs, string expected) {
             Utils.StoHMS(secs).Should().Be(expected);
         }

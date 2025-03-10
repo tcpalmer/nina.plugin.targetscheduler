@@ -1,74 +1,78 @@
-﻿<ResourceDictionary x:Class="NINA.Plugin.TargetScheduler.Options"
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ai="clr-namespace:NINA.Plugin.TargetScheduler.Controls.AcquiredImages"
-                    xmlns:dm="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
-                    xmlns:pp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.PlanPreview"
-                    xmlns:rp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.Reporting">
+﻿<ResourceDictionary
+    x:Class="NINA.Plugin.TargetScheduler.Options"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ai="clr-namespace:NINA.Plugin.TargetScheduler.Controls.AcquiredImages"
+    xmlns:dm="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
+    xmlns:pp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.PlanPreview"
+    xmlns:rp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.Reporting">
 
     <DataTemplate x:Key="Target Scheduler_Options">
-        <StackPanel DataContext="{Binding}"
-                    Orientation="Vertical">
+        <StackPanel DataContext="{Binding}" Orientation="Vertical">
 
-            <Expander Margin="0,10,0,10"
-                      ExpandDirection="Down"
-                      IsExpanded="{Binding DatabaseManagerIsExpanded}">
+            <Expander
+                Margin="0,10,0,10"
+                ExpandDirection="Down"
+                IsExpanded="{Binding DatabaseManagerIsExpanded}">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="14"
-                                   FontWeight="Bold"
-                                   Text="Target Management"
-                                   ToolTip="Manage your projects, targets, and exposure plans" />
-                        <dm:DocumentationLink Margin="5,2,0,0"
-                                              URL="target-management/index.html" />
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Target Management"
+                            ToolTip="Manage your projects, targets, and exposure plans" />
+                        <dm:DocumentationLink Margin="5,2,0,0" URL="target-management/index.html" />
                     </StackPanel>
                 </Expander.Header>
                 <dm:DatabaseManagerView DataContext="{Binding DatabaseManagerVM}" />
             </Expander>
 
-            <Expander Margin="0,0,0,10"
-                      ExpandDirection="Down"
-                      IsExpanded="{Binding PlanPreviewIsExpanded}">
+            <Expander
+                Margin="0,0,0,10"
+                ExpandDirection="Down"
+                IsExpanded="{Binding PlanPreviewIsExpanded}">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="14"
-                                   FontWeight="Bold"
-                                   Text="Scheduler Preview"
-                                   ToolTip="Preview and troubleshoot plans" />
-                        <dm:DocumentationLink Margin="5,2,0,0"
-                                              URL="scheduler-preview.html" />
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Scheduler Preview"
+                            ToolTip="Preview and troubleshoot plans" />
+                        <dm:DocumentationLink Margin="5,2,0,0" URL="scheduler-preview.html" />
                     </StackPanel>
                 </Expander.Header>
                 <pp:PlanPreviewerView DataContext="{Binding PlanPreviewerViewVM}" />
             </Expander>
 
-            <Expander Margin="0,0,0,10"
-                      ExpandDirection="Down"
-                      IsExpanded="{Binding ReportingManagerIsExpanded}">
+            <Expander
+                Margin="0,0,0,10"
+                ExpandDirection="Down"
+                IsExpanded="{Binding ReportingManagerIsExpanded}">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="14"
-                                   FontWeight="Bold"
-                                   Text="Reporting"
-                                   ToolTip="See reports" />
-                        <dm:DocumentationLink Margin="5,2,0,0"
-                                              URL="post-acquisition/reporting.html" />
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Reporting"
+                            ToolTip="See reports" />
+                        <dm:DocumentationLink Margin="5,2,0,0" URL="post-acquisition/reporting.html" />
                     </StackPanel>
                 </Expander.Header>
                 <rp:ReportingManagerView DataContext="{Binding ReportingManagerViewVM}" />
             </Expander>
 
-            <Expander Margin="0,0,0,20"
-                      ExpandDirection="Down"
-                      IsExpanded="{Binding AcquiredImagesManagerIsExpanded}">
+            <Expander
+                Margin="0,0,0,20"
+                ExpandDirection="Down"
+                IsExpanded="{Binding AcquiredImagesManagerIsExpanded}">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="14"
-                                   FontWeight="Bold"
-                                   Text="Acquired Images"
-                                   ToolTip="View details on acquired images" />
-                        <dm:DocumentationLink Margin="5,2,0,0"
-                                              URL="post-acquisition/acquisition-data.html" />
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Acquired Images"
+                            ToolTip="View details on acquired images" />
+                        <dm:DocumentationLink Margin="5,2,0,0" URL="post-acquisition/acquisition-data.html" />
                     </StackPanel>
                 </Expander.Header>
                 <ai:AcquiredImagesManagerView DataContext="{Binding AcquiredImagesManagerViewVM}" />

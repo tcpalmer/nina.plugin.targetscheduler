@@ -134,6 +134,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 Iterations = 0;
                 CompletedIterations = 0;
 
+                // Wait before we stop monitoring for image saves - give the last one a chance to come through
+                Thread.Sleep(3000);
+
                 imageSaveMediator.BeforeImageSaved -= BeforeImageSaved;
                 imageSaveMediator.BeforeFinalizeImageSaved -= BeforeFinalizeImageSaved;
                 imageSaveMediator.ImageSaved -= ImageSaved;
