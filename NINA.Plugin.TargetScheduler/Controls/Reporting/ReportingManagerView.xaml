@@ -36,6 +36,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
+                            <RowDefinition MinHeight="25" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
@@ -44,8 +45,25 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
                                    FontWeight="Bold"
-                                   Text="Target" />
+                                   Text="Project" />
                         <ComboBox Grid.Row="0"
+                                  Grid.Column="1"
+                                  MinWidth="233"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  DisplayMemberPath="Value"
+                                  ItemsSource="{Binding ProjectChoices}"
+                                  SelectedValue="{Binding SelectedProjectId}"
+                                  SelectedValuePath="Key" />
+
+                        <TextBlock Grid.Row="1"
+                                   Grid.Column="0"
+                                   MaxWidth="80"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="Target" />
+                        <ComboBox Grid.Row="1"
                                   Grid.Column="1"
                                   MinWidth="233"
                                   HorizontalAlignment="Left"
@@ -107,7 +125,8 @@
                        Text="Acqusition Summary" />
 
             <DataGrid Width="500"
-                      Height="160"
+                      MinHeight="160"
+                      MaxHeight="300"
                       Margin="12,8,0,0"
                       HorizontalAlignment="Left"
                       AutoGenerateColumns="False"

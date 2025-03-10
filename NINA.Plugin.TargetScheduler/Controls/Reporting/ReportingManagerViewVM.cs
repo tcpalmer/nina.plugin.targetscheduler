@@ -39,8 +39,9 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         private void InitializeCriteria() {
             SearchCriteraKey = null;
             selectedTargetId = 0;
-            selectedTarget = null;
-            TargetChoices = GetTargetChoices();
+
+            ProjectChoices = GetProjectChoices();
+            TargetChoices = GetTargetChoices(SelectedProjectId);
         }
 
         private bool tableLoading = false;
@@ -56,31 +57,78 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         private ICollectionView itemsView;
         public ICollectionView ItemsView { get => itemsView; set { itemsView = value; } }
 
-        private AsyncObservableCollection<KeyValuePair<int, string>> GetTargetChoices() {
-            Dictionary<int, string> scratch = new Dictionary<int, string>();
+        private AsyncObservableCollection<KeyValuePair<int, string>> projectChoices;
 
-            using (var context = database.GetContext()) {
-                List<Project> projects = context.GetAllProjects();
-                projects.ForEach(p => {
-                    p.Targets.ForEach(t => {
-                        scratch.Add(t.Id, $"{t.Project.Name} / {t.Name}");
-                    });
-                });
+        public AsyncObservableCollection<KeyValuePair<int, string>> ProjectChoices {
+            get {
+                return projectChoices;
             }
+            set {
+                projectChoices = value;
+                RaisePropertyChanged(nameof(ProjectChoices));
+            }
+        }
 
-            AsyncObservableCollection<KeyValuePair<int, string>> choices = new AsyncObservableCollection<KeyValuePair<int, string>> {
+        private int selectedProjectId = 0;
+
+        public int SelectedProjectId {
+            get => selectedProjectId;
+            set {
+                selectedProjectId = value;
+
+                SelectedTargetId = 0;
+                TargetChoices = GetTargetChoices(selectedProjectId);
+                RaisePropertyChanged(nameof(SelectedProjectId));
+            }
+        }
+
+        private AsyncObservableCollection<KeyValuePair<int, string>> GetProjectChoices() {
+            AsyncObservableCollection<KeyValuePair<int, string>> projectChoices = new AsyncObservableCollection<KeyValuePair<int, string>> {
                 new KeyValuePair<int, string>(0, "Select")
             };
 
-            var sorted = from entry in scratch orderby entry.Value ascending select entry;
-            sorted.ForEach(p => choices.Add(p));
+            List<Project> projects;
+            using (var context = database.GetContext()) {
+                projects = context.ProjectSet.AsNoTracking().OrderBy(p => p.name).ToList();
+            }
+
+            Dictionary<Project, string> dict = new Dictionary<Project, string>();
+            projects.ForEach(p => { dict.Add(p, p.Name); });
+
+            foreach (KeyValuePair<Project, string> entry in dict) {
+                projectChoices.Add(new KeyValuePair<int, string>(entry.Key.Id, entry.Value));
+            }
+
+            return projectChoices;
+        }
+
+        private AsyncObservableCollection<KeyValuePair<int, string>> GetTargetChoices(int selectedProjectId) {
+            List<Target> targets;
+            AsyncObservableCollection<KeyValuePair<int, string>> choices = new AsyncObservableCollection<KeyValuePair<int, string>> {
+                new KeyValuePair<int, string>(0, "...")
+            };
+
+            if (selectedProjectId == 0) {
+                return choices;
+            }
+
+            using (var context = database.GetContext()) {
+                targets = context.TargetSet.AsNoTracking().Where(t => t.ProjectId == selectedProjectId).ToList();
+            }
+
+            targets.ForEach(t => {
+                choices.Add(new KeyValuePair<int, string>(t.Id, t.Name));
+            });
+
             return choices;
         }
 
         private AsyncObservableCollection<KeyValuePair<int, string>> targetChoices;
 
         public AsyncObservableCollection<KeyValuePair<int, string>> TargetChoices {
-            get => targetChoices;
+            get {
+                return targetChoices;
+            }
             set {
                 targetChoices = value;
                 RaisePropertyChanged(nameof(TargetChoices));
@@ -99,7 +147,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             }
         }
 
-        private Target selectedTarget;
+        private Target selectedTarget = null;
         public Target SelectedTarget { get => selectedTarget; set => selectedTarget = value; }
 
         private Target GetTarget(int selectedTargetId) {
@@ -114,9 +162,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         public ICommand RefreshTableCommand { get; private set; }
 
         private void RefreshTable() {
-            var currentSelectedTargetId = SelectedTargetId;
+            SelectedTargetId = 0;
+            SelectedProjectId = 0;
             InitializeCriteria();
-            SelectedTargetId = currentSelectedTargetId;
+            _ = LoadRecords();
         }
 
         private ReportRowCollection reportRowCollection;
@@ -201,7 +250,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         private string SearchCriteraKey;
 
         private string GetSearchCriteraKey() {
-            return $"{SelectedTargetId}";
+            return $"{SelectedProjectId}_{SelectedTargetId}";
         }
     }
 

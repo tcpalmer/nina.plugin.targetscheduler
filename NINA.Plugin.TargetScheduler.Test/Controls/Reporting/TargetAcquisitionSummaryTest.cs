@@ -18,35 +18,35 @@ namespace NINA.Plugin.TargetScheduler.Test.Controls.Reporting {
             list.Add(GetAI("Lum", 300, GradingStatus.Accepted));
             TargetAcquisitionSummary sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(2);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 1, 300, 300, 0, 0);
-            AssertRow(sut.Rows[1], "Lum", 1, 300, 300, 0, 0);
+            AssertRow(sut.Rows[0], "Lum", 1, 300, 300, 0, 0);
+            AssertRow(sut.Rows[1], TargetAcquisitionSummary.TOTAL_LBL, 1, 300, 300, 0, 0);
 
             list.Add(GetAI("Lum", 300, GradingStatus.Rejected));
             sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(2);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 2, 600, 300, 300, 0);
-            AssertRow(sut.Rows[1], "Lum", 2, 600, 300, 300, 0);
+            AssertRow(sut.Rows[0], "Lum", 2, 600, 300, 300, 0);
+            AssertRow(sut.Rows[1], TargetAcquisitionSummary.TOTAL_LBL, 2, 600, 300, 300, 0);
 
             list.Add(GetAI("Lum", 300, GradingStatus.Pending));
             sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(2);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 3, 900, 300, 300, 300);
-            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[0], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[1], TargetAcquisitionSummary.TOTAL_LBL, 3, 900, 300, 300, 300);
 
             list.Add(GetAI("Red", 180, GradingStatus.Accepted));
             sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(3);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 4, 1080, 480, 300, 300);
-            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
-            AssertRow(sut.Rows[2], "Red", 1, 180, 180, 0, 0);
+            AssertRow(sut.Rows[0], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[1], "Red", 1, 180, 180, 0, 0);
+            AssertRow(sut.Rows[2], TargetAcquisitionSummary.TOTAL_LBL, 4, 1080, 480, 300, 300);
 
             list.Add(GetAI("Grn", 600, GradingStatus.Rejected));
             sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(4);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 5, 1680, 480, 900, 300);
-            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
-            AssertRow(sut.Rows[2], "Red", 1, 180, 180, 0, 0);
-            AssertRow(sut.Rows[3], "Grn", 1, 600, 0, 600, 0);
+            AssertRow(sut.Rows[0], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[1], "Red", 1, 180, 180, 0, 0);
+            AssertRow(sut.Rows[2], "Grn", 1, 600, 0, 600, 0);
+            AssertRow(sut.Rows[3], TargetAcquisitionSummary.TOTAL_LBL, 5, 1680, 480, 900, 300);
 
             for (int i = 0; i < 21; i++) {
                 list.Add(GetAI("Blu", 610, GradingStatus.Pending));
@@ -54,11 +54,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Controls.Reporting {
 
             sut = new TargetAcquisitionSummary(list);
             sut.Rows.Count.Should().Be(5);
-            AssertRow(sut.Rows[0], TargetAcquisitionSummary.TOTAL_LBL, 26, 14490, 480, 900, 13110);
-            AssertRow(sut.Rows[1], "Lum", 3, 900, 300, 300, 300);
-            AssertRow(sut.Rows[2], "Red", 1, 180, 180, 0, 0);
-            AssertRow(sut.Rows[3], "Grn", 1, 600, 0, 600, 0);
-            AssertRow(sut.Rows[4], "Blu", 21, 12810, 0, 0, 12810);
+            AssertRow(sut.Rows[0], "Lum", 3, 900, 300, 300, 300);
+            AssertRow(sut.Rows[1], "Red", 1, 180, 180, 0, 0);
+            AssertRow(sut.Rows[2], "Grn", 1, 600, 0, 600, 0);
+            AssertRow(sut.Rows[3], "Blu", 21, 12810, 0, 0, 12810);
+            AssertRow(sut.Rows[4], TargetAcquisitionSummary.TOTAL_LBL, 26, 14490, 480, 900, 13110);
         }
 
         [Test]
