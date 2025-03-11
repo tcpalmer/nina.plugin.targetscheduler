@@ -30,6 +30,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp.SetupProperty(p => p.EnableGrader, true);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            pt.SetupProperty(m => m.EndTime, start.AddHours(12));
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddMinutes(1));
@@ -71,6 +72,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp.SetupProperty(p => p.EnableGrader, true);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            pt.SetupProperty(m => m.EndTime, start.AddHours(12));
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddHours(1));
@@ -111,6 +113,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp.SetupProperty(p => p.EnableGrader, true);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            pt.SetupProperty(m => m.EndTime, start.AddHours(12));
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddHours(1));
@@ -157,6 +160,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp.SetupProperty(p => p.EnableGrader, true);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            pt.SetupProperty(m => m.EndTime, start.AddHours(12));
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddMinutes(1));
@@ -180,6 +184,32 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             plan.StartTime.Should().Be(start);
             plan.EndTime.Should().Be(start.AddSeconds(30));
             plan.PlanTarget.SelectedExposure.FilterName.Should().Be("f123");
+        }
+
+        [Test]
+        public void testPreviousTargetCanContinueFitInRemaining() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime start = new DateTime(2025, 3, 12, 0, 53, 0);
+
+            Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
+            pt.SetupProperty(p => p.IsPreview, true);
+            pt.SetupProperty(p => p.EndTime, start.Date.AddMinutes(75));
+            pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.Date.AddMinutes(55));
+            pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
+            Mock<IExposure> pf = PlanMocks.GetMockPlanExposure("Ha", 10, 0);
+            pf.SetupProperty(p => p.ExposureLength, 180);
+            PlanMocks.AddMockPlanFilter(pt, pf);
+            PlanMocks.AddMockPlanTarget(pp, pt);
+            List<IProject> projects = PlanMocks.ProjectsList(pp.Object);
+
+            Planner planner = new Planner(start, profile, GetPrefs(), false, true);
+
+            // Should trigger the special case of allowing the target to continue past
+            // regular minimum since it's nearing the end of visibility.
+            planner.PreviousTargetCanContinue(projects[0].Targets[0]).Should().BeTrue();
         }
 
         [Test]

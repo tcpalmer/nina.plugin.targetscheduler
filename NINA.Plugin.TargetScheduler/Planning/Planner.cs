@@ -138,10 +138,22 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 return false;
             }
 
-            // Determine the next exposure and be sure that it can fit in the remaining minimum time span
+            // Special case: if the previous target wouldn't be selected again because its remaining
+            // visibility time wouldn't fit within the project minimum, then we allow the target to
+            // continue up to the end of visibility.  Otherwise, that time would always be wasted.
+            // This should also mitigate the problem of the TS condition checks stopping only because
+            // the selected target couldn't fit in a remaining minimum span due to end of visibility.
+
+            DateTime permittedEndTime = previousTarget.MinimumTimeSpanEnd;
+            if ((previousTarget.EndTime - previousTarget.MinimumTimeSpanEnd).TotalSeconds < previousTarget.Project.MinimumTime * 60) {
+                permittedEndTime = previousTarget.EndTime;
+                TSLogger.Info($"extending allowed time for target {previousTarget.Name} to {permittedEndTime} for visibility end allowance");
+            }
+
+            // Be sure that the next exposure can fit in the remaining permitted time span
             IExposure nextExposure = previousTarget.ExposureSelector.Select(atTime, previousTarget.Project, previousTarget);
-            if (atTime.AddSeconds(nextExposure.ExposureLength) > previousTarget.MinimumTimeSpanEnd) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: minimum time window exceeded");
+            if (atTime.AddSeconds(nextExposure.ExposureLength) > permittedEndTime) {
+                TSLogger.Info($"not continuing previous target {previousTarget.Name}: minimum/allowed time window exceeded ({permittedEndTime})");
                 return false;
             }
 
