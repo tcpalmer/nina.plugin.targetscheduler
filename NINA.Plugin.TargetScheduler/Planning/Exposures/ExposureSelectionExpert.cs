@@ -31,7 +31,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
     public interface IExposureSelector {
 
-        IExposure Select(DateTime atTime, IProject project, ITarget target, IExposure previousExposure);
+        IExposure Select(DateTime atTime, IProject project, ITarget target);
 
         void ExposureTaken(IExposure exposure);
 

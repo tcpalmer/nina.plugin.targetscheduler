@@ -37,42 +37,42 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
 
             OverrideOrderExposureSelector sut = new OverrideOrderExposureSelector(pp.Object, pt.Object, target);
 
-            IExposure e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            IExposure e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("R");
             e.PreDither.Should().BeTrue();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("R");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeTrue();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("R");
             e.PreDither.Should().BeTrue();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("R");
             e.PreDither.Should().BeFalse();
 
@@ -101,27 +101,27 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
 
             OverrideOrderExposureSelector sut = new OverrideOrderExposureSelector(pp.Object, pt.Object, target);
 
-            IExposure e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            IExposure e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
         }
@@ -146,27 +146,27 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
 
             OverrideOrderExposureSelector sut = new OverrideOrderExposureSelector(pp.Object, pt.Object, target);
 
-            IExposure e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            IExposure e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeFalse();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeTrue();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeTrue();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeTrue();
             sut.ExposureTaken(e);
 
-            e = sut.Select(DateTime.Now, pp.Object, pt.Object, null);
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("L");
             e.PreDither.Should().BeTrue();
         }

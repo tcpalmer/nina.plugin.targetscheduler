@@ -48,6 +48,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
     /// <summary>
     /// Support an in-memory cache of DitherManagers.  This is needed so that some exposure
     /// selectors can maintain dither state over the course of an imaging session.
+    ///
+    /// Note that when the planner determines that it is switching from a previous target to
+    /// a new one, it will remove the cache entry for the previous so it starts fresh if
+    /// selected again (in which case it will necessarily have a slew/center to begin).
     /// </summary>
     public class DitherManagerCache {
         private static readonly TimeSpan ITEM_TIMEOUT = TimeSpan.FromHours(18);
@@ -72,6 +76,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             lock (lockObj) {
                 _cache.Add(cacheKey, ditherManager, DateTime.Now.Add(ITEM_TIMEOUT));
             }
+        }
+
+        public static void Remove(ITarget target) {
+            Remove(GetCacheKey(target));
         }
 
         public static void Remove(Target target) {

@@ -14,6 +14,7 @@ using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
+using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.PubSub;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
@@ -255,6 +256,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             imageSaveWatcher.Start();
             ITarget previousPlanTarget = null;
+            DitherManagerCache.Clear();
             PlanExecutionHistory = new PlanExecutionHistory();
             synchronizationEnabled = IsSynchronizationEnabled();
 

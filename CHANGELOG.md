@@ -1,7 +1,8 @@
 # Target Scheduler
 
 ## 5.1.6.0 (beta) - 2025-03-XX
-* Added target summary report to Reporting display.
+* Added target acquisition summary report to Reporting display.
+* Fixed issue where targets could forget dither state.
 * Fixed issues with last flat image missing TS image file pattern variable substitution.
 
 ## 5.1.5.0 (beta) - 2025-03-07

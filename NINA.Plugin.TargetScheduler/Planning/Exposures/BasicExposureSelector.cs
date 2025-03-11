@@ -13,10 +13,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
         public BasicExposureSelector(IProject project, ITarget target, Target databaseTarget) : base(target) {
             FilterCadence = new FilterCadenceFactory().Generate(project, target, databaseTarget);
-            DitherManager = new DitherManager(project.DitherEvery);
+            DitherManager = GetDitherManager(project, target);
         }
 
-        public IExposure Select(DateTime atTime, IProject project, ITarget target, IExposure previousExposure) {
+        public IExposure Select(DateTime atTime, IProject project, ITarget target) {
             if (AllExposurePlansRejected(target)) {
                 throw new Exception($"unexpected: all exposure plans were rejected at exposure selection time for target '{target.Name}' at time {atTime}");
             }

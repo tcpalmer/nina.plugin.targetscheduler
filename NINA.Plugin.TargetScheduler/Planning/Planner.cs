@@ -72,11 +72,12 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                     // See if one or more targets are ready to image now
                     List<ITarget> readyTargets = GetTargetsReadyNow(projects);
                     if (readyTargets.Count > 0) {
-                        SelectTargetExposures(readyTargets, previousTarget);
+                        SelectTargetExposures(readyTargets);
                         ITarget selectedTarget = readyTargets.Count == 1
                             ? readyTargets[0]
                             : SelectTargetByScore(readyTargets, new ScoringEngine(activeProfile, profilePreferences, atTime, previousTarget));
                         List<IInstruction> instructions = new InstructionGenerator().Generate(selectedTarget, previousTarget);
+                        HandleTargetSwitch(previousTarget, selectedTarget);
 
                         // Target ready now
                         return new SchedulerPlan(atTime, projects, selectedTarget, instructions, !checkCondition);
@@ -138,7 +139,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
 
             // Determine the next exposure and be sure that it can fit in the remaining minimum time span
-            IExposure nextExposure = previousTarget.ExposureSelector.Select(atTime, previousTarget.Project, previousTarget, previousTarget.SelectedExposure);
+            IExposure nextExposure = previousTarget.ExposureSelector.Select(atTime, previousTarget.Project, previousTarget);
             if (atTime.AddSeconds(nextExposure.ExposureLength) > previousTarget.MinimumTimeSpanEnd) {
                 TSLogger.Info($"not continuing previous target {previousTarget.Name}: minimum time window exceeded");
                 return false;
@@ -327,14 +328,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// </summary>
         /// <param name="readyTargets"></param>
         /// <param name="previousTarget"></param>
-        public void SelectTargetExposures(List<ITarget> readyTargets, ITarget previousTarget) {
+        public void SelectTargetExposures(List<ITarget> readyTargets) {
             if (Common.IsEmpty(readyTargets)) {
                 return;
             }
 
-            IExposure previousExposure = previousTarget != null ? previousTarget.SelectedExposure : null;
             foreach (ITarget target in readyTargets) {
-                target.SelectedExposure = target.ExposureSelector.Select(atTime, target.Project, target, previousExposure);
+                target.SelectedExposure = target.ExposureSelector.Select(atTime, target.Project, target);
             }
         }
 
@@ -383,6 +383,16 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             } catch (Exception ex) {
                 TSLogger.Error($"exception reading database: {ex.StackTrace}");
                 throw new SequenceEntityFailedException($"Scheduler: exception reading database: {ex.Message}", ex);
+            }
+        }
+
+        private void HandleTargetSwitch(ITarget previousTarget, ITarget selectedTarget) {
+            if (previousTarget == null) return;
+
+            // If we're switching targets, we need to clear any cached dither manager for
+            // the previous target so it starts fresh if selected in the future
+            if (selectedTarget.DatabaseId != previousTarget.DatabaseId) {
+                DitherManagerCache.Remove(previousTarget);
             }
         }
 
