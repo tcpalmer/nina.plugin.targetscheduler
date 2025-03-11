@@ -6,6 +6,7 @@
 * Above should also help with TS Condition checks stopping the container if that same timing applies.
 * Fixed issue where targets could forget dither state.
 * Fixed issues with last flat image missing TS image file pattern variable substitutions.
+* Fixed issue where TS Background Condition was postponing rechecks too far in the future.
 
 ## 5.1.5.0 (beta) - 2025-03-07
 * Added explicit display of regular or provisional percent complete on exposure plans.

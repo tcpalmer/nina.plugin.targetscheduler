@@ -127,6 +127,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             target.StartTime = targetStartTime;
             target.EndTime = targetEndTime;
             target.MinimumTimeSpanEnd = atTime.AddSeconds(project.MinimumTime * 60);
+            target.BonusTimeSpanEnd = target.MinimumTimeSpanEnd;
             target.CulminationTime = targetTransitTime;
             return true;
         }

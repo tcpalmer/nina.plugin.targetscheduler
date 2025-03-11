@@ -383,6 +383,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         public DateTime StartTime { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public DateTime EndTime { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public DateTime MinimumTimeSpanEnd { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DateTime BonusTimeSpanEnd { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public DateTime CulminationTime { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public TimeInterval MeridianWindow { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         string ITarget.PlanId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

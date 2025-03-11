@@ -34,6 +34,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public DateTime MinimumTimeSpanEnd { get; set; }
+        public DateTime BonusTimeSpanEnd { get; set; }
         public DateTime CulminationTime { get; set; }
         public TimeInterval MeridianWindow { get; set; }
 

@@ -58,7 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
                     // If the previous target still has time in it's initial minimum time span and is still acceptable, then stick with it
                     if (PreviousTargetCanContinue(previousTarget)) {
-                        TSLogger.Info($"previous target still within min time span, continuing: {previousTarget.Project.Name}/{previousTarget.Name}: {previousTarget.MinimumTimeSpanEnd} > {atTime} ");
+                        TSLogger.Info($"previous target still within permitted time span, continuing: {previousTarget.Project.Name}/{previousTarget.Name}: {previousTarget.BonusTimeSpanEnd} > {atTime} ");
                         List<IInstruction> instructions = new InstructionGenerator().Generate(previousTarget, previousTarget);
                         return new SchedulerPlan(atTime, projects, previousTarget, instructions, !checkCondition);
                     }
@@ -144,16 +144,15 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // This should also mitigate the problem of the TS condition checks stopping only because
             // the selected target couldn't fit in a remaining minimum span due to end of visibility.
 
-            DateTime permittedEndTime = previousTarget.MinimumTimeSpanEnd;
             if ((previousTarget.EndTime - previousTarget.MinimumTimeSpanEnd).TotalSeconds < previousTarget.Project.MinimumTime * 60) {
-                permittedEndTime = previousTarget.EndTime;
-                TSLogger.Info($"extending allowed time for target {previousTarget.Name} to {permittedEndTime} for visibility end allowance");
+                previousTarget.BonusTimeSpanEnd = previousTarget.EndTime;
+                TSLogger.Info($"extending allowed time for target {previousTarget.Name} to {previousTarget.BonusTimeSpanEnd} for visibility end allowance");
             }
 
             // Be sure that the next exposure can fit in the remaining permitted time span
             IExposure nextExposure = previousTarget.ExposureSelector.Select(atTime, previousTarget.Project, previousTarget);
-            if (atTime.AddSeconds(nextExposure.ExposureLength) > permittedEndTime) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: minimum/allowed time window exceeded ({permittedEndTime})");
+            if (atTime.AddSeconds(nextExposure.ExposureLength) > previousTarget.BonusTimeSpanEnd) {
+                TSLogger.Info($"not continuing previous target {previousTarget.Name}: minimum/allowed time window exceeded ({previousTarget.BonusTimeSpanEnd})");
                 return false;
             }
 

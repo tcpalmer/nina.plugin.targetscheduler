@@ -68,8 +68,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     return true;
                 }
 
-                LastPlanEndTime = plan.PlanTarget.EndTime;
-                TSLogger.Info($"TargetSchedulerBackgroundCondition check for remaining targets: target time end: {plan.PlanTarget.Name} / {Utils.FormatDateTimeFull(LastPlanEndTime)}");
+                LastPlanEndTime = plan.PlanTarget.BonusTimeSpanEnd;
+                TSLogger.Info($"TargetSchedulerBackgroundCondition check for remaining targets: target allowed time end: {plan.PlanTarget.Name} / {Utils.FormatDateTimeFull(LastPlanEndTime)}");
                 return true;
             } catch (Exception ex) {
                 TSLogger.Error($"TargetSchedulerBackgroundCondition exception determining remaining targets: {ex.StackTrace}");

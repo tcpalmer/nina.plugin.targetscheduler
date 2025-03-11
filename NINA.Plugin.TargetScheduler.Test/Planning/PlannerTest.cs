@@ -34,6 +34,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddMinutes(1));
+            pt.SetupProperty(p => p.BonusTimeSpanEnd, start.AddMinutes(1));
             pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
 
             IExposure exposure = new PlanningExposure();
@@ -49,16 +50,19 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Next exposure exceeds minimum time span
             ITarget target = pt.Object;
             sut.PreviousTargetCanContinue(target).Should().BeFalse();
+            target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
 
             // Next exposure will now fit in minimum time span
             exposure.ExposureLength = 30;
             target.SelectedExposure.Should().Be(null);
             sut.PreviousTargetCanContinue(target).Should().BeTrue();
+            target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             target.SelectedExposure.Should().Be(exposure);
 
             // Exposure plan is now complete
             exposure.Acquired = 20;
             sut.PreviousTargetCanContinue(target).Should().BeFalse();
+            target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             target.ExposurePlans.Count.Should().Be(0);
             target.CompletedExposurePlans.Count.Should().Be(1);
         }
@@ -76,6 +80,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddHours(1));
+            pt.SetupProperty(p => p.BonusTimeSpanEnd, start.AddHours(1));
             pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
 
             IExposure exposure = new PlanningExposure();
@@ -96,10 +101,12 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             // At 22:30, the moon is below 5°
             sut.PreviousTargetCanContinue(target).Should().BeTrue();
+            target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
 
             // But by 22:40, it's above 5°
             sut = new Planner(start.AddMinutes(10), profile, GetPrefs(), false, true);
             sut.PreviousTargetCanContinue(target).Should().BeFalse();
+            target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             exposure.Rejected.Should().BeTrue();
             exposure.RejectedReason.Should().Be(Reasons.FilterMoonAvoidance);
         }
@@ -117,6 +124,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddHours(1));
+            pt.SetupProperty(p => p.BonusTimeSpanEnd, start.AddHours(1));
 
             Mock<IExposure> Lpf = PlanMocks.GetMockPlanExposure("L", 10, 0, 30, 1);
             Mock<IExposure> Rpf = PlanMocks.GetMockPlanExposure("R", 10, 0, 30, 2);
@@ -146,6 +154,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             ITarget target = pt.Object;
 
             sut.PreviousTargetCanContinue(target).Should().BeTrue();
+            target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             target.SelectedExposure.Should().Be(Lpf.Object);
         }
 
@@ -164,6 +173,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.AddMinutes(1));
+            pt.SetupProperty(p => p.BonusTimeSpanEnd, start.AddMinutes(1));
             pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
 
             IExposure exposure = new PlanningExposure();
@@ -183,11 +193,12 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             plan.IsWait.Should().BeFalse();
             plan.StartTime.Should().Be(start);
             plan.EndTime.Should().Be(start.AddSeconds(30));
+            plan.PlanTarget.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             plan.PlanTarget.SelectedExposure.FilterName.Should().Be("f123");
         }
 
         [Test]
-        public void testPreviousTargetCanContinueFitInRemaining() {
+        public void testPreviousTargetCanContinueBonusTime() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
             DateTime start = new DateTime(2025, 3, 12, 0, 53, 0);
@@ -198,6 +209,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pt.SetupProperty(p => p.IsPreview, true);
             pt.SetupProperty(p => p.EndTime, start.Date.AddMinutes(75));
             pt.SetupProperty(p => p.MinimumTimeSpanEnd, start.Date.AddMinutes(55));
+            pt.SetupProperty(p => p.BonusTimeSpanEnd, start.Date.AddMinutes(55));
             pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
             Mock<IExposure> pf = PlanMocks.GetMockPlanExposure("Ha", 10, 0);
             pf.SetupProperty(p => p.ExposureLength, 180);
@@ -209,7 +221,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             // Should trigger the special case of allowing the target to continue past
             // regular minimum since it's nearing the end of visibility.
-            planner.PreviousTargetCanContinue(projects[0].Targets[0]).Should().BeTrue();
+            ITarget target = projects[0].Targets[0];
+            planner.PreviousTargetCanContinue(target).Should().BeTrue();
+            target.BonusTimeSpanEnd.Should().BeSameDateAs(target.EndTime);
         }
 
         [Test]

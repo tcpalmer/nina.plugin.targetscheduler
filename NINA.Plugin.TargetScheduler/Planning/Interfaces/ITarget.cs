@@ -28,6 +28,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Interfaces {
         DateTime StartTime { get; set; }
         DateTime EndTime { get; set; }
         DateTime MinimumTimeSpanEnd { get; set; }
+        DateTime BonusTimeSpanEnd { get; set; }
         DateTime CulminationTime { get; set; }
         TimeInterval MeridianWindow { get; set; }
 
