@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.1.6.0 (beta) - 2025-03-XX
+## 5.1.6.0 (beta) - 2025-03-11
 * Added target acquisition summary report to Reporting display.
 * Allow the current target to continue if it can use remaining visibility time if less than project minimum.
 * Above should also help with TS Condition checks stopping the container if that same timing applies.
