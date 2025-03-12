@@ -2,6 +2,8 @@
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
@@ -31,6 +33,19 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
                 }
             }
 
+            // If other exposures have an 'equal' high score then select the one with the lowest percent complete
+            List<IExposure> equalScorePlans = target.ExposurePlans.Where(ep => !ep.Rejected && EqualScore(selected.MoonAvoidanceScore, ep.MoonAvoidanceScore)).ToList();
+            if (equalScorePlans.Count > 1) {
+                double lowestPercentComplete = double.MaxValue;
+                foreach (IExposure exposure in equalScorePlans) {
+                    double percentComplete = project.ExposureCompletionHelper.PercentComplete(exposure);
+                    if (percentComplete < lowestPercentComplete) {
+                        selected = exposure;
+                        lowestPercentComplete = percentComplete;
+                    }
+                }
+            }
+
             if (selected == null) {
                 // Fail safe ... should not happen
                 string msg = $"unexpected: no acceptable exposure plan in smart exposure selector for target '{target.Name}' at time {atTime}";
@@ -49,6 +64,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
         public void TargetReset() {
             DitherManager.Reset();
+        }
+
+        private bool EqualScore(double benchmark, double check) {
+            return Math.Abs(benchmark - check) < 0.05;
         }
     }
 }

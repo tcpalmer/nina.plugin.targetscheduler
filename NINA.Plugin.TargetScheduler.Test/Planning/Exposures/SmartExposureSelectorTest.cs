@@ -125,6 +125,48 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         }
 
         [Test]
+        public void testLowestPercentComplete() {
+            Mock<IProject> pp = PlanMocks.GetMockPlanProject("P1", ProjectState.Active);
+            ExposureCompletionHelper helper = new ExposureCompletionHelper(true, 0, 125);
+
+            pp.SetupAllProperties();
+            pp.SetupProperty(p => p.DitherEvery, 1);
+            pp.SetupProperty(p => p.SmartExposureOrder, true);
+            pp.SetupProperty(p => p.ExposureCompletionHelper, helper);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("T1", TestData.M31);
+            pt.SetupProperty(t => t.Project, pp.Object);
+            SetEPs(pt);
+            pt.Object.ExposurePlans[0].MoonAvoidanceScore = .10; // L
+            pt.Object.ExposurePlans[1].MoonAvoidanceScore = .41; // R
+            pt.Object.ExposurePlans[2].MoonAvoidanceScore = .40; // G
+            pt.Object.ExposurePlans[3].MoonAvoidanceScore = .40; // B
+
+            SmartExposureSelector sut = new SmartExposureSelector(pp.Object, pt.Object, new Target());
+            pt.SetupProperty(t => t.ExposureSelector, sut);
+
+            IExposure e = sut.Select(DateTime.Now, pp.Object, pt.Object);
+            e.FilterName.Should().Be("R");
+            sut.ExposureTaken(e);
+            e.Acquired++;
+            e.Accepted++;
+
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
+            e.FilterName.Should().Be("G");
+            sut.ExposureTaken(e);
+            e.Acquired++;
+            e.Accepted++;
+
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
+            e.FilterName.Should().Be("B");
+            sut.ExposureTaken(e);
+            e.Acquired++;
+            e.Accepted++;
+
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
+            e.FilterName.Should().Be("R");
+        }
+
+        [Test]
         public void testAllExposurePlansRejected() {
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("P1", ProjectState.Active);
             pp.SetupAllProperties();
