@@ -261,6 +261,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             synchronizationEnabled = IsSynchronizationEnabled();
 
             while (true) {
+                if (token.IsCancellationRequested) {
+                    SchedulerProgress.Interrupt();
+                    ClearTarget();
+                    TSLogger.Warning("TS Container cancellation requested or sequence interrupted, ending");
+                    break;
+                }
+
                 atTime = GetPlannerTime(DateTime.Now, atTime);
                 profilePreferences = GetProfilePreferences();
                 SchedulerPlan plan = new Planner(atTime, profileService.ActiveProfile, profilePreferences, false, false).GetPlan(previousPlanTarget);

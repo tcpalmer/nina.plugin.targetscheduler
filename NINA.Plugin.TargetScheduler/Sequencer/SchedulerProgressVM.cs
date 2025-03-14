@@ -88,6 +88,14 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             return false;
         }
 
+        public void Interrupt() {
+            EndCurrent();
+            CurrentGroup = "Interrupted";
+            CurrentRow = new SchedulerProgressRow(CurrentGroup, "", "");
+            ProgressItemList.Add(CurrentRow);
+            RaisePropertyChanged(nameof(ItemsView));
+        }
+
         public void End() {
             Application.Current.Dispatcher.Invoke(() => {
                 EndCurrent();
