@@ -22,13 +22,13 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return GetProfilePreferences(new SchedulerDatabaseInteraction().GetContext());
         }
 
-        public ProfilePreference GetProfilePreferences(SchedulerDatabaseContext context) {
+        public ProfilePreference GetProfilePreferences(ISchedulerDatabaseContext context) {
             using (context) {
                 return context.GetProfilePreference(profileId, true);
             }
         }
 
-        public List<IProject> LoadActiveProjects(SchedulerDatabaseContext context) {
+        public List<IProject> LoadActiveProjects(ISchedulerDatabaseContext context) {
             List<Project> projects = null;
 
             using (context) {

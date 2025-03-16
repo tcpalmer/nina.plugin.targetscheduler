@@ -1,0 +1,242 @@
+openapi: '3.0.3'
+info:
+  title: Target Scheduler API
+  version: '1.0'
+servers:
+  - url: http://192.168.2.203:8188/v1/
+paths:
+  /profiles:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ProfileId:
+                      type: string
+                      format: uuid
+                    Name:
+                      type: string
+                    Active:
+                      type: boolean
+
+  /profiles/{id}/projects:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ProfileId:
+                      type: string
+                      format: uuid
+                    ProjectId:
+                      type: string
+                      format: uuid
+                    Name:
+                      type: string
+                    State:
+                      type: string
+                      enum:
+                        - DRAFT
+                        - ACTIVE
+                        - INACTIVE
+                        - CLOSED
+                    Priority:
+                      type: integer
+                      minimum: 0
+                      maximum: 2
+                    Description:
+                      type: string
+                    CreateDate:
+                      type: string
+                      format: date-time
+                    ActiveDate:
+                      type: string
+                      format: date-time
+                    InactiveDate:
+                      type: string
+                      format: date-time
+                    MinimumTime:
+                      type: integer
+                    UseCustomHorizon:
+                      type: boolean
+                    HorizonOffset:
+                      type: number
+                      format: double
+                    MeridianWindow:
+                      type: integer
+                    FilterSwitchFrequency:
+                      type: integer
+                    DitherEvery:
+                      type: integer
+                    EnableGrader:
+                      type: boolean
+                    Mosaic:
+                      type: boolean
+                    FlatsHandling:
+                      type: integer
+                    MinimumAltitude:
+                      type: number
+                      format: double
+                    MaximumAltitude:
+                      type: number
+                      format: double
+                    SmartExposureOrder:
+                      type: boolean
+
+  /projects/{id}/targets:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ProjectId:
+                      type: string
+                      format: uuid
+                    TargetId:
+                      type: string
+                      format: uuid
+                    Name:
+                      type: string
+                    Active:
+                      type: boolean
+                    Ra:
+                      type: number
+                      format: double
+                    Dec:
+                      type: number
+                      format: double
+                    Rotation:
+                      type: number
+                      format: double
+                    Epoch:
+                      type: string
+                      enum:
+                        - J2000
+                        - JNOW
+                    Roi:
+                      type: number
+                      format: double
+                    ExposurePlan:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          TemplateName:
+                            type: string
+                          Exposure:
+                            type: number
+                            format: double
+                          Desired:
+                            type: integer
+                          Acquired:
+                            type: integer
+                          Accepted:
+                            type: integer
+                          Ungraded:
+                            type: integer
+                          FilterName:
+                            type: string
+
+  /targets/{id}/statistics:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    FilterName:
+                      type: string
+                    Exposure:
+                      type: number
+                      format: double
+                    HFRMean:
+                      type: number
+                      format: double
+                    HFRStdDev:
+                      type: number
+                      format: double
+                    HFRBelowAutoAcceptLevel:
+                      type: integer
+                    FWHMMean:
+                      type: number
+                      format: double
+                    FWHMStdDev:
+                      type: number
+                      format: double
+                    FWHMBelowAutoAcceptLevel:
+                      type: integer
+                    EccentricityMean:
+                      type: number
+                      format: double
+                    EccentricityStdDev:
+                      type: number
+                      format: double
+                    EccentricityBelowAutoAcceptLevel:
+                      type: integer
+
+  /profiles/{id}/preview:
+    get:
+      parameters:
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            format: datetime
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    TargetId:
+                      type: integer
+                    Name:
+                      type: string
+                      nullable: true
+                    WaitPeriod:
+                      type: boolean
+                    StartTime:
+                      type: string
+                      format: datetime
+                    EndTime:
+                      type: string
+                      format: datetime
+                    ExposurePlan:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          FilterName:
+                            type: string
+                          Exposure:
+                            type: number
+                            format: double
+                          Count:
+                            type: integer
