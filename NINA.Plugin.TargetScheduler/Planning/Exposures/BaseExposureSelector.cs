@@ -62,7 +62,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             }
         }
 
-        public virtual SchedulerDatabaseContext GetSchedulerDatabaseContext() {
+        public virtual ISchedulerDatabaseContext GetSchedulerDatabaseContext() {
             return new SchedulerDatabaseInteraction().GetContext();
         }
     }

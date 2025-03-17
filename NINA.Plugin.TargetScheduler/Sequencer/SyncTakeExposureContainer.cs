@@ -89,7 +89,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             }
         }
 
-        private ExposureTemplate GetExposureTemplate(SchedulerDatabaseContext context, ExposurePlan exposurePlan) {
+        private ExposureTemplate GetExposureTemplate(ISchedulerDatabaseContext context, ExposurePlan exposurePlan) {
             // Get the template being used by the server instance
             ExposureTemplate serverExposureTemplate = context.GetExposureTemplate(exposurePlan.ExposureTemplateId);
 
