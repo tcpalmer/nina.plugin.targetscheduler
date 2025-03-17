@@ -50,21 +50,25 @@ namespace NINA.Plugin.TargetScheduler.API {
 
         [Route(HttpVerbs.Get, "/version")]
         public string GetVersion() {
+            TSLogger.Debug("API call: /version");
             return Assembly.GetAssembly(typeof(TargetScheduler)).GetName().Version.ToString();
         }
 
         [Route(HttpVerbs.Get, "/profiles")]
         public IEnumerable<ProfileResponse> GetProfiles() {
+            TSLogger.Debug("API call: /profiles");
             return profileService.Profiles.Select(m => new ProfileResponse(m));
         }
 
         [Route(HttpVerbs.Get, "/profiles/{id}/projects")]
         public IEnumerable<ProjectResponse> GetProjects(string id) {
+            TSLogger.Debug("API call: /profiles/" + id + "/projects");
             return database.GetAllProjectsReadOnly(id).Select(p => new ProjectResponse(p));
         }
 
         [Route(HttpVerbs.Get, "/projects/{id}/targets")]
         public IEnumerable<TargetResponse> GetTargets(int id) {
+            TSLogger.Debug("API call: /projects/" + id + "/targets");
             Project p = database.GetProjectReadOnly(id);
 
             if (p == null) {
@@ -77,6 +81,7 @@ namespace NINA.Plugin.TargetScheduler.API {
 
         [Route(HttpVerbs.Get, "/targets/{id}/statistics")]
         public IEnumerable<TargetStatisticsResponse> GetTargetStatistics(int id) {
+            TSLogger.Debug("API call: /targets/" + id + "/statistics");
             var t = database.GetTargetReadOnly(id);
 
             if (t == null) {
@@ -119,6 +124,7 @@ namespace NINA.Plugin.TargetScheduler.API {
 
         [Route(HttpVerbs.Get, "/profiles/{id}/preview")]
         public IEnumerable<PreviewResponse> GetPreview(string id, [QueryField] DateTime? startTime = null) {
+            TSLogger.Debug("API call: /profiles/" + id + "/preview");
             IProfile profile = null;
 
             foreach (ProfileMeta profileMeta in profileService.Profiles) {

@@ -3,7 +3,7 @@ info:
   title: Target Scheduler API
   version: '1.0'
 servers:
-  - url: http://192.168.2.203:8188/v1/
+  - url: http://localhost:8188/v1/
 paths:
   /profiles:
     get:
@@ -41,8 +41,7 @@ paths:
                       type: string
                       format: uuid
                     ProjectId:
-                      type: string
-                      format: uuid
+                      type: integer
                     Name:
                       type: string
                     State:
@@ -108,11 +107,9 @@ paths:
                   type: object
                   properties:
                     ProjectId:
-                      type: string
-                      format: uuid
+                      type: integer
                     TargetId:
-                      type: string
-                      format: uuid
+                      type: integer
                     Name:
                       type: string
                     Active:
