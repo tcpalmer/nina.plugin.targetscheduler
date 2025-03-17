@@ -1,7 +1,7 @@
 # Target Scheduler
 
 ## 5.1.7.0 (beta) - 2025-03-XX
-* Smart exposure selector will now select the exposure with lowest percent complete when multiple plans have equal avoidance scores.
+* Smart exposure selector will now select the exposure with lowest percent complete when multiple plans have equal highest avoidance scores.
 * Added additional cancellation check in TS Container.
 
 ## 5.1.6.0 (beta) - 2025-03-11

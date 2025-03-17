@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("An automated target scheduler for NINA")]
 [assembly: AssemblyCompany("Tom Palmer @tcpalmer")]
 [assembly: AssemblyProduct("Target Scheduler")]
-[assembly: AssemblyCopyright("Copyright © 2024")]
+[assembly: AssemblyCopyright("Copyright © 2025")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
