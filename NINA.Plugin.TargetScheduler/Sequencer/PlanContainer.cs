@@ -270,6 +270,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             int? numInstructions = parentContainer.BeforeTargetContainer.Items?.Count;
             TSLogger.Debug($"adding BeforeNewTarget container with {numInstructions} instruction(s)");
             parentContainer.BeforeTargetContainer.ResetAll();
+            parentContainer.BeforeTargetContainer.ResetParent(parentContainer);
             Add(parentContainer.BeforeTargetContainer);
         }
 

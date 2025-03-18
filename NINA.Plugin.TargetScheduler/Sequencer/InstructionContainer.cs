@@ -34,6 +34,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         [JsonProperty]
         public EventContainerType EventContainerType { get; set; }
 
+        /* Note that the container parent isn't set in the importing constructor which is the one
+         * called when a sequence loads.  The important parent (i.e. either TS Container or
+         * TS Sync Container) is reset just prior to execution via ResetParent().  This ensures
+         * that member instructions can locate the DSO Target if needed.
+         */
+
         [ImportingConstructor]
         public InstructionContainer() : base(new InstructionContainerStrategy()) { }
 
@@ -60,6 +66,15 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             base.Initialize();
             SetSyncTimeouts();
+        }
+
+        /// <summary>
+        /// Force the parent of an event container to be the TS (or TS Sync) Container.  This is needed since a
+        /// sequence loaded from a file doesn't seem to handle this as one would expect.
+        /// </summary>
+        /// <param name="parent"></param>
+        public void ResetParent(ISequenceContainer parent) {
+            AttachNewParent(parent);
         }
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {

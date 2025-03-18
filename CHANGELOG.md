@@ -1,7 +1,8 @@
 # Target Scheduler
 
-## 5.1.7.0 (beta) - 2025-03-XX
+## 5.1.7.0 (beta) - 2025-03-18
 * Smart exposure selector will now select the exposure with lowest percent complete when multiple plans have equal highest avoidance scores.
+* Fixed issue with custom event containers finding the current target.
 * Added additional cancellation check in TS Container.
 
 ## 5.1.6.0 (beta) - 2025-03-11
