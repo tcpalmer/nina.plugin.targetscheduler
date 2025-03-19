@@ -91,18 +91,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             this.plateSolverFactory = plateSolverFactory;
             this.windowServiceFactory = windowServiceFactory;
 
-            /*  Since these are members of the class, they're not 'added' to the sequence like regular instructions.
-             *  This means they don't get the same sequence hierarchy as regular instructions and don't
-             *  have TargetSchedulerSyncContainer as their parent :(
-             */
-
-            SyncBeforeWaitContainer = new InstructionContainer(EventContainerType.BeforeWait, Parent);
-            SyncAfterWaitContainer = new InstructionContainer(EventContainerType.AfterWait, Parent);
-            SyncBeforeTargetContainer = new InstructionContainer(EventContainerType.BeforeTarget, Parent);
-            SyncAfterEachExposureContainer = new InstructionContainer(EventContainerType.AfterEachExposure, Parent);
-            SyncAfterTargetContainer = new InstructionContainer(EventContainerType.AfterTarget, Parent);
-            SyncAfterAllTargetsContainer = new InstructionContainer(EventContainerType.AfterEachTarget, Parent);
-            SyncAfterTargetCompleteContainer = new InstructionContainer(EventContainerType.AfterTargetComplete, Parent);
+            SyncBeforeWaitContainer = new InstructionContainer(EventContainerType.BeforeWait, this);
+            SyncAfterWaitContainer = new InstructionContainer(EventContainerType.AfterWait, this);
+            SyncBeforeTargetContainer = new InstructionContainer(EventContainerType.BeforeTarget, this);
+            SyncAfterEachExposureContainer = new InstructionContainer(EventContainerType.AfterEachExposure, this);
+            SyncAfterTargetContainer = new InstructionContainer(EventContainerType.AfterTarget, this);
+            SyncAfterAllTargetsContainer = new InstructionContainer(EventContainerType.AfterEachTarget, this);
+            SyncAfterTargetCompleteContainer = new InstructionContainer(EventContainerType.AfterTargetComplete, this);
         }
 
         public TargetSchedulerSyncContainer(TargetSchedulerSyncContainer clone) : this(
@@ -424,6 +419,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             TSLogger.Info($"SYNC client starting event container: {container.Name} with {container.Items?.Count} instructions");
 
             try {
+                container.ResetParent(this);
                 await container.Execute(progress, token);
                 await Task.Delay(2000, token);
             } catch (Exception ex) {

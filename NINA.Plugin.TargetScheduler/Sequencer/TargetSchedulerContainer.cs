@@ -133,11 +133,11 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             this.messageBroker = messageBroker;
             this.framingAssistantVM = framingAssistantVM;
 
-            BeforeWaitContainer = new InstructionContainer(EventContainerType.BeforeWait, Parent);
-            AfterWaitContainer = new InstructionContainer(EventContainerType.AfterWait, Parent);
-            BeforeTargetContainer = new InstructionContainer(EventContainerType.BeforeTarget, Parent);
-            AfterEachExposureContainer = new InstructionContainer(EventContainerType.AfterEachExposure, Parent);
-            AfterTargetContainer = new InstructionContainer(EventContainerType.AfterTarget, Parent);
+            BeforeWaitContainer = new InstructionContainer(EventContainerType.BeforeWait, this);
+            AfterWaitContainer = new InstructionContainer(EventContainerType.AfterWait, this);
+            BeforeTargetContainer = new InstructionContainer(EventContainerType.BeforeTarget, this);
+            AfterEachExposureContainer = new InstructionContainer(EventContainerType.AfterEachExposure, this);
+            AfterTargetContainer = new InstructionContainer(EventContainerType.AfterTarget, this);
             AfterAllTargetsContainer = new InstructionContainer(EventContainerType.AfterEachTarget, this);
             AfterTargetCompleteContainer = new InstructionContainer(EventContainerType.AfterTargetComplete, this);
 
@@ -182,14 +182,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             if (Parent == null) {
                 SequenceBlockTeardown();
             } else {
-                BeforeWaitContainer.AttachNewParent(Parent);
-                AfterWaitContainer.AttachNewParent(Parent);
-                BeforeTargetContainer.AttachNewParent(Parent);
-                AfterEachExposureContainer.AttachNewParent(Parent);
-                AfterTargetContainer.AttachNewParent(Parent);
-                AfterAllTargetsContainer.AttachNewParent(this);
-                AfterTargetCompleteContainer.AttachNewParent(Parent);
-
                 if (Parent.Status == SequenceEntityStatus.RUNNING) {
                     SequenceBlockInitialize();
                 }
@@ -282,6 +274,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     SchedulerProgress.End();
                     SetSyncServerState(ServerState.EndSyncContainers);
                     InformTSConditionChecks();
+                    ClearTarget();
 
                     TSLogger.Info("planner returned empty plan, done");
                     return;
@@ -294,6 +287,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         previousPlanTarget = null;
                     }
 
+                    ClearTarget();
                     TSLogger.Info($"waiting for next target to become available: {Utils.FormatDateTimeFull(plan.WaitForNextTargetTime)}");
                     waitStartPublisher.Publish(plan.PlanTarget, (DateTime)plan.WaitForNextTargetTime);
                     var historyItem = new PlanExecutionHistoryItem(DateTime.Now, plan);
@@ -348,6 +342,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
                         PlanExecutionHistory.Add(historyItem);
                     } catch (Exception ex) {
+                        ClearTarget();
                         if (Utils.IsCancelException(ex)) {
                             TSLogger.Warning("sequence was canceled or interrupted, target scheduler execution is incomplete");
                             SchedulerProgress.Reset();
@@ -360,7 +355,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                                 : new SequenceEntityFailedException($"exception executing plan: {ex.Message}", ex);
                         }
                     } finally {
-                        ClearTarget();
                         TSLogger.Info("-- END PLAN EXECUTION ----------------------------------------------------------");
                     }
                 }
@@ -383,6 +377,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 TSLogger.Info($"begin executing '{container.Name}' event instructions");
 
                 try {
+                    container.ResetParent(this);
                     await container.Execute(progress, token);
                 } catch (Exception ex) {
                     SchedulerProgress.End();
