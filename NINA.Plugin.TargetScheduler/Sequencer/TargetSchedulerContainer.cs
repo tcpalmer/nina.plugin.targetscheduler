@@ -254,9 +254,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             while (true) {
                 if (token.IsCancellationRequested) {
-                    SchedulerProgress.Interrupt();
-                    ClearTarget();
                     TSLogger.Warning("TS Container cancellation requested or sequence interrupted, ending");
+                    ClearTarget();
                     break;
                 }
 
