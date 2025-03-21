@@ -552,6 +552,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
 
     public class AcquiredImageVM : BaseINPC {
         private AcquiredImage acquiredImage;
+        private string exposureTemplateName;
 
         public AcquiredImageVM() {
         }
@@ -560,12 +561,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             this.acquiredImage = acquiredImage;
             string projectName;
             string targetName;
-            string? profileName;
+            string profileName;
+
+            SchedulerDatabaseInteraction database = new SchedulerDatabaseInteraction();
 
             NamesItem names = ProjectTargetNameCache.GetNames(acquiredImage.ProjectId, acquiredImage.TargetId);
-
             if (names == null) {
-                SchedulerDatabaseInteraction database = new SchedulerDatabaseInteraction();
                 using (var context = database.GetContext()) {
                     Project project = context.ProjectSet.AsNoTracking().Where(p => p.Id == acquiredImage.ProjectId).FirstOrDefault();
                     projectName = project?.Name;
@@ -583,6 +584,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             ProjectName = projectName;
             TargetName = targetName;
 
+            using (var context = database.GetContext()) {
+                var ep = context.GetExposurePlan(acquiredImage.ExposureId);
+                exposureTemplateName = ep?.ExposureTemplate?.Name;
+            }
+
             profileName = acquiredImage.profileId != null ? ProfileNameCache.Get(acquiredImage.profileId) : "";
             if (profileName == null) {
                 ProfileMeta profileMeta = profileService.Profiles.Where(p => p.Id.ToString() == acquiredImage.profileId).FirstOrDefault();
@@ -597,6 +603,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
         public string FilterName { get { return acquiredImage.FilterName; } }
         public string ProjectName { get; private set; }
         public string TargetName { get; private set; }
+        public string ExposureTemplateName { get { return exposureTemplateName ?? ""; } }
         public string ProfileName { get; private set; }
         public bool Accepted { get { return acquiredImage.Accepted; } }
         public string GradingStatus { get { return acquiredImage.GradingStatus.ToString(); } }

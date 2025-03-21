@@ -2,6 +2,7 @@
 
 ## 5.1.8.0 (beta) - 2025-03-XX
 * Targets in Reporting dropdown are now sorted by name.
+* Added Exposure Template name to Acquired Images row detail view.
 * Misc issues.
 
 ## 5.1.7.0 (beta) - 2025-03-18
