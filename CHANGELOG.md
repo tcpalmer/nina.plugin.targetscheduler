@@ -1,6 +1,7 @@
 # Target Scheduler
 
 ## 5.1.8.0 (beta) - 2025-03-XX
+* Targets in Reporting dropdown are now sorted by name.
 * Misc issues.
 
 ## 5.1.7.0 (beta) - 2025-03-18
