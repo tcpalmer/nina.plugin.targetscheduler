@@ -25,6 +25,8 @@ using System.Resources;
 namespace NINA.Plugin.TargetScheduler.Database {
 
     public class SchedulerDatabaseContext : DbContext {
+        private const int DEFAULT_BUSYLOCK_SECS = 5;
+
         public DbSet<ProfilePreference> ProfilePreferenceSet { get; set; }
         public DbSet<AcquiredImage> AcquiredImageSet { get; set; }
         public DbSet<Project> ProjectSet { get; set; }
@@ -39,6 +41,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         public SchedulerDatabaseContext(string connectionString) : base(new SQLiteConnection() { ConnectionString = connectionString }, true) {
             Configuration.LazyLoadingEnabled = false;
+            (Database.Connection as SQLiteConnection).BusyTimeout = DEFAULT_BUSYLOCK_SECS * 1000;
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder) {
@@ -770,7 +773,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
             }
         }
 
-        private static void RollbackTransaction(DbContextTransaction transaction) {
+        public static void RollbackTransaction(DbContextTransaction transaction) {
             try {
                 TSLogger.Warning("rolling back database changes");
                 transaction.Rollback();

@@ -161,6 +161,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                     } catch (Exception e) {
                         TSLogger.Error($"exception updating database for graded image: {e.Message}\n{e.StackTrace}");
                         SchedulerDatabaseContext.CheckValidationErrors(e);
+                        SchedulerDatabaseContext.RollbackTransaction(transaction);
                     }
                 }
             }

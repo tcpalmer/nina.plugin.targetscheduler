@@ -149,7 +149,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 parentContainer.ExecuteEventContainer(parentContainer.AfterEachExposureContainer, progress, token).Wait();
 
                 ITarget target = ReloadTarget(plan.PlanTarget);
-                if (!target.Project.ExposureCompletionHelper.IsIncomplete(target)) {
+                if (target != null && !target.Project.ExposureCompletionHelper.IsIncomplete(target)) {
                     parentContainer.ExecuteEventContainer(parentContainer.AfterTargetCompleteContainer, progress, token).Wait();
                     parentContainer.targetCompletePublisher.Publish(plan);
                 }
@@ -352,8 +352,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private ITarget ReloadTarget(ITarget reference) {
             using (var context = new SchedulerDatabaseInteraction().GetContext()) {
-                Target t = context.GetTarget(reference.Project.DatabaseId, reference.DatabaseId);
-                return new PlanningTarget(reference.Project, t);
+                try {
+                    Target t = context.GetTarget(reference.Project.DatabaseId, reference.DatabaseId);
+                    return new PlanningTarget(reference.Project, t);
+                } catch (Exception ex) {
+                    TSLogger.Error($"failed to reload target for completeness check: {ex.Message}\n{ex.StackTrace}");
+                    return null;
+                }
             }
         }
 
