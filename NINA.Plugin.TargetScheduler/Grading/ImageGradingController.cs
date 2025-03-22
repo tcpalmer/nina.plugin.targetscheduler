@@ -63,13 +63,15 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public int AcquiredImageId { get; private set; }
         public int ImageId { get; private set; }
         public IImageGraderPreferences GraderPreferences { get; private set; }
+        public bool ForceGrading { get; private set; }
 
-        public GradingWorkData(int targetId, int exposurePlanId, int acquiredImageId, int imageId, IImageGraderPreferences graderPreferences) {
+        public GradingWorkData(int targetId, int exposurePlanId, int acquiredImageId, int imageId, IImageGraderPreferences graderPreferences, bool forceGrading = false) {
             TargetId = targetId;
             ExposurePlanId = exposurePlanId;
             AcquiredImageId = acquiredImageId;
             ImageId = imageId;
             GraderPreferences = graderPreferences;
+            ForceGrading = forceGrading;
         }
 
         public GradingWorkData() {

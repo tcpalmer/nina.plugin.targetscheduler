@@ -48,7 +48,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                             return;
                         }
 
-                        if (CurrentDelayThreshold(population.Count, exposurePlan.Desired) >= graderPreferences.DelayGradingThreshold) {
+                        if (workData.ForceGrading || CurrentDelayThreshold(population.Count, exposurePlan.Desired) >= graderPreferences.DelayGradingThreshold) {
                             List<AcquiredImage> pending = population.Where(a => a.GradingStatus == GradingStatus.Pending).ToList();
                             TSLogger.Info($"delayed grading triggered for {tag}: acquired={population.Count}, desired={exposurePlan.Desired}, pending={pending.Count}");
 

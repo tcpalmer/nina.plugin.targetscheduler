@@ -292,6 +292,15 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return images.ToList();
         }
 
+        public List<AcquiredImage> GetPendingAcquiredImagesForGrading(ExposurePlan exposurePlan) {
+            var images = AcquiredImageSet.AsNoTracking().Where(p =>
+                p.ExposureId == exposurePlan.Id &&
+                p.TargetId == exposurePlan.TargetId &&
+                p.FilterName == exposurePlan.ExposureTemplate.FilterName &&
+                p.gradingStatus == 0);
+            return images.ToList();
+        }
+
         public int GetAcquiredImagesCount(DateTime olderThan, int targetId) {
             var predicate = PredicateBuilder.New<AcquiredImage>();
             long olderThanSecs = Common.DateTimeToUnixSeconds(olderThan);

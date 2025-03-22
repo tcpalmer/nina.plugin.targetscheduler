@@ -69,6 +69,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             CopyCommand = new RelayCommand(Copy);
             DeleteCommand = new RelayCommand(Delete);
             ResetTargetCommand = new RelayCommand(ResetTarget);
+            GradeCommand = new RelayCommand(Grade);
             RefreshCommand = new RelayCommand(Refresh);
 
             ShowTargetImportViewCommand = new RelayCommand(ShowTargetImportViewCmd);
@@ -266,6 +267,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public ICommand CopyCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
         public ICommand ResetTargetCommand { get; private set; }
+        public ICommand GradeCommand { get; private set; }
         public ICommand RefreshCommand { get; private set; }
 
         public ICommand SendCoordinatesToFramingAssistantCommand { get; private set; }
@@ -346,6 +348,19 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                     InitializeExposurePlans(TargetProxy.Proxy);
                     TargetActive = ActiveWithActiveExposurePlans(TargetProxy.Target);
                 }
+            }
+        }
+
+        private void Grade() {
+            if (!project.EnableGrader) {
+                MyMessageBox.Show("You cannot grade since the project has grading disabled.", "Oops");
+                return;
+            }
+
+            string message = $"Trigger grading now on all Exposure Plans for '{TargetProxy.Proxy.Name}'?  This cannot be undone.";
+            if (MyMessageBox.Show(message, "Trigger Grading?", MessageBoxButton.YesNo, MessageBoxResult.No) == MessageBoxResult.Yes) {
+                MyMessageBox.Show("Grading will be run in the background.  You can refresh exposure plans shortly to see the results.", "Grade");
+                managerVM.GradeTarget(TargetProxy.Proxy);
             }
         }
 

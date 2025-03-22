@@ -6,6 +6,7 @@ using NINA.Equipment.Interfaces;
 using NINA.Plugin.TargetScheduler.Controls.Util;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile;
@@ -17,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -725,6 +727,27 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                     Notification.ShowError("Failed to paste new Scheduler Project (see log for details)");
                 }
             }
+        }
+
+        public void GradeTarget(Target target) {
+            List<AcquiredImage> acquiredImages = new List<AcquiredImage>();
+            using (var context = database.GetContext()) {
+                target.ExposurePlans.ForEach(ep => {
+                    acquiredImages.AddRange(context.GetPendingAcquiredImagesForGrading(ep));
+                });
+            }
+
+            ImageGradingController gradingController = ImageGradingController.Instance;
+            ProfilePreference profilePrefs = GetProfilePreference(profileService.ActiveProfile.Id.ToString());
+            ImageGraderPreferences graderPrefs = new ImageGraderPreferences(profileService.ActiveProfile, profilePrefs);
+            CancellationTokenSource cancelSource = new CancellationTokenSource();
+
+            TSLogger.Info($"queuing {acquiredImages.Count} images for manual grading");
+
+            acquiredImages.OrderBy(ai => ai.AcquiredDate).ForEach(ai => {
+                GradingWorkData workData = new GradingWorkData(target.Id, ai.ExposureId, ai.Id, -1, graderPrefs, true);
+                gradingController.Enqueue(workData, cancelSource.Token);
+            });
         }
 
         public void ResetProfile(TreeDataItem parentItem) {

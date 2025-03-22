@@ -354,11 +354,27 @@
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
-            <TextBlock Margin="12,5,0,6"
+            <TextBlock Margin="12,5,4,6"
                        VerticalAlignment="Center"
                        FontSize="14"
                        FontWeight="Bold"
                        Text="Exposure Plans" />
+            <Button Width="16"
+                    Height="16"
+                    Margin="12,5,0,6"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    Command="{Binding GradeCommand}"
+                    IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Manually trigger grading"
+                    ToolTipService.ShowOnDisabled="True">
+                <Grid>
+                    <Path Data="{StaticResource SS_GradeSVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
+                </Grid>
+            </Button>
             <Button Width="16"
                     Height="16"
                     Margin="12,5,0,6"
