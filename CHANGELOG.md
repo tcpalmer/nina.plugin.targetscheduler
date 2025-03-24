@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.1.9.0 (beta) - 2025-03-XX
+TBD
+
 ## 5.1.8.0 (beta) - 2025-03-22
 * Added ability to manually grade all pending exposure plans for a target.
 * Targets in Reporting dropdown are now sorted by name.
