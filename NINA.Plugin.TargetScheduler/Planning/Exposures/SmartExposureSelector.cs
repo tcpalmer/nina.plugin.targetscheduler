@@ -67,7 +67,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
         }
 
         private bool EqualScore(double benchmark, double check) {
-            return Math.Abs(benchmark - check) < 0.05;
+            return Math.Abs(benchmark - check) < 0.01;
         }
     }
 }
