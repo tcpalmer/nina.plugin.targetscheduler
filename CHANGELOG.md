@@ -2,6 +2,7 @@
 
 ## 5.1.9.0 (beta) - 2025-03-XX
 * Reduced tolerance for 'equal' moon avoidance scores (0.05 -> 0.01).
+* Targets in Acquired Images dropdown are now sorted by name.
 
 ## 5.1.8.0 (beta) - 2025-03-22
 * Added ability to manually grade all pending exposure plans for a target.

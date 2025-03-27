@@ -116,8 +116,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 targets = context.TargetSet.AsNoTracking().Where(t => t.ProjectId == selectedProjectId).ToList();
             }
 
-            targets = targets.OrderBy(t => t.Name).ToList();
-            targets.ForEach(t => {
+            targets.OrderBy(t => t.Name).ForEach(t => {
                 choices.Add(new KeyValuePair<int, string>(t.Id, t.Name));
             });
 
