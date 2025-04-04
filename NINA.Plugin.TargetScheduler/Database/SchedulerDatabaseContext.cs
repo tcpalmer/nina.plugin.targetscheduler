@@ -531,7 +531,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
         public Target SaveTarget(Target target, bool clearFilterCadenceItems = false) {
             TSLogger.Debug($"saving Target Id={target.Id} Name={target.Name}");
             ClearExistingOverrideExposureOrders(target.Id);
-            if (clearFilterCadenceItems) { ClearExistingFilterCadences(target.Id); }
+            if (clearFilterCadenceItems || target.FilterCadences.Count == 0) { ClearExistingFilterCadences(target.Id); }
 
             using (var transaction = Database.BeginTransaction()) {
                 try {

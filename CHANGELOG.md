@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.2.0.1 - 2025-04-04
+* Fixed a problem where filter cadence is not cleared during some target edits.
+
 ## 5.2.0.0 - 2025-04-02
 Official release of version 5.
 
