@@ -182,9 +182,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             string type = IsWait ? "WAIT" : "TARGET";
 
             if (type == "WAIT") {
-                sb.Append($"WAIT from {DateFmt(PlanTime)} to {DateFmt(WaitForNextTargetTime)}");
+                sb.AppendLine($"WAIT from {DateFmt(PlanTime)} to {DateFmt(WaitForNextTargetTime)}");
             } else {
-                sb.Append($"TARGET {PlanTarget.Project.Name}/{PlanTarget.Name}, filter {PlanTarget.SelectedExposure.FilterName} at {DateFmt(PlanTime)}");
+                sb.AppendLine($"TARGET {PlanTarget.Project.Name}/{PlanTarget.Name}, filter {PlanTarget.SelectedExposure.FilterName} at {DateFmt(PlanTime)}");
             }
 
             return sb.ToString();

@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.2.1.0 - 2025-04-XX
+* Preview view details output was horked at TS Info log level.
+
 ## 5.2.0.1 - 2025-04-04
 * Fixed a problem where filter cadence is not cleared during some target edits.
 
