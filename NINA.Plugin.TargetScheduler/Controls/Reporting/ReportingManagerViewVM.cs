@@ -299,7 +299,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
         private List<double> GetSamples(List<AcquiredImage> list, Func<AcquiredImage, double> Sample) {
             List<double> samples = new List<double>();
-            list.ForEach(i => samples.Add(Sample(i)));
+            list.ForEach(i => {
+                double sample = Sample(i);
+                if (sample > 0) samples.Add(sample);
+            });
+
             return samples;
         }
     }
