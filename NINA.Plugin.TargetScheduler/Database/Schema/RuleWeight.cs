@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.TargetScheduler.Util;
+﻿using Newtonsoft.Json;
+using NINA.Plugin.TargetScheduler.Util;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -8,12 +9,14 @@ using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class RuleWeight : INotifyPropertyChanged, IComparable<RuleWeight> {
-        [Key] public int Id { get; set; }
+        [JsonProperty][Key] public int Id { get; set; }
         [Required] public string name { get; set; }
         [Required] public double weight { get; set; }
 
         [NotMapped]
+        [JsonProperty]
         public string Name {
             get => name;
             set {
@@ -23,6 +26,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double Weight {
             get => weight;
             set {
@@ -31,7 +35,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             }
         }
 
-        [ForeignKey("Project")] public int ProjectId { get; set; }
+        [ForeignKey("Project")][JsonProperty] public int ProjectId { get; set; }
         public virtual Project Project { get; set; }
 
         public RuleWeight() {

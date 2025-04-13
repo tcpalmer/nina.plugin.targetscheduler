@@ -71,6 +71,9 @@ namespace NINA.Plugin.TargetScheduler {
                 SyncManager.Instance.Start(profileService);
             }
 
+            //new ExportProfile(profileService.ActiveProfile, false).Export();
+            //new ImportProfile(profileService.ActiveProfile, "C:\\Users\\Tom\\AppData\\Local\\NINA\\SchedulerPlugin\\exported-all.zip", true).Import();
+
             TSLogger.Info("plugin initialized");
             return Task.CompletedTask;
         }

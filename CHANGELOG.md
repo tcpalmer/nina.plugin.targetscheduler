@@ -1,6 +1,7 @@
 # Target Scheduler
 
-## 5.2.1.0 - 2025-04-XX
+## 5.3.0.0 - 2025-04-XX
+* Added ability to export all profile data (projects, targets, etc) to a zip file for later import.
 * Preview view details output was horked at TS Info log level.
 
 ## 5.2.0.1 - 2025-04-04

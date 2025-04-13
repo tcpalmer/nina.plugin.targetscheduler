@@ -1,4 +1,6 @@
-﻿using NINA.Plugin.TargetScheduler.Planning.Scoring.Rules;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using NINA.Plugin.TargetScheduler.Planning.Scoring.Rules;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
 using System;
@@ -12,21 +14,25 @@ using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum ProjectState {
         Draft, Active, Inactive, Closed
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum ProjectPriority {
         Low, Normal, High
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class Project : INotifyPropertyChanged {
         public const int FLATS_HANDLING_OFF = 0;
         public const int FLATS_HANDLING_TARGET_COMPLETION = 100;
         public const int FLATS_HANDLING_IMMEDIATE = 200;
 
-        [Key] public int Id { get; set; }
-        [Required] public string ProfileId { get; set; }
+        [JsonProperty][Key] public int Id { get; set; }
+        [JsonProperty][Required] public string ProfileId { get; set; }
+
         [Required] public string name { get; set; }
         public string description { get; set; }
         public int state_col { get; set; }
@@ -49,7 +55,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int enableGrader { get; set; }
 
         public virtual List<RuleWeight> ruleWeights { get; set; }
-        public virtual List<Target> Targets { get; set; }
+        [JsonProperty] public virtual List<Target> Targets { get; set; }
 
         public Project() {
         }
@@ -80,6 +86,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public string Name {
             get => name;
             set {
@@ -89,6 +96,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public string Description {
             get => description;
             set {
@@ -98,6 +106,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public ProjectPriority Priority {
             get { return (ProjectPriority)priority_col; }
             set {
@@ -107,6 +116,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public ProjectState State {
             get { return (ProjectState)state_col; }
             set {
@@ -116,6 +126,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public DateTime CreateDate {
             get { return Common.UnixSecondsToDateTime(createDate); }
             set {
@@ -125,6 +136,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public DateTime? ActiveDate {
             get { return Common.UnixSecondsToDateTime(activeDate); }
             set {
@@ -134,6 +146,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public DateTime? InactiveDate {
             get { return Common.UnixSecondsToDateTime(inactiveDate); }
             set {
@@ -143,6 +156,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool IsMosaic {
             get { return isMosaic == 1; }
             set {
@@ -152,6 +166,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int FlatsHandling {
             get { return flatsHandling; }
             set {
@@ -161,6 +176,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool ActiveNow {
             get {
                 return State == ProjectState.Active;
@@ -168,6 +184,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int MinimumTime {
             get => minimumTime;
             set {
@@ -177,6 +194,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double MinimumAltitude {
             get => minimumAltitude;
             set {
@@ -186,6 +204,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double MaximumAltitude {
             get => maximumAltitude;
             set {
@@ -195,6 +214,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool UseCustomHorizon {
             get { return useCustomHorizon == 1; }
             set {
@@ -204,6 +224,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double HorizonOffset {
             get => horizonOffset;
             set {
@@ -213,6 +234,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int MeridianWindow {
             get => meridianWindow;
             set {
@@ -222,6 +244,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int FilterSwitchFrequency {
             get => filterSwitchFrequency;
             set {
@@ -241,6 +264,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int DitherEvery {
             get => ditherEvery;
             set {
@@ -250,6 +274,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool SmartExposureOrder {
             get { return smartexposureorder == 1; }
             set {
@@ -259,6 +284,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableGrader {
             get { return enableGrader == 1; }
             set {
@@ -268,6 +294,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public List<RuleWeight> RuleWeights {
             get => ruleWeights;
             set {
@@ -334,6 +361,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Name: {Name}");
+            sb.AppendLine($"ProfileId: {ProfileId}");
             sb.AppendLine($"Description: {Description}");
             sb.AppendLine($"State: {State}");
             sb.AppendLine($"Priority: {Priority}");
@@ -359,6 +387,10 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             sb.AppendLine();
 
             return sb.ToString();
+        }
+
+        public Project Clone() {
+            return this.MemberwiseClone() as Project;
         }
     }
 

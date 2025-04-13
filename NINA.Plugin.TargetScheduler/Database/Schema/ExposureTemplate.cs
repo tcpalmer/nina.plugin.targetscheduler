@@ -1,4 +1,5 @@
-﻿using NINA.Core.Model.Equipment;
+﻿using Newtonsoft.Json;
+using NINA.Core.Model.Equipment;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Util;
 using System.ComponentModel;
@@ -10,8 +11,12 @@ using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class ExposureTemplate : INotifyPropertyChanged {
+
+        [JsonProperty]
         [Key] public int Id { get; set; }
+
         [Required] public string profileId { get; set; }
         [Required] public string name { get; set; }
         [Required] public string filterName { get; set; }
@@ -19,7 +24,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public double defaultExposure { get; set; }
         public int gain { get; set; }
         public int offset { get; set; }
-        public int? bin { get; set; }
+        [JsonProperty] public int? bin { get; set; }
         public int readoutMode { get; set; }
 
         public int twilightlevel_col { get; set; }
@@ -35,6 +40,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public double maximumHumidity { get; set; }
 
         [NotMapped]
+        [JsonProperty]
         public string ProfileId {
             get { return profileId; }
             set {
@@ -44,6 +50,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public string Name {
             get { return name; }
             set {
@@ -53,6 +60,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public string FilterName {
             get { return filterName; }
             set {
@@ -62,6 +70,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double DefaultExposure {
             get { return defaultExposure; }
             set {
@@ -71,6 +80,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int Gain {
             get { return gain; }
             set {
@@ -80,6 +90,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int Offset {
             get { return offset; }
             set {
@@ -90,7 +101,10 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
         [NotMapped]
         public BinningMode BinningMode {
-            get { return new BinningMode((short)bin, (short)bin); }
+            get {
+                if (!bin.HasValue) bin = 1;
+                return new BinningMode((short)bin, (short)bin);
+            }
             set {
                 bin = value.X;
                 RaisePropertyChanged(nameof(BinningMode));
@@ -98,6 +112,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int ReadoutMode {
             get { return readoutMode; }
             set {
@@ -107,6 +122,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public TwilightLevel TwilightLevel {
             get { return (TwilightLevel)twilightlevel_col; }
             set {
@@ -116,6 +132,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool MoonAvoidanceEnabled {
             get { return moonAvoidanceEnabled; }
             set {
@@ -125,6 +142,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double MoonAvoidanceSeparation {
             get { return moonAvoidanceSeparation; }
             set {
@@ -134,6 +152,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int MoonAvoidanceWidth {
             get { return moonAvoidanceWidth; }
             set {
@@ -143,6 +162,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double MoonRelaxScale {
             get { return moonRelaxScale; }
             set {
@@ -152,6 +172,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double MoonRelaxMaxAltitude {
             get { return moonRelaxMaxAltitude; }
             set {
@@ -161,6 +182,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double MoonRelaxMinAltitude {
             get { return moonRelaxMinAltitude; }
             set {
@@ -170,6 +192,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool MoonDownEnabled {
             get { return moonDownEnabled; }
             set {
@@ -179,6 +202,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double MaximumHumidity {
             get { return maximumHumidity; }
             set {

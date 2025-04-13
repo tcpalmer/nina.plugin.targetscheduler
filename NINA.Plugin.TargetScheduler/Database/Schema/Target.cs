@@ -1,4 +1,5 @@
-﻿using NINA.Astrometry;
+﻿using Newtonsoft.Json;
+using NINA.Astrometry;
 using NINA.Plugin.TargetScheduler.Util;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,9 @@ using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class Target : INotifyPropertyChanged {
-        [Key] public int Id { get; set; }
+        [JsonProperty][Key] public int Id { get; set; }
 
         [Required] public string name { get; set; }
         [Required] public bool active { get; set; }
@@ -24,11 +26,11 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public double roi { get; set; }
         public string unusedOEO { get; set; }
 
-        [ForeignKey("Project")] public int ProjectId { get; set; }
+        [ForeignKey("Project")][JsonProperty] public int ProjectId { get; set; }
         public virtual Project Project { get; set; }
 
-        public virtual List<ExposurePlan> ExposurePlans { get; set; }
-        public virtual List<OverrideExposureOrderItem> OverrideExposureOrders { get; set; }
+        [JsonProperty] public virtual List<ExposurePlan> ExposurePlans { get; set; }
+        [JsonProperty] public virtual List<OverrideExposureOrderItem> OverrideExposureOrders { get; set; }
         public virtual List<FilterCadenceItem> FilterCadences { get; set; }
 
         public Target() {
@@ -44,6 +46,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public string Name {
             get => name;
             set {
@@ -53,6 +56,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool Enabled {
             get { return active; }
             set {
@@ -62,15 +66,17 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double RA {
             get => ra;
-            private set { }
+            private set { ra = value; }
         }
 
         [NotMapped]
+        [JsonProperty]
         public double Dec {
             get => dec;
-            private set { }
+            private set { dec = value; }
         }
 
         [NotMapped] private Coordinates coordinates = null;
@@ -214,6 +220,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public string DecString { get => Coordinates.DecString; }
 
         [NotMapped]
+        [JsonProperty]
         public Epoch Epoch {
             get => (Epoch)epochCode;
             set {
@@ -223,6 +230,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double Rotation {
             get => rotation;
             set {
@@ -232,6 +240,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double ROI {
             get => roi;
             set {

@@ -1,709 +1,763 @@
-﻿<UserControl x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.ProfilePreferencesView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:enum="clr-namespace:NINA.Core.Enum;assembly=NINA.Core"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:rules="clr-namespace:NINA.Plugin.TargetScheduler.Controls.ValidationRules"
-             xmlns:uc="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
-             xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
-             d:DesignHeight="450"
-             d:DesignWidth="800"
-             mc:Ignorable="d">
+﻿<UserControl
+    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.ProfilePreferencesView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enum="clr-namespace:NINA.Core.Enum;assembly=NINA.Core"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:rules="clr-namespace:NINA.Plugin.TargetScheduler.Controls.ValidationRules"
+    xmlns:uc="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
+    xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary Source="../Resources/Resources.xaml" />
     </UserControl.Resources>
 
-    <StackPanel Width="700"
-                Margin="20,10,0,0"
-                Orientation="Vertical">
+    <StackPanel
+        Width="700"
+        Margin="20,10,0,0"
+        Orientation="Vertical">
         <StackPanel Orientation="Horizontal">
-            <Label Margin="0,0,0,6"
-                   VerticalAlignment="Center"
-                   Content="Profile Preferences:"
-                   FontSize="18"
-                   FontWeight="Bold" />
-            <Label Margin="0,0,0,6"
-                   VerticalAlignment="Center"
-                   Content="{Binding ProfileName}"
-                   FontSize="18" />
+            <Label
+                Margin="0,0,0,6"
+                VerticalAlignment="Center"
+                Content="Profile Preferences:"
+                FontSize="18"
+                FontWeight="Bold" />
+            <Label
+                Margin="0,0,0,6"
+                VerticalAlignment="Center"
+                Content="{Binding ProfileName}"
+                FontSize="18" />
             <uc:DocumentationLink URL="target-management/profiles.html#profile-preferences" />
         </StackPanel>
 
         <StackPanel Orientation="Vertical">
 
-            <StackPanel Margin="0,0,0,16"
-                        Orientation="Horizontal">
-                <Button Width="25"
-                        Height="25"
-                        Margin="10,0,0,0"
-                        VerticalAlignment="Center"
-                        HorizontalContentAlignment="Right"
-                        Command="{Binding EditCommand}"
-                        IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                        Style="{StaticResource BackgroundButton}"
-                        ToolTip="Edit"
-                        ToolTipService.ShowOnDisabled="True">
+            <StackPanel Margin="0,0,0,16" Orientation="Horizontal">
+                <Button
+                    Width="25"
+                    Height="25"
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    Command="{Binding EditCommand}"
+                    IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Edit"
+                    ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path Margin="5"
-                              Data="{StaticResource SS_EditSVG}"
-                              Fill="{StaticResource ButtonForegroundBrush}"
-                              Stretch="Uniform" />
+                        <Path
+                            Margin="5"
+                            Data="{StaticResource SS_EditSVG}"
+                            Fill="{StaticResource ButtonForegroundBrush}"
+                            Stretch="Uniform" />
                     </Grid>
                 </Button>
-                <Button Width="25"
-                        Height="25"
-                        Margin="10,0,0,0"
-                        VerticalAlignment="Center"
-                        HorizontalContentAlignment="Right"
-                        Command="{Binding SaveCommand}"
-                        IsEnabled="{Binding ItemEdited}"
-                        Style="{StaticResource BackgroundButton}"
-                        ToolTip="Save"
-                        ToolTipService.ShowOnDisabled="True">
+                <Button
+                    Width="25"
+                    Height="25"
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding ItemEdited}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Save"
+                    ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path Margin="5"
-                              Data="{StaticResource SS_SaveSVG}"
-                              Fill="{StaticResource ButtonForegroundBrush}"
-                              Stretch="Uniform" />
+                        <Path
+                            Margin="5"
+                            Data="{StaticResource SS_SaveSVG}"
+                            Fill="{StaticResource ButtonForegroundBrush}"
+                            Stretch="Uniform" />
                     </Grid>
                 </Button>
-                <Button Width="25"
-                        Height="25"
-                        Margin="10,0,0,0"
-                        VerticalAlignment="Center"
-                        HorizontalContentAlignment="Right"
-                        Command="{Binding CancelCommand}"
-                        IsEnabled="{Binding ShowEditView}"
-                        Style="{StaticResource BackgroundButton}"
-                        ToolTip="Cancel"
-                        ToolTipService.ShowOnDisabled="True">
+                <Button
+                    Width="25"
+                    Height="25"
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    Command="{Binding CancelCommand}"
+                    IsEnabled="{Binding ShowEditView}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Cancel"
+                    ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path Margin="5"
-                              Data="{StaticResource SS_CancelSVG}"
-                              Fill="{StaticResource ButtonForegroundBrush}"
-                              Stretch="Uniform" />
+                        <Path
+                            Margin="5"
+                            Data="{StaticResource SS_CancelSVG}"
+                            Fill="{StaticResource ButtonForegroundBrush}"
+                            Stretch="Uniform" />
                     </Grid>
                 </Button>
             </StackPanel>
 
-            <ScrollViewer Height="500"
-                          CanContentScroll="True"
-                          HorizontalScrollBarVisibility="Disabled"
-                          VerticalScrollBarVisibility="Visible">
+            <ScrollViewer
+                Height="500"
+                CanContentScroll="True"
+                HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Visible">
                 <DockPanel>
                     <StackPanel>
-                        <Label Margin="0,0,0,6"
-                               VerticalAlignment="Center"
-                               Content="General Preferences"
-                               FontSize="16"
-                               FontWeight="Bold" />
-                        <UniformGrid Width="320"
-                                     Height="110"
-                                     Margin="12,0,0,6"
-                                     HorizontalAlignment="Left"
-                                     Columns="2"
-                                     Rows="5">
+                        <Label
+                            Margin="0,0,0,6"
+                            VerticalAlignment="Center"
+                            Content="General Preferences"
+                            FontSize="16"
+                            FontWeight="Bold" />
+                        <UniformGrid
+                            Width="320"
+                            Height="110"
+                            Margin="12,0,0,6"
+                            HorizontalAlignment="Left"
+                            Columns="2"
+                            Rows="5">
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Log Level"
-                                       ToolTip="Set the log level for messages in the TS log (Debug recommended for most use)" />
-                            <ComboBox MaxHeight="22"
-                                      VerticalAlignment="Center"
-                                      ItemsSource="{Binding Source={util:EnumBindingSource {x:Type enum:LogLevelEnum}}}"
-                                      SelectedItem="{Binding ProfilePreferenceProxy.ProfilePreference.LogLevel, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.LogLevel}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Log Level"
+                                ToolTip="Set the log level for messages in the TS log (Debug recommended for most use)" />
+                            <ComboBox
+                                MaxHeight="22"
+                                VerticalAlignment="Center"
+                                ItemsSource="{Binding Source={util:EnumBindingSource {x:Type enum:LogLevelEnum}}}"
+                                SelectedItem="{Binding ProfilePreferenceProxy.ProfilePreference.LogLevel, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.LogLevel}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Park On Wait"
-                                       ToolTip="If true, then when the scheduler is waiting for the next target, park the mount.  Otherwise just stop tracking and guiding." />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.ParkOnWait, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.ParkOnWait}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Park On Wait"
+                                ToolTip="If true, then when the scheduler is waiting for the next target, park the mount.  Otherwise just stop tracking and guiding." />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.ParkOnWait, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.ParkOnWait}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Exposure Count Throttle"
-                                       ToolTip="If image grading is disabled for a project, stop planning for new exposures when the total number Acquired is greater than or equal to the number Desired times the percentage." />
-                            <TextBox MaxHeight="20"
-                                     HorizontalAlignment="Left"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Exposure Count Throttle"
+                                ToolTip="If image grading is disabled for a project, stop planning for new exposures when the total number Acquired is greater than or equal to the number Desired times the percentage." />
+                            <TextBox
+                                MaxHeight="20"
+                                HorizontalAlignment="Left"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.ExposureThrottle"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.ExposureThrottle" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="1000"
-                                                                              Minimum="1" />
+                                                    <rules:DoubleRangeChecker Maximum="1000" Minimum="1" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.ExposureThrottle, Converter={StaticResource PercentDisplayConverter}}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.ExposureThrottle, Converter={StaticResource PercentDisplayConverter}}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Delete Acquired Images"
-                                       ToolTip="If true, on target deletion, delete all acquired image records (not images) associated with the target." />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableDeleteAcquiredImagesWithTarget, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableDeleteAcquiredImagesWithTarget}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Delete Acquired Images"
+                                ToolTip="If true, on target deletion, delete all acquired image records (not images) associated with the target." />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableDeleteAcquiredImagesWithTarget, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableDeleteAcquiredImagesWithTarget}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable slew/center"
-                                       ToolTip="If true, perform a slew/center when switching to a new target." />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableSlewCenter, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSlewCenter}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable slew/center"
+                                ToolTip="If true, perform a slew/center when switching to a new target." />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableSlewCenter, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSlewCenter}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
                         </UniformGrid>
 
-                        <Label Margin="0,20,0,6"
-                               VerticalAlignment="Center"
-                               Content="Image Grader Preferences"
-                               FontSize="16"
-                               FontWeight="Bold" />
-                        <UniformGrid Width="320"
-                                     Height="352"
-                                     Margin="12,0,0,6"
-                                     HorizontalAlignment="Left"
-                                     Columns="2"
-                                     Rows="16">
+                        <Label
+                            Margin="0,20,0,6"
+                            VerticalAlignment="Center"
+                            Content="Image Grader Preferences"
+                            FontSize="16"
+                            FontWeight="Bold" />
+                        <UniformGrid
+                            Width="320"
+                            Height="352"
+                            Margin="12,0,0,6"
+                            HorizontalAlignment="Left"
+                            Columns="2"
+                            Rows="16">
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable RMS Error Grading"
-                                       ToolTip="Enable grading based on guiding RMS error" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeRMS, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeRMS}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable RMS Error Grading"
+                                ToolTip="Enable grading based on guiding RMS error" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeRMS, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeRMS}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable Star Count Grading"
-                                       ToolTip="Enable grading based on detected star counts" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeStars, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeStars}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable Star Count Grading"
+                                ToolTip="Enable grading based on detected star counts" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeStars, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeStars}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable HFR Grading"
-                                       ToolTip="Enable grading based on image HFR" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeHFR, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeHFR}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable HFR Grading"
+                                ToolTip="Enable grading based on image HFR" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeHFR, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeHFR}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable FWHM Grading"
-                                       ToolTip="Enable grading based on image FWHM (requires Hocus Focus plugin)" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeFWHM, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeFWHM}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable FWHM Grading"
+                                ToolTip="Enable grading based on image FWHM (requires Hocus Focus plugin)" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeFWHM, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeFWHM}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable Eccentricity Grading"
-                                       ToolTip="Enable grading based on image Eccentricity (requires Hocus Focus plugin)" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeEccentricity, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeEccentricity}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable Eccentricity Grading"
+                                ToolTip="Enable grading based on image Eccentricity (requires Hocus Focus plugin)" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableGradeEccentricity, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableGradeEccentricity}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Accept All Improvements"
-                                       ToolTip="If true, automatically accept latest image if the sample value (star count/HFR/FWHM/Eccentricity) is an improvement (greater than/less) than the mean of the previous samples" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.AcceptImprovement, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.AcceptImprovement}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Accept All Improvements"
+                                ToolTip="If true, automatically accept latest image if the sample value (star count/HFR/FWHM/Eccentricity) is an improvement (greater than/less) than the mean of the previous samples" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.AcceptImprovement, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.AcceptImprovement}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Move Rejected Images"
-                                       ToolTip="If enabled, move rejected images to 'rejected' folder under image folder" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableMoveRejected, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableMoveRejected}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Move Rejected Images"
+                                ToolTip="If enabled, move rejected images to 'rejected' folder under image folder" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableMoveRejected, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableMoveRejected}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Max Grading Samples"
-                                       ToolTip="Max number of recent images to use for star count and HFR comparison" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Max Grading Samples"
+                                ToolTip="Max number of recent images to use for star count and HFR comparison" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.MaxGradingSampleSize"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.MaxGradingSampleSize" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:IntRangeRule>
                                                 <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="100"
-                                                                           Minimum="3" />
+                                                    <rules:IntRangeChecker Maximum="100" Minimum="3" />
                                                 </rules:IntRangeRule.ValidRange>
                                             </rules:IntRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.MaxGradingSampleSize}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.MaxGradingSampleSize}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Delay Grading"
-                                       ToolTip="Delay grading until a percentage of exposures have been captured" />
-                            <ComboBox MaxHeight="20"
-                                      ItemsSource="{Binding DelayGradingChoices}"
-                                      SelectedValue="{Binding ProfilePreferenceProxy.ProfilePreference.DelayGrading, Mode=TwoWay, Converter={StaticResource PercentWithOffDisplayConverter}}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.DelayGrading, Converter={StaticResource PercentWithOffDisplayConverter}}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Delay Grading"
+                                ToolTip="Delay grading until a percentage of exposures have been captured" />
+                            <ComboBox
+                                MaxHeight="20"
+                                ItemsSource="{Binding DelayGradingChoices}"
+                                SelectedValue="{Binding ProfilePreferenceProxy.ProfilePreference.DelayGrading, Mode=TwoWay, Converter={StaticResource PercentWithOffDisplayConverter}}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.DelayGrading, Converter={StaticResource PercentWithOffDisplayConverter}}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="RMS Pixel Threshold"
-                                       ToolTip="Threshold to accept/reject based on guiding RMS error" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="RMS Pixel Threshold"
+                                ToolTip="Threshold to accept/reject based on guiding RMS error" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.RMSPixelThreshold"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.RMSPixelThreshold" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="500"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="500" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.RMSPixelThreshold}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.RMSPixelThreshold}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Stars Sigma Factor"
-                                       ToolTip="Number of standard deviations for acceptable star count comparison" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Stars Sigma Factor"
+                                ToolTip="Number of standard deviations for acceptable star count comparison" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.DetectedStarsSigmaFactor"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.DetectedStarsSigmaFactor" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="10"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.DetectedStarsSigmaFactor}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.DetectedStarsSigmaFactor}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="HFR Sigma Factor"
-                                       ToolTip="Number of standard deviations for acceptable HFR comparison" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="HFR Sigma Factor"
+                                ToolTip="Number of standard deviations for acceptable HFR comparison" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.HFRSigmaFactor"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.HFRSigmaFactor" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="10"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.HFRSigmaFactor}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.HFRSigmaFactor}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="FWHM Sigma Factor"
-                                       ToolTip="Number of standard deviations for acceptable FWHM comparison" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="FWHM Sigma Factor"
+                                ToolTip="Number of standard deviations for acceptable FWHM comparison" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.FWHMSigmaFactor"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.FWHMSigmaFactor" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="10"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.FWHMSigmaFactor}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.FWHMSigmaFactor}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Eccentricity Sigma Factor"
-                                       ToolTip="Number of standard deviations for acceptable Eccentricity comparison" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Eccentricity Sigma Factor"
+                                ToolTip="Number of standard deviations for acceptable Eccentricity comparison" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.EccentricitySigmaFactor"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.EccentricitySigmaFactor" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="10"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EccentricitySigmaFactor}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EccentricitySigmaFactor}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="HFR Auto Accept Level"
-                                       ToolTip="HFR test will always pass if measured value is less than or equal to this value (disabled if zero)" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="HFR Auto Accept Level"
+                                ToolTip="HFR test will always pass if measured value is less than or equal to this value (disabled if zero)" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelHFR"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelHFR" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="10"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelHFR}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelHFR}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="FWHM Auto Accept Level"
-                                       ToolTip="FWHM test will always pass if measured value is less than or equal to this value (disabled if zero)" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="FWHM Auto Accept Level"
+                                ToolTip="FWHM test will always pass if measured value is less than or equal to this value (disabled if zero)" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelFWHM"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelFWHM" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="10"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelFWHM}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelFWHM}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Ecc Auto Accept Level"
-                                       ToolTip="Eccentricity test will always pass if measured value is less than or equal to this value (disabled if zero)" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Ecc Auto Accept Level"
+                                ToolTip="Eccentricity test will always pass if measured value is less than or equal to this value (disabled if zero)" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelEccentricity"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelEccentricity" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:DoubleRangeRule>
                                                 <rules:DoubleRangeRule.ValidRange>
-                                                    <rules:DoubleRangeChecker Maximum="10"
-                                                                              Minimum="0" />
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
                                                 </rules:DoubleRangeRule.ValidRange>
                                             </rules:DoubleRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelEccentricity}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelEccentricity}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
                         </UniformGrid>
 
-                        <Label Margin="0,50,0,6"
-                               VerticalAlignment="Center"
-                               Content="Synchronization Preferences"
-                               FontSize="16"
-                               FontWeight="Bold" />
-                        <UniformGrid Width="320"
-                                     Height="110"
-                                     Margin="12,0,0,6"
-                                     HorizontalAlignment="Left"
-                                     Columns="2"
-                                     Rows="5">
+                        <Label
+                            Margin="0,50,0,6"
+                            VerticalAlignment="Center"
+                            Content="Synchronization Preferences"
+                            FontSize="16"
+                            FontWeight="Bold" />
+                        <UniformGrid
+                            Width="320"
+                            Height="110"
+                            Margin="12,0,0,6"
+                            HorizontalAlignment="Left"
+                            Columns="2"
+                            Rows="5">
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable Synchronization"
-                                       ToolTip="If true, then this profile will be enabled for synchronization" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableSynchronization, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSynchronization}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable Synchronization"
+                                ToolTip="If true, then this profile will be enabled for synchronization" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableSynchronization, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSynchronization}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Wait Timeout"
-                                       ToolTip="Maximum number of seconds to wait before timing out a sync wait instruction" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Wait Timeout"
+                                ToolTip="Maximum number of seconds to wait before timing out a sync wait instruction" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncWaitTimeout"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncWaitTimeout" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:IntRangeRule>
                                                 <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="10000000"
-                                                                           Minimum="60" />
+                                                    <rules:IntRangeChecker Maximum="10000000" Minimum="60" />
                                                 </rules:IntRangeRule.ValidRange>
                                             </rules:IntRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncWaitTimeout}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncWaitTimeout}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Action Timeout"
-                                       ToolTip="Maximum number of seconds to wait on clients to accept an action (exposure or solve/rotate)" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Action Timeout"
+                                ToolTip="Maximum number of seconds to wait on clients to accept an action (exposure or solve/rotate)" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncActionTimeout"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncActionTimeout" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:IntRangeRule>
                                                 <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="10000000"
-                                                                           Minimum="60" />
+                                                    <rules:IntRangeChecker Maximum="10000000" Minimum="60" />
                                                 </rules:IntRangeRule.ValidRange>
                                             </rules:IntRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncActionTimeout}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncActionTimeout}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Solve/Rotate Timeout"
-                                       ToolTip="Maximum number of seconds to wait on clients to complete a solve/rotate" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Solve/Rotate Timeout"
+                                ToolTip="Maximum number of seconds to wait on clients to complete a solve/rotate" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncSolveRotateTimeout"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncSolveRotateTimeout" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:IntRangeRule>
                                                 <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="10000000"
-                                                                           Minimum="60" />
+                                                    <rules:IntRangeChecker Maximum="10000000" Minimum="60" />
                                                 </rules:IntRangeRule.ValidRange>
                                             </rules:IntRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncSolveRotateTimeout}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncSolveRotateTimeout}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Event Container Timeout"
-                                       ToolTip="Maximum number of seconds to wait on clients to complete a custom event container" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Event Container Timeout"
+                                ToolTip="Maximum number of seconds to wait on clients to complete a custom event container" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                                 <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncEventContainerTimeout"
-                                             UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.SyncEventContainerTimeout" UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:IntRangeRule>
                                                 <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="10000000"
-                                                                           Minimum="60" />
+                                                    <rules:IntRangeChecker Maximum="10000000" Minimum="60" />
                                                 </rules:IntRangeRule.ValidRange>
                                             </rules:IntRangeRule>
                                         </Binding.ValidationRules>
                                     </Binding>
                                 </TextBox.Text>
                             </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncEventContainerTimeout}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.SyncEventContainerTimeout}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
                         </UniformGrid>
 
-                        <Label Margin="0,40,0,6"
-                               VerticalAlignment="Center"
-                               Content="Simulation Preferences"
-                               FontSize="16"
-                               FontWeight="Bold" />
-                        <UniformGrid Width="320"
-                                     Height="66"
-                                     Margin="12,0,0,6"
-                                     HorizontalAlignment="Left"
-                                     Columns="2"
-                                     Rows="3">
+                        <Label
+                            Margin="0,40,0,6"
+                            VerticalAlignment="Center"
+                            Content="Simulation Preferences"
+                            FontSize="16"
+                            FontWeight="Bold" />
+                        <UniformGrid
+                            Width="320"
+                            Height="66"
+                            Margin="12,0,0,6"
+                            HorizontalAlignment="Left"
+                            Columns="2"
+                            Rows="3">
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable Simulated Execution"
-                                       ToolTip="If true, then runtime execution is in simulation mode.  Read the documentation before using." />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableSimulatedRun, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSimulatedRun}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable Simulated Execution"
+                                ToolTip="If true, then runtime execution is in simulation mode.  Read the documentation before using." />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableSimulatedRun, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSimulatedRun}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Skip Waits"
-                                       ToolTip="If simulating, then skip planned waits" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.SkipSimulatedWaits, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.SkipSimulatedWaits}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Skip Waits"
+                                ToolTip="If simulating, then skip planned waits" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.SkipSimulatedWaits, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.SkipSimulatedWaits}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Skip Database Updates"
-                                       ToolTip="If simulating, then skip database updates during imaging" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.SkipSimulatedUpdates, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.SkipSimulatedUpdates}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Skip Database Updates"
+                                ToolTip="If simulating, then skip database updates during imaging" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.SkipSimulatedUpdates, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.SkipSimulatedUpdates}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
                         </UniformGrid>
                     </StackPanel>
                 </DockPanel>

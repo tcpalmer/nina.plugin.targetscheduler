@@ -260,13 +260,6 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return images.ToList();
         }
 
-        /* TODO: unclear what version this was from when creating new TS ... ?
-        public List<AcquiredImage> GetAcquiredImagesByExposureId(int exposurePlanId) {
-            var images = AcquiredImageSet.Where(p => p.ExposurePlanId == exposurePlanId)
-              .OrderByDescending(p => p.acquiredDate);
-            return images.ToList();
-        }*/
-
         public AcquiredImage GetAcquiredImage(int id) {
             return AcquiredImageSet.Where(p => p.Id == id).FirstOrDefault();
         }
@@ -754,6 +747,39 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         public List<ExposureTemplate> GetOrphanedExposureTemplates(List<string> currentProfileIdList) {
             return ExposureTemplateSet.Where(et => !currentProfileIdList.Contains(et.profileId)).ToList();
+        }
+
+        public ProfilePreference GetProfilePreferenceForExport(string profileId) {
+            return ProfilePreferenceSet.AsNoTracking().Where(pp => pp.ProfileId == profileId).FirstOrDefault();
+        }
+
+        public List<Project> GetProjectsForExport(string profileId) {
+            List<Project> projects = ProjectSet
+                .Include("targets.exposureplans.exposuretemplate")
+                .Include("ruleweights")
+                .AsNoTracking()
+                .Where(p => p.ProfileId == profileId).ToList();
+
+            foreach (var project in projects) {
+                foreach (var target in project.Targets) {
+                    target.OverrideExposureOrders = GetOverrideExposureOrders(target.Id);
+                }
+            }
+
+            return projects;
+        }
+
+        public List<ExposureTemplate> GetExposureTemplatesForExport(string profileId) {
+            return ExposureTemplateSet.AsNoTracking().Where(et => et.profileId == profileId).ToList();
+        }
+
+        public List<AcquiredImage> GetAcquiredImagesForExport(string profileId) {
+            return AcquiredImageSet.AsNoTracking().Where(ai => ai.profileId == profileId).ToList();
+        }
+
+        public List<ImageData> GetImageDataForExport(string profileId) {
+            string query = $"select * from imagedata where acquiredimageid in (select id from acquiredimage where profileId = '{profileId}');";
+            return Database.SqlQuery<ImageData>(query).ToList();
         }
 
         public static void CheckValidationErrors(Exception ex) {

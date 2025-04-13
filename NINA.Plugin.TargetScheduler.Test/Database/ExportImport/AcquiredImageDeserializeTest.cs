@@ -1,32 +1,28 @@
-﻿using FluentAssertions;
+﻿using Newtonsoft.Json;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NUnit.Framework;
 using System;
 
-namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
+namespace NINA.Plugin.TargetScheduler.Test.Database.ExportImport {
 
     [TestFixture]
-    public class AcquiredImageTest {
+    public class AcquiredImageDeserializeTest {
 
         [Test]
-        public void TestAcquiredImage() {
-            DateTime now = new DateTime(2024, 11, 11, 1, 2, 3);
-            AcquiredImage sut = new AcquiredImage("abc123", 1, 2, 3, now, "Ha", GradingStatus.Accepted, "foo", GetIM());
-            sut.ProfileId.Should().Be("abc123");
-            sut.ProjectId.Should().Be(1);
-            sut.TargetId.Should().Be(2);
-            sut.ExposureId.Should().Be(3);
-            sut.AcquiredDate.Should().Be(now);
-            sut.FilterName.Should().Be("Ha");
-            sut.GradingStatus.Should().Be(GradingStatus.Accepted);
-            sut.Accepted.Should().BeTrue();
-            sut.Rejected.Should().BeFalse();
-            sut.Pending.Should().BeFalse();
-            sut.RejectReason.Should().Be("foo");
-            sut.Metadata.Should().NotBeNull();
-            sut.Metadata.FileName.Should().Be("C:\\foo\\bar");
+        public void testBasic() {
+            //string json = File.ReadAllText("C:\\Users\\Tom\\AppData\\Local\\NINA\\SchedulerPlugin\\Temp\\ai.json");
+            //TestContext.WriteLine(json);
+
+            // AcquiredImage(string profileId, int projectId, int targetId, int exposureId, DateTime acquiredDate, string filterName, GradingStatus gradingStatus, string rejectReason, ImageMetadata imageMetadata) {
+            AcquiredImage acquiredImage = new AcquiredImage("abcd-1234", 1, 2, 3, DateTime.Now, "filter", GradingStatus.Pending, "<not>", GetIM());
+            TestContext.WriteLine($"AI obj:\n{acquiredImage}");
+
+            string json = JsonConvert.SerializeObject(acquiredImage);
+            TestContext.WriteLine(json);
+
+            var ai = JsonConvert.DeserializeObject<AcquiredImage>(json);
         }
 
         private ImageMetadata GetIM() {

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Newtonsoft.Json;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
@@ -6,8 +7,9 @@ using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class ExposurePlan : IExposureCounts, INotifyPropertyChanged {
-        [Key] public int Id { get; set; }
+        [JsonProperty][Key] public int Id { get; set; }
         [Required] public string profileId { get; set; }
         [NotMapped] private int exposureTemplateId;
         [Required] public double exposure { get; set; }
@@ -17,6 +19,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int accepted { get; set; }
 
         [ForeignKey("ExposureTemplate")]
+        [JsonProperty]
         public int ExposureTemplateId {
             get { return exposureTemplateId; }
             set {
@@ -27,10 +30,14 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
         public virtual ExposureTemplate ExposureTemplate { get; set; }
 
-        [ForeignKey("Target")] public int TargetId { get; set; }
+        [ForeignKey("Target")]
+        [JsonProperty]
+        public int TargetId { get; set; }
+
         public virtual Target Target { get; set; }
 
         [NotMapped]
+        [JsonProperty]
         public string ProfileId {
             get { return profileId; }
             set {
@@ -40,6 +47,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double Exposure {
             get { return exposure; }
             set {
@@ -49,6 +57,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int Desired {
             get { return desired; }
             set {
@@ -58,6 +67,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int Acquired {
             get { return acquired; }
             set {
@@ -67,6 +77,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int Accepted {
             get { return accepted; }
             set {

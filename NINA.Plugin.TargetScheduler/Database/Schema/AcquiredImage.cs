@@ -58,7 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         [NotMapped]
         public ImageMetadata Metadata {
             get {
-                return JsonConvert.DeserializeObject<ImageMetadata>(_metadata);
+                return _metadata != null ? JsonConvert.DeserializeObject<ImageMetadata>(_metadata) : null;
             }
             set {
                 _metadata = JsonConvert.SerializeObject(value);

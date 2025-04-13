@@ -46,6 +46,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             ProfileSettingsCommand = new RelayCommand(ViewProfilePreferences);
             AddProjectCommand = new RelayCommand(AddProject);
             PasteProjectCommand = new RelayCommand(PasteProject);
+            ExportCommand = new RelayCommand(DisplayProfileExport);
             ImportCommand = new RelayCommand(DisplayProfileImport);
             ResetProfileCommand = new RelayCommand(ResetProfile);
             ViewProjectCommand = new RelayCommandParam(ViewProject);
@@ -61,6 +62,16 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             return projects;
         }
 
+        private bool showProfileExportView = false;
+
+        public bool ShowProfileExportView {
+            get => showProfileExportView;
+            set {
+                showProfileExportView = value;
+                RaisePropertyChanged(nameof(ShowProfileExportView));
+            }
+        }
+
         private bool showProfileImportView = false;
 
         public bool ShowProfileImportView {
@@ -68,6 +79,16 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             set {
                 showProfileImportView = value;
                 RaisePropertyChanged(nameof(ShowProfileImportView));
+            }
+        }
+
+        private ProfileExportViewVM profileExportVM;
+
+        public ProfileExportViewVM ProfileExportVM {
+            get => profileExportVM;
+            set {
+                profileExportVM = value;
+                RaisePropertyChanged(nameof(ProfileExportVM));
             }
         }
 
@@ -84,6 +105,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public ICommand ProfileSettingsCommand { get; private set; }
         public ICommand AddProjectCommand { get; private set; }
         public ICommand PasteProjectCommand { get; private set; }
+        public ICommand ExportCommand { get; private set; }
         public ICommand ImportCommand { get; private set; }
         public ICommand ResetProfileCommand { get; private set; }
         public ICommand ViewProjectCommand { get; private set; }
@@ -101,9 +123,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             managerVM.PasteProject(parentItem);
         }
 
+        private void DisplayProfileExport() {
+            ShowProfileExportView = !ShowProfileExportView;
+            if (ShowProfileExportView) {
+                ShowProfileImportView = false;
+                ProfileExportVM = new ProfileExportViewVM(parentItem, profileService);
+            }
+        }
+
         private void DisplayProfileImport() {
             ShowProfileImportView = !ShowProfileImportView;
             if (ShowProfileImportView) {
+                ShowProfileExportView = false;
                 ProfileImportVM = new ProfileImportViewVM(managerVM, parentItem, profileService);
             }
         }

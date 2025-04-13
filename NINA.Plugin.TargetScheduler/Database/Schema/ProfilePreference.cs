@@ -1,4 +1,5 @@
-﻿using NINA.Core.Enum;
+﻿using Newtonsoft.Json;
+using NINA.Core.Enum;
 using NINA.Plugin.TargetScheduler.SyncService.Sync;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -7,11 +8,12 @@ using System.Runtime.CompilerServices;
 
 namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class ProfilePreference : INotifyPropertyChanged {
-        [Key] public int Id { get; set; }
-        [Required] public string ProfileId { get; set; }
+        [JsonProperty][Key] public int Id { get; set; }
+        [JsonProperty][Required] public string ProfileId { get; set; }
 
-        public int logLevel { get; set; }
+        [JsonProperty] public int logLevel { get; set; }
         public int parkOnWait { get; set; }
         public double exposureThrottle { get; set; }
         public int enableSmartPlanWindow { get; set; }
@@ -98,6 +100,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool ParkOnWait {
             get { return parkOnWait == 1; }
             set {
@@ -107,6 +110,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double ExposureThrottle {
             get { return exposureThrottle; }
             set {
@@ -116,6 +120,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableSmartPlanWindow {
             get { return enableSmartPlanWindow == 1; }
             set {
@@ -125,6 +130,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableDeleteAcquiredImagesWithTarget {
             get { return enableDeleteAcquiredImagesWithTarget == 1; }
             set {
@@ -134,6 +140,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableSlewCenter {
             get { return enableSlewCenter == 1; }
             set {
@@ -143,6 +150,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableSynchronization {
             get { return enableSynchronization == 1; }
             set {
@@ -152,6 +160,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int SyncWaitTimeout {
             get { return syncWaitTimeout; }
             set {
@@ -161,6 +170,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int SyncActionTimeout {
             get { return syncActionTimeout; }
             set {
@@ -170,6 +180,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int SyncSolveRotateTimeout {
             get { return syncSolveRotateTimeout; }
             set {
@@ -179,6 +190,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int SyncEventContainerTimeout {
             get { return syncEventContainerTimeout; }
             set {
@@ -188,6 +200,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableGradeRMS {
             get { return enableGradeRMS == 1; }
             set {
@@ -197,6 +210,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableGradeStars {
             get { return enableGradeStars == 1; }
             set {
@@ -206,6 +220,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableGradeHFR {
             get { return enableGradeHFR == 1; }
             set {
@@ -215,6 +230,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableGradeFWHM {
             get { return enableGradeFWHM == 1; }
             set {
@@ -224,6 +240,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableGradeEccentricity {
             get { return enableGradeEccentricity == 1; }
             set {
@@ -233,6 +250,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableMoveRejected {
             get { return enableMoveRejected == 1; }
             set {
@@ -242,6 +260,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double DelayGrading {
             get { return delayGrading; }
             set {
@@ -251,6 +270,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool AcceptImprovement {
             get { return acceptimprovement == 1; }
             set {
@@ -260,6 +280,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int MaxGradingSampleSize {
             get { return maxGradingSampleSize; }
             set {
@@ -269,6 +290,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double RMSPixelThreshold {
             get { return rmsPixelThreshold; }
             set {
@@ -278,6 +300,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double DetectedStarsSigmaFactor {
             get { return detectedStarsSigmaFactor; }
             set {
@@ -287,6 +310,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double HFRSigmaFactor {
             get { return hfrSigmaFactor; }
             set {
@@ -296,6 +320,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double FWHMSigmaFactor {
             get { return fwhmSigmaFactor; }
             set {
@@ -305,6 +330,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double EccentricitySigmaFactor {
             get { return eccentricitySigmaFactor; }
             set {
@@ -314,6 +340,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double AutoAcceptLevelHFR {
             get { return autoAcceptLevelHFR; }
             set {
@@ -323,6 +350,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double AutoAcceptLevelFWHM {
             get { return autoAcceptLevelFWHM; }
             set {
@@ -332,6 +360,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public double AutoAcceptLevelEccentricity {
             get { return autoAcceptLevelEccentricity; }
             set {
@@ -341,6 +370,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool EnableSimulatedRun {
             get { return enableSimulatedRun == 1; }
             set {
@@ -350,6 +380,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool SkipSimulatedWaits {
             get { return skipSimulatedWaits == 1; }
             set {
@@ -359,6 +390,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public bool SkipSimulatedUpdates {
             get { return skipSimulatedUpdates == 1; }
             set {

@@ -94,7 +94,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             ParentVM.SetTreeColorizeMode(ColorizeProjectsTargets);
         }
 
-        private void Refresh() {
+        public void Refresh() {
             List<TreeDataItem> refreshed = ParentVM.Refresh(RootList);
             if (refreshed != null) {
                 RootList = refreshed;

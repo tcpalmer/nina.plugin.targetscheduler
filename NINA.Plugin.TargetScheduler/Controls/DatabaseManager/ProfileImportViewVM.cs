@@ -4,6 +4,7 @@ using NINA.Core.MyMessageBox;
 using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Controls.Util;
 using NINA.Plugin.TargetScheduler.Database;
+using NINA.Plugin.TargetScheduler.Database.ExportImport;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile;
@@ -13,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -24,6 +26,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         private DatabaseManagerVM managerVM;
         private TreeDataItem profileItem;
+        private ProfileMeta ProfileMeta;
         private string ParentProfileId;
 
         private Dictionary<Target, string> targetsDict;
@@ -31,16 +34,20 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public ProfileImportViewVM(DatabaseManagerVM managerVM, TreeDataItem profileItem, IProfileService profileService) : base(profileService) {
             this.managerVM = managerVM;
             this.profileItem = profileItem;
+            ProfileMeta = profileItem.Data as ProfileMeta;
             ParentProfileId = (profileItem.Data as ProfileMeta).Id.ToString();
 
-            ImportCommand = new AsyncRelayCommand(Import);
-            SelectFileCommand = new AsyncRelayCommand(SelectFile);
+            ImportProfileCommand = new AsyncRelayCommand(ImportProfile);
+            SelectZipFileCommand = new AsyncRelayCommand(SelectZipFile);
+            ImportZipFilePath = null;
 
-            InitializeCombos();
-            ImportFilePath = null;
+            ImportTargetsCommand = new AsyncRelayCommand(ImportTargets);
+            SelectCSVFileCommand = new AsyncRelayCommand(SelectCSVFile);
+            ImportCSVFilePath = null;
+            InitializeTargetImportCombos();
         }
 
-        private void InitializeCombos() {
+        private void InitializeTargetImportCombos() {
             TypeFilterChoices = new List<string>() { DEFAULT_TYPE_FILTER };
 
             ProjectChoices = new AsyncObservableCollection<KeyValuePair<int, string>> {
@@ -59,6 +66,118 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             targetsDict = GetTargetsDictionary(projectsDict);
             foreach (KeyValuePair<Target, string> entry in targetsDict) {
                 TargetChoices.Add(new KeyValuePair<int, string>(entry.Key.Id, entry.Value));
+            }
+        }
+
+        // Profile import ...
+
+        private bool profileImportIsExpanded = false;
+
+        public bool ProfileImportIsExpanded {
+            get { return profileImportIsExpanded; }
+            set {
+                profileImportIsExpanded = value;
+                RaisePropertyChanged(nameof(ProfileImportIsExpanded));
+            }
+        }
+
+        public ICommand ImportProfileCommand { get; private set; }
+        public ICommand SelectZipFileCommand { get; private set; }
+
+        private string importZipFilePath;
+
+        public string ImportZipFilePath {
+            get => importZipFilePath;
+            set {
+                importZipFilePath = value;
+                RaisePropertyChanged(nameof(ImportZipFilePath));
+                RaisePropertyChanged(nameof(ImportProfileEnabled));
+            }
+        }
+
+        private bool importImageData = false;
+
+        public bool ImportImageData {
+            get => importImageData;
+            set {
+                importImageData = value;
+                RaisePropertyChanged(nameof(ImportImageData));
+            }
+        }
+
+        public bool ImportProfileEnabled { get => ImportProfileValid(); }
+
+        private bool ImportProfileValid() {
+            try {
+                if (string.IsNullOrEmpty(ImportZipFilePath)) { return false; }
+                if (!File.Exists(ImportZipFilePath)) { return false; }
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        private Task<bool> SelectZipFile() {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.Title = "Select Zip File";
+            dialog.Filters.Add(new CommonFileDialogFilter("Zip files", "*.zip"));
+            dialog.Multiselect = false;
+
+            CommonFileDialogResult result = dialog.ShowDialog();
+            if (result == CommonFileDialogResult.Ok) {
+                ImportZipFilePath = dialog.FileName;
+            }
+
+            return Task.FromResult(true);
+        }
+
+        private bool importRunning = false;
+
+        public bool ImportRunning {
+            get => importRunning;
+            set {
+                importRunning = value;
+                RaisePropertyChanged(nameof(ImportRunning));
+            }
+        }
+
+        private async Task<bool> ImportProfile() {
+            if (MyMessageBox.Show($"This will add all profile elements from the zip file to the current profile.\nIf you have existing projects or exposure templates with the same name as an\nimported item, it will show twice - there is no renaming performed.\n\nContinue?", "Import?", MessageBoxButton.YesNo, MessageBoxResult.No) == MessageBoxResult.Yes) {
+                ImportStatus status = null;
+
+                await Task.Run(() => {
+                    ImportRunning = true;
+                    Thread.Sleep(50);
+                    status = new ImportProfile(ProfileMeta, ImportZipFilePath, ImportImageData).Import();
+                    ImportRunning = false;
+                });
+
+                if (status.IsSuccess) {
+                    string referencedFilters = "";
+                    if (Common.IsNotEmpty(status.ReferencedFilters)) {
+                        referencedFilters = ".\n\nThe export references the following filters - you should confirm you have the\nsame filters configured in this profile (Options > Equipment > Filter Wheel):\n"
+                            + string.Join(", ", status.ReferencedFilters) + ".";
+                    }
+
+                    string msg = $"{status.GetDetails()}\n from {ImportZipFilePath}{referencedFilters}";
+                    MyMessageBox.Show(msg, "Import Success");
+                } else {
+                    MyMessageBox.Show(status.GetDetails(), "Import Error");
+                }
+            }
+
+            return true;
+        }
+
+        // Targets import ...
+
+        private bool targetImportIsExpanded = false;
+
+        public bool TargetImportIsExpanded {
+            get { return targetImportIsExpanded; }
+            set {
+                targetImportIsExpanded = value;
+                RaisePropertyChanged(nameof(TargetImportIsExpanded));
             }
         }
 
@@ -91,15 +210,15 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             return sortedDict.ToDictionary<KeyValuePair<Target, string>, Target, string>(pair => pair.Key, pair => pair.Value);
         }
 
-        private string importFilePath;
+        private string importCSVFilePath;
 
-        public string ImportFilePath {
-            get => importFilePath;
+        public string ImportCSVFilePath {
+            get => importCSVFilePath;
             set {
-                importFilePath = value;
-                RaisePropertyChanged(nameof(ImportFilePath));
-                TypeFilterChoices = GetTypeFilterChoices(importFilePath);
-                RaisePropertyChanged(nameof(ImportEnabled));
+                importCSVFilePath = value;
+                RaisePropertyChanged(nameof(ImportCSVFilePath));
+                TypeFilterChoices = GetTypeFilterChoices(importCSVFilePath);
+                RaisePropertyChanged(nameof(ImportTargetsEnabled));
             }
         }
 
@@ -165,20 +284,20 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
         }
 
-        public bool ImportEnabled { get => ImportFileValid(); }
+        public bool ImportTargetsEnabled { get => ImportCSVFileValid(); }
 
-        private bool ImportFileValid() {
-            if (ImportFilePath == null) {
+        private bool ImportCSVFileValid() {
+            if (ImportCSVFilePath == null) {
                 return false;
             }
 
-            try { return new FileInfo(ImportFilePath).Exists == true; } catch (Exception) { return false; }
+            try { return new FileInfo(ImportCSVFilePath).Exists == true; } catch (Exception) { return false; }
         }
 
-        public ICommand ImportCommand { get; private set; }
-        public ICommand SelectFileCommand { get; private set; }
+        public ICommand ImportTargetsCommand { get; private set; }
+        public ICommand SelectCSVFileCommand { get; private set; }
 
-        private Task<bool> SelectFile() {
+        private Task<bool> SelectCSVFile() {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
             dialog.Title = "Select CSV File";
             dialog.Multiselect = false;
@@ -186,19 +305,19 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
             CommonFileDialogResult result = dialog.ShowDialog();
             if (result == CommonFileDialogResult.Ok) {
-                ImportFilePath = dialog.FileName;
+                ImportCSVFilePath = dialog.FileName;
             }
 
             return Task.FromResult(true);
         }
 
-        private Task<bool> Import() {
-            TSLogger.Info($"importing targets from {importFilePath}");
+        private Task<bool> ImportTargets() {
+            TSLogger.Info($"importing targets from {importCSVFilePath}");
             CsvTargetLoader loader = new CsvTargetLoader();
 
             try {
                 string typeFilter = SelectedTypeFilter == DEFAULT_TYPE_FILTER ? null : SelectedTypeFilter;
-                List<Target> targets = loader.Load(ImportFilePath, typeFilter);
+                List<Target> targets = loader.Load(ImportCSVFilePath, typeFilter);
                 TSLogger.Info($"read {targets.Count} targets for import, filtered by '{typeFilter}'");
 
                 if (targets.Count == 0) {

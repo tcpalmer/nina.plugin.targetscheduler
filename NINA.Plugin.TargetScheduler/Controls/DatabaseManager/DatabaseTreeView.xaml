@@ -110,7 +110,7 @@
                                 Command="{Binding RefreshCommand}"
                                 IsEnabled="{Binding ParentVM.TreeViewEabled}"
                                 Style="{StaticResource BackgroundButton}"
-                                ToolTip="Refresh the tree FOO"
+                                ToolTip="Refresh the tree"
                                 ToolTipService.ShowOnDisabled="True">
                             <Grid>
                                 <Path Margin="5"

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
@@ -6,14 +8,16 @@ using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum OverrideExposureOrderAction {
         Exposure = 0, Dither = 1,
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class OverrideExposureOrderItem : INotifyPropertyChanged {
-        [Key] public int Id { get; set; }
+        [JsonProperty][Key] public int Id { get; set; }
 
-        [Required] public int TargetId { get; set; }
+        [JsonProperty][Required] public int TargetId { get; set; }
         [Required] public int order { get; set; }
         [Required] public int action { get; set; }
         public int referenceIdx { get; set; }
@@ -38,6 +42,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             : this(targetId, order, (int)action, -1) { }
 
         [NotMapped]
+        [JsonProperty]
         public int Order {
             get => order;
             set {
@@ -47,6 +52,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public OverrideExposureOrderAction Action {
             get { return (OverrideExposureOrderAction)action; }
             set {
@@ -56,6 +62,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
         public int ReferenceIdx {
             get => referenceIdx;
             set {

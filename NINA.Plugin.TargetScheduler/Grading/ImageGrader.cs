@@ -1,4 +1,6 @@
-﻿using NINA.Plugin.TargetScheduler.Database;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
@@ -11,10 +13,12 @@ using System.Linq;
 
 namespace NINA.Plugin.TargetScheduler.Grading {
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum GradingStatus {
         Pending, Accepted, Rejected
     };
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum GradingResult {
         Accepted, Rejected_RMS, Rejected_Stars, Rejected_HFR, Rejected_FWHM, Rejected_Eccentricity, Exception
     };

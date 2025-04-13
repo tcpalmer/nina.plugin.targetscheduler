@@ -1,4 +1,6 @@
-﻿using NINA.Astrometry;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using NINA.Astrometry;
 using NINA.Astrometry.RiseAndSet;
 using NINA.Plugin.TargetScheduler.Planning;
 using System;
@@ -8,10 +10,12 @@ using System.Text;
 
 namespace NINA.Plugin.TargetScheduler.Astrometry {
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum TwilightLevel {
         Nighttime, Astronomical, Nautical, Civil
     };
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum TwilightStage {
         Dusk, Dawn
     };
