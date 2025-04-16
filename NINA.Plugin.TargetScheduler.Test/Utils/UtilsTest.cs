@@ -203,5 +203,18 @@ namespace NINA.Plugin.TargetScheduler.Test.Util {
                 Directory.Delete(tempDir, true);
             }
         }
+
+        [Test]
+        [TestCase(null, Int32.MinValue)]
+        [TestCase("", Int32.MinValue)]
+        [TestCase("foo", Int32.MinValue)]
+        [TestCase("-100", -100)]
+        [TestCase("-1", -1)]
+        [TestCase("0", 0)]
+        [TestCase("1", 1)]
+        [TestCase("100", 100)]
+        public void TestStringToInt(string s, int expected) {
+            Utils.StringToInt(s).Should().Be(expected);
+        }
     }
 }

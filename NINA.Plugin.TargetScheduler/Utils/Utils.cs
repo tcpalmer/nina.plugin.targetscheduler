@@ -206,6 +206,11 @@ namespace NINA.Plugin.TargetScheduler.Util {
             }
         }
 
+        public static int StringToInt(string s) {
+            int i;
+            return Int32.TryParse(s, out i) ? i : int.MinValue;
+        }
+
         private Utils() {
         }
     }

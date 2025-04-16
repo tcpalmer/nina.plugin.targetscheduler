@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using NINA.Core.MyMessageBox;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile;
 using System;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Windows;
 
 namespace NINA.Plugin.TargetScheduler.Database.ExportImport {
 
@@ -230,8 +233,6 @@ namespace NINA.Plugin.TargetScheduler.Database.ExportImport {
                     return serializer.Deserialize<T>(jsonTextReader);
                 }
             }
-
-            //  return JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName));
         }
 
         private string UnZipExport() {
@@ -251,10 +252,20 @@ namespace NINA.Plugin.TargetScheduler.Database.ExportImport {
         }
 
         private bool ConfirmVersions(ExportMetadata metadata) {
-            string importDatabaseVersion = ExportProfile.GetDatabaseVersion();
-            if (metadata.DatabaseVersion != importDatabaseVersion) {
-                TSLogger.Error($"Can't import profile due to mismatched database versions: export is {metadata.DatabaseVersion}, current is {importDatabaseVersion}");
+            int importVersion = Utils.StringToInt(ExportProfile.GetDatabaseVersion());
+            int exportVersion = Utils.StringToInt(metadata.DatabaseVersion);
+
+            if (importVersion < exportVersion) {
+                TSLogger.Error($"Can't import profile: export database version is newer than import version: export={exportVersion}, import={importVersion}.  Update the current version of TS before trying again.");
                 return false;
+            }
+
+            if (importVersion > exportVersion) {
+                string msg = "The current TS database version is newer than that of the export.\nIn most cases, this is OK but some database changes might cause problems.\nAre you sure you want to continue with the import?";
+                if (MyMessageBox.Show(msg, "Confirm?", MessageBoxButton.YesNo, MessageBoxResult.No) != MessageBoxResult.Yes) {
+                    TSLogger.Info($"profile import canceled by user due to newer current database version: current={importVersion}, exporting={exportVersion}");
+                    return false;
+                }
             }
 
             return true;
