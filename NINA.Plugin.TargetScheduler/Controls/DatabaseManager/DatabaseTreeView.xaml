@@ -1,13 +1,14 @@
-﻿<UserControl x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.DatabaseTreeView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             d:DesignHeight="450"
-             d:DesignWidth="260"
-             mc:Ignorable="d">
+﻿<UserControl
+    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.DatabaseTreeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="260"
+    mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary Source="../Resources/Resources.xaml" />
@@ -15,154 +16,161 @@
 
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Horizontal">
-            <Border Width="260"
-                    BorderBrush="{StaticResource BorderBrush}"
-                    BorderThickness="1">
+            <Border
+                Width="260"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1">
                 <Grid Width="260">
-                    <TextBlock Margin="2,2,0,0"
-                               HorizontalAlignment="Left"
-                               FontSize="14"
-                               FontWeight="Bold"
-                               Text="{Binding Name}" />
-                    <StackPanel Margin="0,0,0,0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Orientation="Horizontal">
-                        <Button Width="25"
-                                Height="25"
-                                VerticalAlignment="Center"
-                                Command="{Binding CollapseAllCommand}"
-                                IsEnabled="{Binding ParentVM.TreeViewEabled}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Collapse all"
-                                ToolTipService.ShowOnDisabled="True">
+                    <TextBlock
+                        Margin="2,2,0,0"
+                        HorizontalAlignment="Left"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        Text="{Binding Name}" />
+                    <StackPanel
+                        Margin="0,0,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <Button
+                            Width="25"
+                            Height="25"
+                            VerticalAlignment="Center"
+                            Command="{Binding CollapseAllCommand}"
+                            IsEnabled="{Binding ParentVM.TreeViewEabled}"
+                            Style="{StaticResource BackgroundButton}"
+                            ToolTip="Collapse all"
+                            ToolTipService.ShowOnDisabled="True">
                             <Grid>
-                                <Path Margin="5"
-                                      Data="{StaticResource SS_CollapseAllSVG}"
-                                      Fill="{StaticResource ButtonForegroundBrush}"
-                                      Stretch="Uniform" />
+                                <Path
+                                    Margin="5"
+                                    Data="{StaticResource SS_CollapseAllSVG}"
+                                    Fill="{StaticResource ButtonForegroundBrush}"
+                                    Stretch="Uniform" />
                             </Grid>
                         </Button>
-                        <Button Width="25"
-                                Height="25"
-                                VerticalAlignment="Center"
-                                Command="{Binding ExpandAllCommand}"
-                                IsEnabled="{Binding ParentVM.TreeViewEabled}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Expand all"
-                                ToolTipService.ShowOnDisabled="True">
+                        <Button
+                            Width="25"
+                            Height="25"
+                            VerticalAlignment="Center"
+                            Command="{Binding ExpandAllCommand}"
+                            IsEnabled="{Binding ParentVM.TreeViewEabled}"
+                            Style="{StaticResource BackgroundButton}"
+                            ToolTip="Expand all"
+                            ToolTipService.ShowOnDisabled="True">
                             <Grid>
-                                <Path Margin="5"
-                                      Data="{StaticResource SS_ExpandAllSVG}"
-                                      Fill="{StaticResource ButtonForegroundBrush}"
-                                      Stretch="Uniform" />
-                            </Grid>
-                        </Button>
-
-                        <Button Width="25"
-                                Height="25"
-                                VerticalAlignment="Center"
-                                Command="{Binding SwitchColorizeModeCommand}"
-                                IsEnabled="{Binding ParentVM.TreeViewEabled}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Toggle: color projects/targets by active/inactive"
-                                ToolTipService.ShowOnDisabled="True"
-                                Visibility="{Binding ShowActiveInactive, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-                            <Grid>
-                                <Path Margin="5"
-                                      Data="{StaticResource SS_EyedropperSVG}"
-                                      Fill="{StaticResource ButtonForegroundBrush}"
-                                      Stretch="Uniform"
-                                      Visibility="{Binding ColorizeProjectsTargets, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
-                                <Path Margin="5"
-                                      Data="{StaticResource SS_EyedropperSVG}"
-                                      Fill="Green"
-                                      Stretch="Uniform"
-                                      Visibility="{Binding ColorizeProjectsTargets, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                                <Path
+                                    Margin="5"
+                                    Data="{StaticResource SS_ExpandAllSVG}"
+                                    Fill="{StaticResource ButtonForegroundBrush}"
+                                    Stretch="Uniform" />
                             </Grid>
                         </Button>
 
-                        <Button Width="25"
-                                Height="25"
-                                VerticalAlignment="Center"
-                                Command="{Binding SwitchDisplayModeCommand}"
-                                IsEnabled="{Binding ParentVM.TreeViewEabled}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Toggle: show all projects/targets or active only"
-                                ToolTipService.ShowOnDisabled="True"
-                                Visibility="{Binding ShowActiveInactive, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                        <Button
+                            Width="25"
+                            Height="25"
+                            VerticalAlignment="Center"
+                            Command="{Binding SwitchColorizeModeCommand}"
+                            IsEnabled="{Binding ParentVM.TreeViewEabled}"
+                            Style="{StaticResource BackgroundButton}"
+                            ToolTip="Toggle: color projects/targets by active/inactive"
+                            ToolTipService.ShowOnDisabled="True"
+                            Visibility="{Binding ShowActiveInactive, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                             <Grid>
-                                <Path Margin="5"
-                                      Data="{StaticResource SS_CheckMarkSVG}"
-                                      Fill="{StaticResource ButtonForegroundBrush}"
-                                      Stretch="Uniform"
-                                      Visibility="{Binding ShowDisplayAll, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                                <Path Margin="5"
-                                      Data="{StaticResource SS_CheckMarkSVG}"
-                                      Fill="Green"
-                                      Stretch="Uniform"
-                                      Visibility="{Binding ShowDisplayAll, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                                <Path
+                                    Margin="5"
+                                    Data="{StaticResource SS_EyedropperSVG}"
+                                    Fill="{StaticResource ButtonForegroundBrush}"
+                                    Stretch="Uniform"
+                                    Visibility="{Binding ColorizeProjectsTargets, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                                <Path
+                                    Margin="5"
+                                    Data="{StaticResource SS_EyedropperSVG}"
+                                    Fill="Green"
+                                    Stretch="Uniform"
+                                    Visibility="{Binding ColorizeProjectsTargets, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
                             </Grid>
                         </Button>
-                        <Button Width="25"
-                                Height="25"
-                                VerticalAlignment="Center"
-                                Command="{Binding RefreshCommand}"
-                                IsEnabled="{Binding ParentVM.TreeViewEabled}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Refresh the tree"
-                                ToolTipService.ShowOnDisabled="True">
+
+                        <Button
+                            Width="25"
+                            Height="25"
+                            VerticalAlignment="Center"
+                            Command="{Binding SwitchDisplayModeCommand}"
+                            IsEnabled="{Binding ParentVM.TreeViewEabled}"
+                            Style="{StaticResource BackgroundButton}"
+                            ToolTip="Toggle: show all projects/targets or active only"
+                            ToolTipService.ShowOnDisabled="True"
+                            Visibility="{Binding ShowActiveInactive, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                             <Grid>
-                                <Path Margin="5"
-                                      Data="{StaticResource SS_RefreshSVG}"
-                                      Fill="{StaticResource ButtonForegroundBrush}"
-                                      Stretch="Uniform" />
+                                <Path
+                                    Margin="5"
+                                    Data="{StaticResource SS_CheckMarkSVG}"
+                                    Fill="{StaticResource ButtonForegroundBrush}"
+                                    Stretch="Uniform"
+                                    Visibility="{Binding ShowDisplayAll, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                                <Path
+                                    Margin="5"
+                                    Data="{StaticResource SS_CheckMarkSVG}"
+                                    Fill="Green"
+                                    Stretch="Uniform"
+                                    Visibility="{Binding ShowDisplayAll, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                            </Grid>
+                        </Button>
+                        <Button
+                            Width="25"
+                            Height="25"
+                            VerticalAlignment="Center"
+                            Command="{Binding RefreshCommand}"
+                            IsEnabled="{Binding ParentVM.TreeViewEabled}"
+                            Style="{StaticResource BackgroundButton}"
+                            ToolTip="Refresh the tree"
+                            ToolTipService.ShowOnDisabled="True">
+                            <Grid>
+                                <Path
+                                    Margin="5"
+                                    Data="{StaticResource SS_RefreshSVG}"
+                                    Fill="{StaticResource ButtonForegroundBrush}"
+                                    Stretch="Uniform" />
                             </Grid>
                         </Button>
                     </StackPanel>
                 </Grid>
             </Border>
         </StackPanel>
-        <TreeView x:Name="TreeView"
-                  Width="260"
-                  Height="{Binding Height}"
-                  Margin="0,0,0,0"
-                  HorizontalAlignment="Left"
-                  BorderBrush="{StaticResource BorderBrush}"
-                  BorderThickness="0"
-                  IsEnabled="{Binding ParentVM.TreeViewEabled}"
-                  ItemsSource="{Binding RootList}">
+        <TreeView
+            x:Name="TreeView"
+            Width="260"
+            Height="{Binding Height}"
+            Margin="0,0,0,0"
+            HorizontalAlignment="Left"
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="0"
+            IsEnabled="{Binding ParentVM.TreeViewEabled}"
+            ItemsSource="{Binding RootList}">
 
             <TreeView.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
-                                 Color="{Binding Source={StaticResource ProfileService}, Path=ActiveProfile.ColorSchemaSettings.ColorSchema.ButtonBackgroundSelectedColor}" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
-                                 Color="{Binding Source={StaticResource ProfileService}, Path=ActiveProfile.ColorSchemaSettings.ColorSchema.ButtonBackgroundSelectedColor}" />
-                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"
-                                 Color="{Binding Source={StaticResource ProfileService}, Path=ActiveProfile.ColorSchemaSettings.ColorSchema.TertiaryBackgroundColor}" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{Binding Source={StaticResource ProfileService}, Path=ActiveProfile.ColorSchemaSettings.ColorSchema.ButtonBackgroundSelectedColor}" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{Binding Source={StaticResource ProfileService}, Path=ActiveProfile.ColorSchemaSettings.ColorSchema.ButtonBackgroundSelectedColor}" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{Binding Source={StaticResource ProfileService}, Path=ActiveProfile.ColorSchemaSettings.ColorSchema.TertiaryBackgroundColor}" />
                 <Style TargetType="{x:Type TreeView}">
                     <Style.Triggers>
-                        <Trigger Property="IsEnabled"
-                                 Value="false">
-                            <Setter Property="FontWeight"
-                                    Value="ExtraLight" />
-                            <Setter Property="FontStyle"
-                                    Value="Italic" />
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="FontWeight" Value="ExtraLight" />
+                            <Setter Property="FontStyle" Value="Italic" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
                 <Style TargetType="{x:Type local:TreeDataItem}">
-                    <Setter Property="FontWeight"
-                            Value="Bold" />
-                    <Setter Property="Margin"
-                            Value="0,3,0,3" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Margin" Value="0,3,0,3" />
                 </Style>
             </TreeView.Resources>
 
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectedItemChanged">
-                    <i:InvokeCommandAction Command="{Binding ParentVM.SelectedItemChangedCommand}"
-                                           CommandParameter="{Binding ElementName=TreeView, Path=SelectedItem}" />
+                    <i:InvokeCommandAction Command="{Binding ParentVM.SelectedItemChangedCommand}" CommandParameter="{Binding ElementName=TreeView, Path=SelectedItem}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </TreeView>

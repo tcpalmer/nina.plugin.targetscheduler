@@ -8,9 +8,9 @@ using System.Collections.Generic;
 namespace NINA.Plugin.TargetScheduler.Planning.Scoring {
 
     public class ScoringEngine : IScoringEngine {
-        public IProfile ActiveProfile { get; }
+        public IProfile ActiveProfile { get; set; }
         public ProfilePreference ProfilePreference { get; set; }
-        public DateTime AtTime { get; }
+        public DateTime AtTime { get; set; }
         public ITarget PreviousPlanTarget { get; }
         public List<IScoringRule> Rules { get; set; }
 

@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.4.0.0 - 2025-04-XX
+* Added new scoring rule: Meridian Flip Penalty.
+
 ## 5.3.0.0 - 2025-04-13
 * Added ability to export all profile data (projects, targets, etc) to a zip file for later import.
 * Fixed issue in Reporting where any NaN FWHM or Eccentricity values caused the corresponding range display to show 'n/a'. 
