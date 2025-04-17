@@ -167,6 +167,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public int MeridianWindow { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int FilterSwitchFrequency { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool SmartExposureOrder { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool SmartExposureRotate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Dictionary<string, double> RuleWeights { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public ExposureCompletionHelper ExposureCompletionHelper { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public List<ITarget> Targets { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

@@ -29,6 +29,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             pp.SetupAllProperties();
             pp.SetupProperty(p => p.DitherEvery, 1);
             pp.SetupProperty(p => p.SmartExposureOrder, true);
+            pp.SetupProperty(p => p.SmartExposureOrder, false);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("T1", TestData.M31);
             pt.SetupProperty(t => t.Project, pp.Object);
             SetEPs(pt);
@@ -132,6 +133,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             pp.SetupAllProperties();
             pp.SetupProperty(p => p.DitherEvery, 1);
             pp.SetupProperty(p => p.SmartExposureOrder, true);
+            pp.SetupProperty(p => p.SmartExposureRotate, true);
             pp.SetupProperty(p => p.ExposureCompletionHelper, helper);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("T1", TestData.M31);
             pt.SetupProperty(t => t.Project, pp.Object);

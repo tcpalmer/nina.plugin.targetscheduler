@@ -33,15 +33,17 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
                 }
             }
 
-            // If other exposures have an 'equal' high score then select the one with the lowest percent complete
-            List<IExposure> equalScorePlans = target.ExposurePlans.Where(ep => !ep.Rejected && EqualScore(selected.MoonAvoidanceScore, ep.MoonAvoidanceScore)).ToList();
-            if (equalScorePlans.Count > 1) {
-                double lowestPercentComplete = double.MaxValue;
-                foreach (IExposure exposure in equalScorePlans) {
-                    double percentComplete = project.ExposureCompletionHelper.PercentComplete(exposure);
-                    if (percentComplete < lowestPercentComplete) {
-                        selected = exposure;
-                        lowestPercentComplete = percentComplete;
+            if (project.SmartExposureRotate) {
+                // If other exposures have an 'equal' high score then select the one with the lowest percent complete
+                List<IExposure> equalScorePlans = target.ExposurePlans.Where(ep => !ep.Rejected && EqualScore(selected.MoonAvoidanceScore, ep.MoonAvoidanceScore)).ToList();
+                if (equalScorePlans.Count > 1) {
+                    double lowestPercentComplete = double.MaxValue;
+                    foreach (IExposure exposure in equalScorePlans) {
+                        double percentComplete = project.ExposureCompletionHelper.PercentComplete(exposure);
+                        if (percentComplete < lowestPercentComplete) {
+                            selected = exposure;
+                            lowestPercentComplete = percentComplete;
+                        }
                     }
                 }
             }

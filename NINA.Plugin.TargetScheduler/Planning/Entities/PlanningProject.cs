@@ -32,6 +32,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public int FilterSwitchFrequency { get; set; }
         public int DitherEvery { get; set; }
         public bool SmartExposureOrder { get; set; }
+        public bool SmartExposureRotate { get; set; }
         public bool EnableGrader { get; set; }
         public bool IsMosaic { get; set; }
         public int FlatsHandling { get; set; }
@@ -64,6 +65,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             this.FilterSwitchFrequency = project.FilterSwitchFrequency;
             this.DitherEvery = project.DitherEvery;
             this.SmartExposureOrder = project.SmartExposureOrder;
+            this.SmartExposureRotate = project.SmartExposureRotate;
             this.EnableGrader = project.EnableGrader;
             this.IsMosaic = project.IsMosaic;
             this.FlatsHandling = project.FlatsHandling;
@@ -108,6 +110,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             sb.AppendLine($"FilterSwitchFrequency: {FilterSwitchFrequency}");
             sb.AppendLine($"DitherEvery: {DitherEvery}");
             sb.AppendLine($"SmartExposureOrder: {SmartExposureOrder}");
+            sb.AppendLine($"SmartExposureRotate: {SmartExposureRotate}");
             sb.AppendLine($"EnableGrader: {EnableGrader}");
             sb.AppendLine($"IsMosaic: {IsMosaic}");
             sb.AppendLine($"FlatsHandling: {FlatsHandling}");

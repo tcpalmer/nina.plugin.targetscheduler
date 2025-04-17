@@ -37,6 +37,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
             p1.MinimumTime = 90;
             p1.UseCustomHorizon = true;
             p1.MeridianWindow = 60;
+            p1.SmartExposureOrder = true;
+            p1.SmartExposureRotate = false;
             p1.IsMosaic = true;
             p1.FlatsHandling = 3;
 
@@ -62,6 +64,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
             p2.MinimumTime.Should().Be(90);
             p2.UseCustomHorizon.Should().Be(true);
             p2.MeridianWindow.Should().Be(60);
+            p2.SmartExposureOrder.Should().Be(true);
+            p2.SmartExposureRotate.Should().Be(false);
             p2.IsMosaic.Should().Be(true);
             p2.FlatsHandling.Should().Be(3);
 
