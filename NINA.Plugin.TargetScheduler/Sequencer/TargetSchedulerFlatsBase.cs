@@ -175,6 +175,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         protected async Task<bool> TakeFlatSet(LightSession neededFlat, bool applyRotation, IProgress<ApplicationStatus> progress, CancellationToken token) {
+            FlatsImageSaveWatcher imageSaveWatcher = null;
             FlatSpec flatSpec = neededFlat.FlatSpec;
             Target target = GetTarget(neededFlat.TargetId);
             if (target == null) {
@@ -188,6 +189,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     Notification.ShowWarning($"TS Flats: failed to find trained settings for {flatSpec}");
                     return false;
                 }
+
+                imageSaveWatcher = new FlatsImageSaveWatcher(imageSaveMediator, FlatCount);
 
                 int flatCount = FlatCount;
                 DisplayText = $"{flatSpec.FilterName} {setting.Time.ToString("0.##")}s ({GetFlatSpecDisplay(flatSpec)})";
@@ -241,6 +244,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             } catch (Exception ex) {
                 TSLogger.Error($"Exception taking automated flat: {ex.Message}\n{ex}");
                 return false;
+            } finally {
+                imageSaveWatcher?.WaitForAllImagesSaved();
             }
         }
 
@@ -257,47 +262,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
                 return target;
             }
-        }
-
-        protected Task BeforeImageSaved(object sender, BeforeImageSavedEventArgs args) {
-            if (args.Image.MetaData.Image.ImageType != CaptureSequence.ImageTypes.FLAT) {
-                return Task.CompletedTask;
-            }
-
-            string overloadedName = args.Image.MetaData.Target.Name;
-            (string targetName, string sessionId, string projectName) = FlatsExpert.DeOverloadTargetName(overloadedName);
-
-            TSLogger.Debug($"TS Flats: BeforeImageSaved: {projectName}/{targetName} sid={sessionId} filter={args.Image?.MetaData?.FilterWheel?.Filter}");
-            args.Image.MetaData.Target.Name = targetName;
-            args.Image.MetaData.Sequence.Title = overloadedName;
-
-            return Task.CompletedTask;
-        }
-
-        protected Task BeforeFinalizeImageSaved(object sender, BeforeFinalizeImageSavedEventArgs args) {
-            if (args.Image.RawImageData.MetaData.Image.ImageType != CaptureSequence.ImageTypes.FLAT) {
-                return Task.CompletedTask;
-            }
-
-            (string targetName, string sessionId, string projectName) = FlatsExpert.DeOverloadTargetName(args.Image?.RawImageData?.MetaData?.Sequence?.Title);
-            string sessionIdentifier = FlatsExpert.FormatSessionIdentifier(int.Parse(sessionId));
-            ImagePattern proto = TargetScheduler.FlatSessionIdImagePattern;
-            args.AddImagePattern(new ImagePattern(proto.Key, proto.Description) { Value = sessionIdentifier });
-
-            proto = TargetScheduler.ProjectNameImagePattern;
-            args.AddImagePattern(new ImagePattern(proto.Key, proto.Description) { Value = projectName });
-
-            TSLogger.Debug($"TS Flats: BeforeFinalizeImageSaved: for {projectName}/{targetName}: sid={sessionIdentifier}");
-
-            return Task.CompletedTask;
-        }
-
-        protected void ImageSaved(object sender, ImageSavedEventArgs args) {
-            if (args.MetaData.Image.ImageType != CaptureSequence.ImageTypes.FLAT) {
-                return;
-            }
-
-            TSLogger.Debug($"TS Flats: ImageSaved: {args.MetaData?.Target?.Name} filter={args.Filter} file={args.PathToImage?.LocalPath}");
         }
 
         protected void SaveFlatHistory(LightSession neededFlat) {

@@ -2,6 +2,7 @@
 
 ## 5.4.0.0 - 2025-04-XX
 * Added new scoring rule: Meridian Flip Penalty.
+* Fixed issue where flats could miss file name pattern substitutions.
 * Relaxed profile import: user has option to continue if importing database is newer than the export.
 
 ## 5.3.0.0 - 2025-04-13

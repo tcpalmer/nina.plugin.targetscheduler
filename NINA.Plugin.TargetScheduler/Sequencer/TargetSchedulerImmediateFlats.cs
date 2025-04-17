@@ -83,10 +83,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 await CloseCover(progress, token);
                 await ToggleLight(true, progress, token);
 
-                imageSaveMediator.BeforeImageSaved += BeforeImageSaved;
-                imageSaveMediator.BeforeFinalizeImageSaved += BeforeFinalizeImageSaved;
-                imageSaveMediator.ImageSaved += ImageSaved;
-
                 List<FlatSpec> takenFlats = new List<FlatSpec>();
                 foreach (LightSession neededFlat in neededFlats) {
                     bool success = true;
@@ -133,13 +129,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 CompletedFlatSets = 0;
                 Iterations = 0;
                 CompletedIterations = 0;
-
-                // Wait before we stop monitoring for image saves - give the last one a chance to come through
-                Thread.Sleep(3000);
-
-                imageSaveMediator.BeforeImageSaved -= BeforeImageSaved;
-                imageSaveMediator.BeforeFinalizeImageSaved -= BeforeFinalizeImageSaved;
-                imageSaveMediator.ImageSaved -= ImageSaved;
             }
 
             return;
