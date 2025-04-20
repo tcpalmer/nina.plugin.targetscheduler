@@ -18,11 +18,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private const int TARGET_VISIBILITY_SAMPLE_INTERVAL = 10;
         private const int TARGET_FUTURE_TEST_SAMPLE_INTERVAL = 60;
 
+        private IProfile profile;
         private ObserverInfo observerInfo;
         private int targetVisibilitySampleInterval = TARGET_VISIBILITY_SAMPLE_INTERVAL;
         private int targetFutureTestSampleInterval = TARGET_FUTURE_TEST_SAMPLE_INTERVAL;
 
         public TargetImagingExpert(IProfile activeProfile, ProfilePreference profilePreferences, bool isPreview) {
+            this.profile = activeProfile;
             this.observerInfo = new ObserverInfo {
                 Latitude = activeProfile.AstrometrySettings.Latitude,
                 Longitude = activeProfile.AstrometrySettings.Longitude,
@@ -111,6 +113,26 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 TSLogger.Trace($"Target not visible for min time after meridian window clip {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
                 SetRejected(target, Reasons.TargetNotVisible);
                 return false;
+            }
+
+            // Special handling when profile specifies a pause before MF.  If pause > 0 and that pause would occur in the visibility
+            // span, then adjust the target start or end times to avoid the MF safety zone.
+            if (profile.MeridianFlipSettings?.PauseTimeBeforeMeridian > 0) {
+                TimeInterval meridianFlipClippedSpan = new MeridianFlipClipper().Clip(profile, targetStartTime, targetTransitTime, targetEndTime);
+                if (meridianFlipClippedSpan == null) {
+                    SetRejected(target, Reasons.TargetMeridianFlipClipped);
+                    return false;
+                }
+
+                targetStartTime = meridianFlipClippedSpan.StartTime;
+                targetEndTime = meridianFlipClippedSpan.EndTime;
+
+                // Recheck minimum time after MF pause adjustment
+                if ((targetEndTime - targetStartTime).TotalSeconds < project.MinimumTime * 60) {
+                    TSLogger.Trace($"Target not visible for min time after MF pause adjustment {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)}");
+                    SetRejected(target, Reasons.TargetNotVisible);
+                    return false;
+                }
             }
 
             // If the start time is in the future, reject ... for now

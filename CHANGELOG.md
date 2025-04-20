@@ -2,6 +2,7 @@
 
 ## 5.4.0.0 - 2025-04-XX
 * Added new scoring rule: Meridian Flip Penalty.
+* Added special handling for users that need a pause before a meridian flip.
 * Added switch to select how exposures are selected for smart exposure when multiple have the same avoidance score.
 * Relaxed profile import: user has option to continue if importing database is newer than the export.
 * Fixed issue where flats could miss file name pattern substitutions.

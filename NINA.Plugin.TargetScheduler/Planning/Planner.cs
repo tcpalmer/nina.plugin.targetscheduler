@@ -564,6 +564,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public const string TargetMaxAltitude = "max altitude";
         public const string TargetMeridianWindowClipped = "clipped by meridian window";
         public const string TargetBeforeMeridianWindow = "before meridian window";
+        public const string TargetMeridianFlipClipped = "clipped by meridian flip safety";
         public const string TargetMoonAvoidance = "moon avoidance";
         public const string TargetLowerScore = "lower score";
         public const string TargetAllExposurePlans = "all exposure plans rejected";

@@ -91,6 +91,31 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         }
 
         [Test]
+        public void testVisibilityMeridianFlipPause() {
+            IProfile profile = GetProfileService(10, 10);
+            DateTime atTime = new DateTime(2025, 1, 1, 23, 0, 0);
+            DateTime sunset = atTime.AddHours(-4);
+            DateTime sunrise = atTime.AddHours(7);
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 30;
+            ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42).Object;
+            t1.StartTime = DateTime.MinValue;
+            t1.Project = p1;
+            IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            e1.TwilightLevel = TwilightLevel.Nighttime;
+            t1.ExposurePlans.Add(e1);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+            TargetVisibility viz = new TargetVisibility(t1, TestData.North_Mid_Lat, atTime, sunset, sunrise, 60);
+            TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.North_Mid_Lat, atTime);
+
+            sut.Visibility(atTime, t1, twilightCircumstances, viz).Should().BeFalse();
+            t1.Rejected.Should().BeTrue();
+            t1.RejectedReason.Should().Be(Reasons.TargetNotYetVisible);
+            t1.StartTime.Should().BeCloseTo(new DateTime(2025, 1, 1, 23, 17, 22), 1.Seconds()); // start shifted until after MF unsafe zone
+        }
+
+        [Test]
         public void testVisibilityNeverRises() {
             IProfile profile = GetProfileService();
             DateTime atTime = new DateTime(2025, 1, 1, 20, 0, 0);
@@ -482,8 +507,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             t1.ExposurePlans[1].Rejected.Should().BeFalse();
         }
 
-        private IProfile GetProfileService() {
+        private IProfile GetProfileService(double pauseMinutes = 0, double minutesAfter = 0) {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            profileMock.SetupProperty(m => m.ActiveProfile.MeridianFlipSettings.PauseTimeBeforeMeridian, pauseMinutes);
+            profileMock.SetupProperty(m => m.ActiveProfile.MeridianFlipSettings.MinutesAfterMeridian, minutesAfter);
             return profileMock.Object.ActiveProfile;
         }
 

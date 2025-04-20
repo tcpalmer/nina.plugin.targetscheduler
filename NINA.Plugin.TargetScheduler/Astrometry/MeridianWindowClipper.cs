@@ -9,10 +9,10 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         public MeridianWindowClipper() {
         }
 
-        public TimeInterval Clip(DateTime riseAboveHorizonTime, DateTime culminationTime, DateTime setBelowHorizonTime, int meridianWindowMin) {
-            DateTime startTime = riseAboveHorizonTime;
-            DateTime transitTime = culminationTime;
-            DateTime endTime = setBelowHorizonTime;
+        public TimeInterval Clip(DateTime targetStartTime, DateTime targetTransitTime, DateTime targetEndTime, int meridianWindowMin) {
+            DateTime startTime = targetStartTime;
+            DateTime transitTime = targetTransitTime;
+            DateTime endTime = targetEndTime;
 
             if (transitTime == DateTime.MinValue) {
                 TSLogger.Trace("meridian window: target did not have valid transit time, skipping");
