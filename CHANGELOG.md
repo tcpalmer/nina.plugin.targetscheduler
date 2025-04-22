@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.4.0.0 - 2025-04-XX
+## 5.4.0.0 - 2025-04-22
 * Added new scoring rule: Meridian Flip Penalty.
 * Added special handling for users that need a pause before a meridian flip.
 * Added support for exposure repeating for smart exposure when multiple have the same avoidance score.
