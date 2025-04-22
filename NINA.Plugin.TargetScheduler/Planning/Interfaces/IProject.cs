@@ -29,7 +29,6 @@ namespace NINA.Plugin.TargetScheduler.Planning.Interfaces {
         bool IsMosaic { get; set; }
         bool EnableGrader { get; set; }
         bool SmartExposureOrder { get; set; }
-        bool SmartExposureRotate { get; set; }
         int FlatsHandling { get; set; }
         Dictionary<string, double> RuleWeights { get; set; }
 

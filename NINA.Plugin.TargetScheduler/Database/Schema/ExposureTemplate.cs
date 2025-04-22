@@ -37,6 +37,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public double moonRelaxMinAltitude { get; set; }
         public bool moonDownEnabled { get; set; }
 
+        public int ditherEvery { get; set; }
         public double maximumHumidity { get; set; }
 
         [NotMapped]
@@ -203,6 +204,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
         [NotMapped]
         [JsonProperty]
+        public int DitherEvery {
+            get => ditherEvery;
+            set {
+                ditherEvery = value;
+                RaisePropertyChanged(nameof(DitherEvery));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
         public double MaximumHumidity {
             get { return maximumHumidity; }
             set {
@@ -234,6 +245,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             MoonRelaxMaxAltitude = 5;
             MoonRelaxMinAltitude = -15;
 
+            DitherEvery = -1;
             MaximumHumidity = 0;
         }
 

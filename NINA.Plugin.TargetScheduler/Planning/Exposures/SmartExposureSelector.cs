@@ -11,9 +11,13 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
     /// Select the next exposure automatically based on moon avoidance score.
     /// </summary>
     public class SmartExposureSelector : BaseExposureSelector, IExposureSelector {
+        private SmartExposureRotateManager SmartExposureRotateManager = null;
 
         public SmartExposureSelector(IProject project, ITarget target, Target databaseTarget) : base(target) {
             DitherManager = GetDitherManager(project, target);
+            if (project.FilterSwitchFrequency > 0) {
+                SmartExposureRotateManager = new SmartExposureRotateManager(target, project.FilterSwitchFrequency);
+            }
         }
 
         public IExposure Select(DateTime atTime, IProject project, ITarget target) {
@@ -33,18 +37,11 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
                 }
             }
 
-            if (project.SmartExposureRotate) {
-                // If other exposures have an 'equal' high score then select the one with the lowest percent complete
-                List<IExposure> equalScorePlans = target.ExposurePlans.Where(ep => !ep.Rejected && EqualScore(selected.MoonAvoidanceScore, ep.MoonAvoidanceScore)).ToList();
-                if (equalScorePlans.Count > 1) {
-                    double lowestPercentComplete = double.MaxValue;
-                    foreach (IExposure exposure in equalScorePlans) {
-                        double percentComplete = project.ExposureCompletionHelper.PercentComplete(exposure);
-                        if (percentComplete < lowestPercentComplete) {
-                            selected = exposure;
-                            lowestPercentComplete = percentComplete;
-                        }
-                    }
+            // If smart exposure filter rotation applies, then select based on state of the filter rotation
+            if (SmartExposureRotateManager != null) {
+                List<IExposure> candidates = target.ExposurePlans.Where(ep => !ep.Rejected && EqualScore(selected.MoonAvoidanceScore, ep.MoonAvoidanceScore)).ToList();
+                if (candidates.Count > 1) {
+                    selected = SmartExposureRotateManager.Select(candidates);
                 }
             }
 
@@ -62,10 +59,12 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
         public void ExposureTaken(IExposure exposure) {
             if (exposure.PreDither) DitherManager.Reset();
             DitherManager.AddExposure(exposure);
+            SmartExposureRotateManager?.ExposureTaken(exposure);
         }
 
         public void TargetReset() {
             DitherManager.Reset();
+            SmartExposureRotateManager?.Reset();
         }
 
         private bool EqualScore(double benchmark, double check) {

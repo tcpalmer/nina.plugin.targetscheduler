@@ -4,6 +4,7 @@ using NINA.Core.Utility.Notification;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
+using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Planning.Scoring.Rules;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
@@ -422,6 +423,8 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         public Project SaveProject(Project project) {
             TSLogger.Debug($"saving Project Id={project.Id} Name={project.Name}");
+            project.Targets.ForEach(t => SmartExposureRotateCache.Remove(t));
+
             using (var transaction = Database.BeginTransaction()) {
                 try {
                     bool fcBreakingChange = project.FilterCadenceBreakingChange;
@@ -431,7 +434,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                     transaction.Commit();
 
                     if (fcBreakingChange) {
-                        project.Targets.ForEach(t => { ClearExistingFilterCadences(t.Id); });
+                        project.Targets.ForEach(t => ClearExistingFilterCadences(t.Id));
                         project.FilterCadenceBreakingChange = false;
                     }
 
@@ -523,6 +526,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         public Target SaveTarget(Target target, bool clearFilterCadenceItems = false) {
             TSLogger.Debug($"saving Target Id={target.Id} Name={target.Name}");
+            SmartExposureRotateCache.Remove(target);
             ClearExistingOverrideExposureOrders(target.Id);
             if (clearFilterCadenceItems || target.FilterCadences.Count == 0) { ClearExistingFilterCadences(target.Id); }
 

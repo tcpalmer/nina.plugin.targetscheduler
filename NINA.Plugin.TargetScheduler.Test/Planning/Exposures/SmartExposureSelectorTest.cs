@@ -16,11 +16,13 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         [SetUp]
         public void Setup() {
             DitherManagerCache.Clear();
+            SmartExposureRotateCache.Clear();
         }
 
         [TearDown]
         public void TearDown() {
             DitherManagerCache.Clear();
+            SmartExposureRotateCache.Clear();
         }
 
         [Test]
@@ -126,14 +128,14 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         }
 
         [Test]
-        public void testLowestPercentComplete() {
+        public void testSmartExposureRotate() {
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("P1", ProjectState.Active);
             ExposureCompletionHelper helper = new ExposureCompletionHelper(true, 0, 125);
 
             pp.SetupAllProperties();
             pp.SetupProperty(p => p.DitherEvery, 1);
             pp.SetupProperty(p => p.SmartExposureOrder, true);
-            pp.SetupProperty(p => p.SmartExposureRotate, true);
+            pp.SetupProperty(p => p.FilterSwitchFrequency, 2);
             pp.SetupProperty(p => p.ExposureCompletionHelper, helper);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("T1", TestData.M31);
             pt.SetupProperty(t => t.Project, pp.Object);
@@ -153,7 +155,25 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             e.Accepted++;
 
             e = sut.Select(DateTime.Now, pp.Object, pt.Object);
+            e.FilterName.Should().Be("R");
+            sut.ExposureTaken(e);
+            e.Acquired++;
+            e.Accepted++;
+
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
             e.FilterName.Should().Be("G");
+            sut.ExposureTaken(e);
+            e.Acquired++;
+            e.Accepted++;
+
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
+            e.FilterName.Should().Be("G");
+            sut.ExposureTaken(e);
+            e.Acquired++;
+            e.Accepted++;
+
+            e = sut.Select(DateTime.Now, pp.Object, pt.Object);
+            e.FilterName.Should().Be("B");
             sut.ExposureTaken(e);
             e.Acquired++;
             e.Accepted++;
@@ -190,6 +210,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             Mock<IExposure> Rpf = PlanMocks.GetMockPlanExposure("R", 10, 0);
             Mock<IExposure> Gpf = PlanMocks.GetMockPlanExposure("G", 10, 0);
             Mock<IExposure> Bpf = PlanMocks.GetMockPlanExposure("B", 10, 0);
+
+            Lpf.SetupProperty(e => e.DatabaseId, 1);
+            Rpf.SetupProperty(e => e.DatabaseId, 2);
+            Gpf.SetupProperty(e => e.DatabaseId, 3);
+            Bpf.SetupProperty(e => e.DatabaseId, 4);
 
             PlanMocks.AddMockPlanFilter(pt, Lpf);
             PlanMocks.AddMockPlanFilter(pt, Rpf);

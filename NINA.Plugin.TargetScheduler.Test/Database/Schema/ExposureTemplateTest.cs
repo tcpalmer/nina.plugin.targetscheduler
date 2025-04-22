@@ -24,6 +24,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
             sut.MoonAvoidanceEnabled.Should().BeFalse();
             sut.MoonAvoidanceSeparation.Should().BeApproximately(60, 0.0001);
             sut.MoonAvoidanceWidth.Should().Be(7);
+            sut.DitherEvery.Should().Be(-1);
             sut.MaximumHumidity.Should().BeApproximately(0, 00001);
         }
 
