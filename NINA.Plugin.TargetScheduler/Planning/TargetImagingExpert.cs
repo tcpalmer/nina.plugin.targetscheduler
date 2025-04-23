@@ -118,7 +118,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // Special handling when profile specifies a pause before MF.  If pause > 0 and that pause would occur in the visibility
             // span, then adjust the target start or end times to avoid the MF safety zone.
             if (profile.MeridianFlipSettings?.PauseTimeBeforeMeridian > 0) {
-                TimeInterval meridianFlipClippedSpan = new MeridianFlipClipper().Clip(profile, targetStartTime, targetTransitTime, targetEndTime);
+                TimeInterval meridianFlipClippedSpan = new MeridianFlipClipper(atTime, target).Clip(profile, targetStartTime, targetTransitTime, targetEndTime);
                 if (meridianFlipClippedSpan == null) {
                     SetRejected(target, Reasons.TargetMeridianFlipClipped);
                     return false;
