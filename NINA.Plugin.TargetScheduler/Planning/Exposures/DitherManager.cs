@@ -35,13 +35,20 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
         }
 
         public bool DitherRequired(IExposure nextExposure) {
-            if (ditherEvery == 0) { return false; }
+            int? ditherOverride = GetExposureDitherOverride(nextExposure);
+            int dither = ditherOverride.HasValue ? ditherOverride.Value : ditherEvery;
+
+            if (dither == 0) { return false; }
             int count = exposureStack.Count(item => item.FilterName == nextExposure.FilterName);
-            return count >= ditherEvery;
+            return count >= dither;
         }
 
         public void Reset() {
             exposureStack.Clear();
+        }
+
+        private int? GetExposureDitherOverride(IExposure exposure) {
+            return exposure.DitherEvery >= 0 ? exposure.DitherEvery : null;
         }
     }
 

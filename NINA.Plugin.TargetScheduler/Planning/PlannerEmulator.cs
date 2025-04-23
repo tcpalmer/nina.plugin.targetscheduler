@@ -207,6 +207,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public string RejectedReason { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int PlannedExposures { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public TwilightLevel TwilightLevel { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int DitherEvery { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool MoonAvoidanceEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public double MoonAvoidanceSeparation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int MoonAvoidanceWidth { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
