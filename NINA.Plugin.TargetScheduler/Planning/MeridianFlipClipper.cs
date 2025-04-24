@@ -1,4 +1,7 @@
-﻿using NINA.Profile.Interfaces;
+﻿using NINA.Plugin.TargetScheduler.Planning.Interfaces;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Plugin.TargetScheduler.Util;
+using NINA.Profile.Interfaces;
 using System;
 
 namespace NINA.Plugin.TargetScheduler.Planning {
@@ -16,13 +19,22 @@ namespace NINA.Plugin.TargetScheduler.Planning {
     /// this extra implicit visibility information.
     /// </summary>
     public class MeridianFlipClipper {
+        private DateTime atTime;
+        private ITarget target;
 
-        public MeridianFlipClipper() {
+        public MeridianFlipClipper(DateTime atTime, ITarget target) {
+            this.atTime = atTime;
+            this.target = target;
         }
 
         public TimeInterval Clip(IProfile profile, DateTime targetStartTime, DateTime targetTransitTime, DateTime targetEndTime) {
             double pauseMinutes = profile.MeridianFlipSettings.PauseTimeBeforeMeridian;
             if (pauseMinutes == 0) {
+                return new TimeInterval(targetStartTime, targetEndTime);
+            }
+
+            if (targetTransitTime == DateTime.MinValue) {
+                TSLogger.Warning($"transit time not determined for target '{target?.Name}' at {Utils.FormatDateTimeFull(atTime)}");
                 return new TimeInterval(targetStartTime, targetEndTime);
             }
 

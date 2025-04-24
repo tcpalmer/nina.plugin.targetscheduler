@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.4.0.1 - 2025-04-23
+* Bug fix for new meridian pause handling for bad target transit times.
+
 ## 5.4.0.0 - 2025-04-22
 * Added new scoring rule: Meridian Flip Penalty.
 * Added special handling for users that need a pause before a meridian flip.
