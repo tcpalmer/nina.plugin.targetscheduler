@@ -87,7 +87,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         public void testDitherOverride() {
             DitherManager sut = new DitherManager(2);
 
-            // Assume I want to dither L every 2 exposures RGB every 2 exposures and SHO after every exposure
+            // Assume I want to dither LRGB every 2 exposures and SHO after every exposure
 
             IExposure L = GetExposure("L");
             IExposure R = GetExposure("R");
@@ -97,9 +97,6 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             IExposure H = GetExposure("H", 1);
             IExposure O = GetExposure("O", 1);
 
-            // LLRRGGBBSSHHOO => LLRRGGBBSdSHdHOdO
-            // SSHHSSHH => SdSHdHSdSHdH
-
             sut.DitherRequired(L).Should().BeFalse(); sut.AddExposure(L);
             sut.DitherRequired(L).Should().BeFalse(); sut.AddExposure(L);
             sut.DitherRequired(R).Should().BeFalse(); sut.AddExposure(R);
@@ -136,7 +133,6 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             sut.DitherRequired(O).Should().BeTrue(); sut.AddExposure(O);
             sut.Reset();
 
-            // SSHHSSHH => SdSHdHSdSHdH
             sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(S);
             sut.DitherRequired(S).Should().BeTrue(); sut.AddExposure(S);
             sut.Reset();
@@ -148,6 +144,44 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             sut.Reset();
             sut.DitherRequired(H).Should().BeFalse(); sut.AddExposure(H);
             sut.DitherRequired(H).Should().BeTrue(); sut.AddExposure(H);
+            sut.Reset();
+        }
+
+        [Test]
+        public void testDitherOverrideZero() {
+            DitherManager sut = new DitherManager(2);
+
+            // Assume I want to dither LRGB every 2 exposures and SHO never
+
+            IExposure L = GetExposure("L");
+            IExposure R = GetExposure("R");
+            IExposure G = GetExposure("G");
+            IExposure B = GetExposure("B");
+            IExposure S = GetExposure("S", 0);
+            IExposure H = GetExposure("H", 0);
+            IExposure O = GetExposure("O", 0);
+
+            sut.DitherRequired(L).Should().BeFalse(); sut.AddExposure(L);
+            sut.DitherRequired(L).Should().BeFalse(); sut.AddExposure(L);
+            sut.DitherRequired(R).Should().BeFalse(); sut.AddExposure(R);
+            sut.DitherRequired(R).Should().BeFalse(); sut.AddExposure(R);
+            sut.DitherRequired(G).Should().BeFalse(); sut.AddExposure(G);
+            sut.DitherRequired(G).Should().BeFalse(); sut.AddExposure(G);
+            sut.DitherRequired(B).Should().BeFalse(); sut.AddExposure(B);
+            sut.DitherRequired(B).Should().BeFalse(); sut.AddExposure(B);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(S);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(S);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(S);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(S);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(H);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(H);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(H);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(H);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(O);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(O);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(O);
+            sut.DitherRequired(S).Should().BeFalse(); sut.AddExposure(O);
+            sut.DitherRequired(L).Should().BeTrue(); sut.AddExposure(L);
             sut.Reset();
         }
 
