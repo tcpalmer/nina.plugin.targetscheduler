@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.TargetScheduler.Planning.Interfaces;
+﻿using NINA.Plugin.TargetScheduler.Astrometry;
+using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile.Interfaces;
@@ -33,8 +34,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 return new TimeInterval(targetStartTime, targetEndTime);
             }
 
-            if (targetTransitTime == DateTime.MinValue) {
-                TSLogger.Warning($"transit time not determined for target '{target?.Name}' at {Utils.FormatDateTimeFull(atTime)}");
+            if (targetTransitTime == TargetVisibility.TRANSIT_TIME_NA) {
+                TSLogger.Trace($"meridian flip clip: target did not have valid transit time for target '{target?.Name}' at {Utils.FormatDateTimeFull(atTime)}, skipping");
                 return new TimeInterval(targetStartTime, targetEndTime);
             }
 

@@ -14,7 +14,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             DateTime transitTime = targetTransitTime;
             DateTime endTime = targetEndTime;
 
-            if (transitTime == DateTime.MinValue) {
+            if (transitTime == TargetVisibility.TRANSIT_TIME_NA) {
                 TSLogger.Trace("meridian window: target did not have valid transit time, skipping");
                 return new TimeInterval(startTime, endTime);
             }

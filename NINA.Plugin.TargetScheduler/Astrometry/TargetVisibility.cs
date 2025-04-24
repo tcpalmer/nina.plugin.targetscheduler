@@ -26,6 +26,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
     /// </summary>
     public class TargetVisibility {
         private static readonly VisibilityDetermination NOT_VISIBLE = new VisibilityDetermination(false, null, null);
+        public static readonly DateTime TRANSIT_TIME_NA = DateTime.MinValue;
 
         public string TargetName { get; private set; }
         public int TargetId { get; private set; }
@@ -192,7 +193,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         /// sunset/sunrise that might still allow meridian window imaging after dusk or before dawn.
         ///
         /// If imaging isn't possible at all or the transit falls outside that expanded timespan,
-        /// DateTime.MinValue is returned.
+        /// a marker time (TRANSIT_TIME_NA = DateTime.MinValue) is returned.
         ///
         /// When comparing to Stellarium, note that it seems to flip the transit day at the target anti-meridian,
         /// so it's determining the closest transit whether forward or backwards in time.  The approach based
@@ -204,7 +205,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         /// <returns></returns>
         public DateTime GetImagingTransitTime(ObserverInfo location, Coordinates coordinates) {
             if (!ImagingPossible) {
-                return DateTime.MinValue;
+                return TRANSIT_TIME_NA;
             }
 
             DateTime checkDate = Sunset.Date.AddHours(12);
@@ -223,7 +224,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
                 }
             }
 
-            return DateTime.MinValue;
+            return TRANSIT_TIME_NA;
         }
 
         /// <summary>

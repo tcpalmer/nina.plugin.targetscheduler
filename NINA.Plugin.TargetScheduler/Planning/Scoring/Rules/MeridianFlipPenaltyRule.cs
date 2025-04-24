@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.TargetScheduler.Planning.Interfaces;
+﻿using NINA.Plugin.TargetScheduler.Astrometry;
+using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
 using System;
@@ -25,7 +26,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Scoring.Rules {
 
             TSLogger.Debug($"MF penalty rule: target: {potentialTarget.Project.Name}/{potentialTarget.Name}, min time: {minimumTime}, transit: {Utils.FormatDateTimeFull(transitTime)}, minutes after transit: {minutesAfterMeridian}");
 
-            if (transitTime == DateTime.MinValue) {
+            if (transitTime == TargetVisibility.TRANSIT_TIME_NA) {
                 return 1; // target transit time is not valid but if we're scoring it, assume ok
             }
 
