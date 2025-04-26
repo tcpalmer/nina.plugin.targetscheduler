@@ -1,97 +1,88 @@
-﻿<UserControl
-    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.DatabaseManagerView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="600"
-    d:DesignWidth="800"
-    mc:Ignorable="d">
+﻿<UserControl x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.DatabaseManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="600"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary Source="../Resources/Resources.xaml" />
     </UserControl.Resources>
 
-    <StackPanel Margin="0,20,0,20" Orientation="Horizontal">
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1">
+    <StackPanel Margin="0,20,0,20"
+                Orientation="Horizontal">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1">
             <StackPanel Orientation="Vertical">
                 <local:DatabaseTreeView DataContext="{Binding ProjectsTreeViewVM}" />
                 <local:DatabaseTreeView DataContext="{Binding ExposureTemplatesTreeViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowProfileView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowProfileView}">
             <StackPanel>
                 <local:ProfileView DataContext="{Binding ProfileViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowOrphanedProjectsView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowOrphanedProjectsView}">
             <StackPanel>
                 <local:OrphanedProjectsView DataContext="{Binding OrphanedProjectsViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowProfilePreferencesView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowProfilePreferencesView}">
             <StackPanel>
                 <local:ProfilePreferencesView DataContext="{Binding ProfilePreferencesViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowProjectView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowProjectView}">
             <StackPanel>
                 <local:ProjectView DataContext="{Binding ProjectViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowTargetView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowTargetView}">
             <StackPanel>
                 <local:TargetView DataContext="{Binding TargetViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowExposureTemplateProfileView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowExposureTemplateProfileView}">
             <StackPanel>
                 <local:ExposureTemplateProfileView DataContext="{Binding ExposureTemplateProfileViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowOrphanedExposureTemplatesView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowOrphanedExposureTemplatesView}">
             <StackPanel>
                 <local:OrphanedExposureTemplatesView DataContext="{Binding OrphanedExposureTemplatesViewVM}" />
             </StackPanel>
         </Border>
-        <Border
-            Height="645"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1"
-            Visibility="{Binding ShowExposureTemplateView}">
+        <Border Height="{Binding PanelHeight}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                Visibility="{Binding ShowExposureTemplateView}">
             <StackPanel>
                 <local:ExposureTemplateView DataContext="{Binding ExposureTemplateViewVM}" />
             </StackPanel>

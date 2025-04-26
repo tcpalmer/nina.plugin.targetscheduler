@@ -61,12 +61,14 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         public SchedulerDatabaseInteraction Database { get { return database; } }
 
+        public int PanelHeight { get => 690; }
+
         public DatabaseTreeViewVM ProjectsTreeViewVM {
             get => new DatabaseTreeViewVM(this, profileService, "Projects", RootProjectsList, 350, true);
         }
 
         public DatabaseTreeViewVM ExposureTemplatesTreeViewVM {
-            get => new DatabaseTreeViewVM(this, profileService, "Exposure Templates", RootExposureTemplateList, 210);
+            get => new DatabaseTreeViewVM(this, profileService, "Exposure Templates", RootExposureTemplateList, 255);
         }
 
         private Visibility showProfilePreferencesView = Visibility.Hidden;

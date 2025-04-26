@@ -2,6 +2,7 @@
 
 ## 5.5.0.0 - 2025-04-XX
 * Added Dither Every setting to Exposure Templates, if set it will override the project value.
+* Fixed issue with main panel height - was cutting off scoring rule weights list.
 
 ## 5.4.0.1 - 2025-04-23
 * Bug fix for new meridian pause handling for bad target transit times.
