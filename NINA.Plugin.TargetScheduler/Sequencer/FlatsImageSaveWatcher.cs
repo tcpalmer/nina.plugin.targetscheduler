@@ -25,15 +25,15 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             TSLogger.Debug($"start watching flat image saves, expecting {expectedCount} total");
         }
 
-        public void WaitForAllImagesSaved() {
+        public void WaitForAllImagesSaved(CancellationToken token) {
             if (actualCount >= expectedCount) { Stop(); }
 
             // Wait for any remaining images to come through: poll every 400ms and bail out after 60 secs
             TSLogger.Debug($"waiting for flat exposures to complete, remaining: {expectedCount - actualCount}:");
             int count = 0;
-            while (actualCount < expectedCount) {
+            while (actualCount < expectedCount && !token.IsCancellationRequested) {
                 if (++count == 150) {
-                    TSLogger.Warning($"timed out waiting on all flat exposures to be processed, remaining: {expectedCount - actualCount}");
+                    TSLogger.Warning($"timed out or canceled waiting on all flat exposures to be processed, remaining: {expectedCount - actualCount}");
                     break;
                 }
 

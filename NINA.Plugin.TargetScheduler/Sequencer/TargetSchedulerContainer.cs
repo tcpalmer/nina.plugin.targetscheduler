@@ -246,7 +246,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 Notification.ShowWarning(msg);
             }
 
-            imageSaveWatcher.Start();
+            imageSaveWatcher.Start(token);
             ITarget previousPlanTarget = null;
             DitherManagerCache.Clear();
             PlanExecutionHistory = new PlanExecutionHistory();

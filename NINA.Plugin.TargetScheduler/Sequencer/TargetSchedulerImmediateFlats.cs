@@ -85,7 +85,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
                 List<FlatSpec> takenFlats = new List<FlatSpec>();
                 foreach (LightSession neededFlat in neededFlats) {
+                    token.ThrowIfCancellationRequested();
                     bool success = true;
+
                     if (!takenFlats.Contains(neededFlat.FlatSpec)) {
                         success = await TakeFlatSet(neededFlat, false, progress, token);
                         if (success) {

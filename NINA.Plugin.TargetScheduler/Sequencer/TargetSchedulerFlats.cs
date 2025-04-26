@@ -99,6 +99,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     List<FlatSpec> targetTakenFlats = new List<FlatSpec>();
 
                     foreach (LightSession neededFlat in targetNeededFlats) {
+                        token.ThrowIfCancellationRequested();
                         bool success = true;
 
                         if (flatsExpert.IsRequiredFlat(AlwaysRepeatFlatSet, neededFlat, targetTakenFlats, allTakenFlats)) {

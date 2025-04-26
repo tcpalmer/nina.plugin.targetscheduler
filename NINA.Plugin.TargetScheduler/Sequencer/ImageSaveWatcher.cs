@@ -29,6 +29,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private IProfile profile;
         private ProfilePreference profilePreference;
         private IImageSaveMediator imageSaveMediator;
+        private CancellationToken token;
         private ConcurrentDictionary<int, ExposureWaitData> exposureDictionary;
 
         public ImageSaveWatcher(IProfile profile, IImageSaveMediator imageSaveMediator) {
@@ -38,7 +39,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             exposureDictionary = new ConcurrentDictionary<int, ExposureWaitData>(Environment.ProcessorCount * 2, 31);
         }
 
-        public void Start() {
+        public void Start(CancellationToken token) {
+            this.token = token;
             if (!exposureDictionary.IsEmpty) { Stop(); }
 
             imageSaveMediator.ImageSaved += ImageSaved;
@@ -55,9 +57,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             // Wait for any remaining images to come through: poll every 400ms and bail out after 80 secs
             TSLogger.Debug($"waiting for exposures to complete:\n{ExposureIdsLog()}");
             int count = 0;
-            while (!exposureDictionary.IsEmpty) {
+            while (!exposureDictionary.IsEmpty && !token.IsCancellationRequested) {
                 if (++count == 200) {
-                    TSLogger.Warning($"timed out waiting on all exposures to be processed, remaining:\n{ExposureIdsLog()}");
+                    TSLogger.Warning($"timed out or canceled waiting on all exposures to be processed, remaining:\n{ExposureIdsLog()}");
                     break;
                 }
 
@@ -253,7 +255,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
     public interface IImageSaveWatcher {
 
-        void Start();
+        void Start(CancellationToken token);
 
         void WaitForExposure(int identifier, ExposureWaitData waitData);
 

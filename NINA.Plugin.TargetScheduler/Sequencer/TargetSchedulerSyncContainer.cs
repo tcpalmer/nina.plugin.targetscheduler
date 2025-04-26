@@ -225,7 +225,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             }
 
             syncImageSaveWatcher = new SyncImageSaveWatcher(profileService.ActiveProfile, imageSaveMediator);
-            syncImageSaveWatcher.Start();
+            syncImageSaveWatcher.Start(token);
 
             while (true) {
                 progress?.Report(new ApplicationStatus() { Status = "Target Scheduler: requesting action from sync server" });

@@ -245,7 +245,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 TSLogger.Error($"Exception taking automated flat: {ex.Message}\n{ex}");
                 return false;
             } finally {
-                imageSaveWatcher?.WaitForAllImagesSaved();
+                imageSaveWatcher?.WaitForAllImagesSaved(token);
             }
         }
 
