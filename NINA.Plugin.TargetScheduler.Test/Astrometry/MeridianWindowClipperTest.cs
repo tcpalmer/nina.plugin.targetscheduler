@@ -85,7 +85,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
             DateTime end = DateTime.Now.AddHours(1);
 
             TimeInterval ti = new MeridianWindowClipper().Clip(start, DateTime.MinValue, end, 60);
-            AssertTimeInterval(ti, start, end);
+            ti.Should().BeNull();
         }
 
         private void AssertTimeInterval(TimeInterval interval, DateTime expectedStart, DateTime expectedEnd) {

@@ -409,7 +409,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
             // Outside of extended imaging time
             TargetVisibility sut = new TargetVisibility("T1", 1, TestData.North_Mid_Lat, TestData.STAR_NORTH_CIRCP, dateTime, sunset, sunrise, 120);
-            sut.TransitTime.Should().Be(DateTime.MinValue);
+            sut.TransitTime.Should().Be(TargetVisibility.TRANSIT_TIME_NA);
 
             dateTime = new DateTime(2024, 12, 1, 13, 0, 0);
             sunset = new DateTime(2024, 12, 1, 20, 0, 0);
@@ -417,7 +417,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
             // Never rises, imaging not possible
             sut = new TargetVisibility("T1", 1, TestData.North_Mid_Lat, TestData.STAR_SOUTH_CIRCP, dateTime, sunset, sunrise, 120);
-            sut.TransitTime.Should().Be(DateTime.MinValue);
+            sut.TransitTime.Should().Be(TargetVisibility.TRANSIT_TIME_NA);
 
             // Normal south transit
             sut = new TargetVisibility("T1", 1, TestData.North_Mid_Lat, TestData.M42, dateTime, sunset, sunrise, 120);
