@@ -294,6 +294,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                     if (target.Rejected
                         && target.RejectedReason != Reasons.TargetNotYetVisible
                         && target.RejectedReason != Reasons.TargetBeforeMeridianWindow
+                        && target.RejectedReason != Reasons.TargetMeridianFlipClipped
                         && target.RejectedReason != Reasons.TargetMaxAltitude) {
                         continue;
                     }

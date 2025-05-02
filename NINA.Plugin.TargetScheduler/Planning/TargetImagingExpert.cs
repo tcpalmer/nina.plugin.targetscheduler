@@ -117,8 +117,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Special handling when profile specifies a pause before MF.  If pause > 0 and that pause would occur in the visibility
             // span, then adjust the target start or end times to avoid the MF safety zone.
+            TimeInterval meridianFlipClippedSpan = null;
             if (profile.MeridianFlipSettings?.PauseTimeBeforeMeridian > 0) {
-                TimeInterval meridianFlipClippedSpan = new MeridianFlipClipper(atTime, target).Clip(profile, targetStartTime, targetTransitTime, targetEndTime);
+                meridianFlipClippedSpan = new MeridianFlipClipper(atTime, target).Clip(profile, targetStartTime, targetTransitTime, targetEndTime);
                 if (meridianFlipClippedSpan == null) {
                     SetRejected(target, Reasons.TargetMeridianFlipClipped);
                     return false;
@@ -126,13 +127,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
                 targetStartTime = meridianFlipClippedSpan.StartTime;
                 targetEndTime = meridianFlipClippedSpan.EndTime;
-
-                // Recheck minimum time after MF pause adjustment
-                if ((targetEndTime - targetStartTime).TotalSeconds < project.MinimumTime * 60) {
-                    TSLogger.Trace($"Target not visible for min time after MF pause adjustment {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)}");
-                    SetRejected(target, Reasons.TargetNotVisible);
-                    return false;
-                }
             }
 
             // If the start time is in the future, reject ... for now
@@ -140,7 +134,11 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             if (actualStart > atTime) {
                 target.StartTime = actualStart;
                 target.EndTime = targetEndTime;
-                string reason = meridianClippedSpan != null ? Reasons.TargetBeforeMeridianWindow : Reasons.TargetNotYetVisible;
+                string reason = Reasons.TargetNotYetVisible;
+                if (meridianClippedSpan != null || meridianFlipClippedSpan != null) {
+                    reason = meridianClippedSpan != null ? Reasons.TargetBeforeMeridianWindow : Reasons.TargetMeridianFlipClipped;
+                }
+
                 SetRejected(target, reason);
                 return false;
             }
@@ -281,6 +279,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             return target.Rejected &&
                   (target.RejectedReason == Reasons.TargetNotYetVisible
                 || target.RejectedReason == Reasons.TargetBeforeMeridianWindow
+                || target.RejectedReason == Reasons.TargetMeridianFlipClipped
                 || target.RejectedReason == Reasons.TargetMaxAltitude);
         }
 

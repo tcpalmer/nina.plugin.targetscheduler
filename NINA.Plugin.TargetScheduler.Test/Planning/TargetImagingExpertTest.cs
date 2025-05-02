@@ -111,7 +111,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             sut.Visibility(atTime, t1, twilightCircumstances, viz).Should().BeFalse();
             t1.Rejected.Should().BeTrue();
-            t1.RejectedReason.Should().Be(Reasons.TargetNotYetVisible);
+            t1.RejectedReason.Should().Be(Reasons.TargetMeridianFlipClipped);
             t1.StartTime.Should().BeCloseTo(new DateTime(2025, 1, 1, 23, 17, 22), 1.Seconds()); // start shifted until after MF unsafe zone
         }
 

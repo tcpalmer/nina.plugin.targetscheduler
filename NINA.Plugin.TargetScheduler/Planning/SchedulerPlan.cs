@@ -195,6 +195,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 switch (target.RejectedReason) {
                     case Reasons.TargetNotYetVisible:
                     case Reasons.TargetBeforeMeridianWindow:
+                    case Reasons.TargetMeridianFlipClipped:
                     case Reasons.TargetLowerScore:
                         return DateFmt(target.StartTime);
                 }

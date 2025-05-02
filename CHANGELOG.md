@@ -2,6 +2,7 @@
 
 ## 5.5.1.0 - 2025-05-XX
 * Fixed issue with meridian window and out-of-range target transit time.
+* Fixed issue with targets not continuing after a meridian flip pause.
 
 ## 5.5.0.0 - 2025-04-26
 * Added Dither Every setting to Exposure Templates, if set it will override the project value.
