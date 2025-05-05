@@ -5,11 +5,12 @@ using System;
 namespace NINA.Plugin.TargetScheduler.PubSub {
 
     public class WaitStartPublisher : TSPublisher {
+        public const string TOPIC = "TargetScheduler-WaitStart";
 
         public WaitStartPublisher(IMessageBroker messageBroker) : base(messageBroker) {
         }
 
-        public override string Topic => "TargetScheduler-WaitStart";
+        public override string Topic => TOPIC;
         public override int Version => 2;
 
         public void Publish(ITarget nextTarget, DateTime waitUntil) {

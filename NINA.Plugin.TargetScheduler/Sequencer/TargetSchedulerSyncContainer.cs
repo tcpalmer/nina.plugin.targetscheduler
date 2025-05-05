@@ -173,7 +173,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         public override void ResetProgress() {
             TSLogger.Debug("TargetSchedulerSyncContainer: ResetProgress");
-            // TODO: do we really want to do this here??  Better in SequenceBlockFinished?
             if (SyncManager.Instance.RunningClient) {
                 SyncClient.Instance.SetClientState(ClientState.Ready);
 
@@ -224,6 +223,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 return;
             }
 
+            TargetScheduler.EventMediator.InvokeContainerStarting(null);
             syncImageSaveWatcher = new SyncImageSaveWatcher(profileService.ActiveProfile, imageSaveMediator);
             syncImageSaveWatcher.Start(token);
 
@@ -272,8 +272,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 }
             }
 
-            DisplayText = "";
+            DisplayText = string.Empty;
             syncImageSaveWatcher.Stop();
+            TargetScheduler.EventMediator.InvokeContainerStopping(null);
         }
 
         public override bool Validate() {
@@ -334,7 +335,10 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 Add(container);
             });
 
+            TargetScheduler.EventMediator.InvokeExposureStarting(target, exposure, false);
             await base.Execute(progress, token);
+            TargetScheduler.EventMediator.InvokeExposureStopping();
+
             AddExposureToPlan(syncedExposure);
         }
 

@@ -39,6 +39,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
+using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
 namespace NINA.Plugin.TargetScheduler.Sequencer {
 
@@ -75,6 +77,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private bool synchronizationEnabled;
         private WaitStartPublisher waitStartPublisher;
         public TargetCompletePublisher targetCompletePublisher;
+        private ContainerStoppedPublisher containerStoppedPublisher;
 
         /* Before renaming BeforeTargetContainer and AfterTargetContainer to contain 'New'
          * (again) consider that it would break any existing sequence using those. */
@@ -141,6 +144,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             AfterAllTargetsContainer = new InstructionContainer(EventContainerType.AfterEachTarget, this);
             AfterTargetCompleteContainer = new InstructionContainer(EventContainerType.AfterTargetComplete, this);
 
+            PauseCommand = new RelayCommand(RequestPause);
+            UnpauseCommand = new RelayCommand(RequestUnpause);
+
             Task.Run(() => NighttimeData = nighttimeCalculator.Calculate());
             Target = new InputTarget(Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Latitude), Angle.ByDegree(profileService.ActiveProfile.AstrometrySettings.Longitude), profileService.ActiveProfile.AstrometrySettings.Horizon);
 
@@ -150,6 +156,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             imageSaveWatcher = new ImageSaveWatcher(profileService.ActiveProfile, imageSaveMediator);
             waitStartPublisher = new WaitStartPublisher(messageBroker);
             targetCompletePublisher = new TargetCompletePublisher(messageBroker);
+            containerStoppedPublisher = new ContainerStoppedPublisher(messageBroker);
 
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.LocationChanged), ProfileService_LocationChanged);
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.HorizonChanged), ProfileService_HorizonChanged);
@@ -231,12 +238,21 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         public override void Teardown() {
-            imageSaveWatcher.Stop();
             TSLogger.Debug("TargetSchedulerContainer: Teardown");
+            imageSaveWatcher.Stop();
+            TargetScheduler.EventMediator.InvokeContainerStopping(this);
+            PauseEnabled = false;
+            UnpauseEnabled = false;
+            PauseRequested = false;
+            containerStoppedPublisher.Publish();
         }
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
             TSLogger.Debug("TargetSchedulerContainer: Execute");
+
+            PauseEnabled = true;
+            TargetScheduler.EventMediator.InvokeContainerStarting(this);
+
             profilePreferences = GetProfilePreferences();
             DateTime atTime = GetPlannerTime(DateTime.Now, DateTime.Now.Date.AddHours(13));
 
@@ -258,6 +274,10 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     SetSyncServerState(ServerState.EndSyncContainers);
                     ClearTarget();
                     break;
+                }
+
+                if (PauseRequested) {
+                    await PauseContainer(progress, token);
                 }
 
                 atTime = GetPlannerTime(DateTime.Now, atTime);
@@ -290,6 +310,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     ClearTarget();
                     TSLogger.Info($"waiting for next target to become available: {Utils.FormatDateTimeFull(plan.WaitForNextTargetTime)}");
                     waitStartPublisher.Publish(plan.PlanTarget, (DateTime)plan.WaitForNextTargetTime);
+                    TargetScheduler.EventMediator.InvokeWaitStarting((DateTime)plan.WaitForNextTargetTime, plan.PlanTarget);
+
                     var historyItem = new PlanExecutionHistoryItem(DateTime.Now, plan);
 
                     SetSyncServerState(ServerState.PlanWait);
@@ -306,6 +328,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     }
 
                     await ExecuteEventContainer(AfterWaitContainer, progress, token);
+                    TargetScheduler.EventMediator.InvokeWaitStopping();
                     SchedulerProgress.End();
 
                     historyItem.EndTime = GetPlannerTime(DateTime.Now, atTime);
@@ -329,7 +352,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
                         // Create a container for this exposure, add the instructions, and execute
                         PlanContainer planContainer = GetPlanContainer(previousPlanTarget, plan, SchedulerProgress);
+                        TargetScheduler.EventMediator.InvokeExposureStarting(plan.PlanTarget, plan.PlanTarget.SelectedExposure, !target.Equals(previousPlanTarget));
                         planContainer.Execute(progress, token).Wait();
+                        TargetScheduler.EventMediator.InvokeExposureStopping();
 
                         if (profilePreferences.EnableSimulatedRun) {
                             atTime = atTime.AddSeconds(target.SelectedExposure.ExposureLength);
@@ -343,6 +368,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         PlanExecutionHistory.Add(historyItem);
                     } catch (Exception ex) {
                         ClearTarget();
+                        PauseEnabled = false;
+                        UnpauseEnabled = false;
+
                         if (Utils.IsCancelException(ex)) {
                             TSLogger.Warning("sequence was canceled or interrupted, target scheduler execution is incomplete");
                             SchedulerProgress.Reset();
@@ -358,6 +386,35 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         TSLogger.Info("-- END PLAN EXECUTION ----------------------------------------------------------");
                     }
                 }
+            }
+
+            PauseEnabled = false;
+            UnpauseEnabled = false;
+        }
+
+        private async Task PauseContainer(IProgress<ApplicationStatus> progress, CancellationToken token) {
+            try {
+                TSLogger.Info("TS Container paused");
+                PauseRequested = false;
+                PauseEnabled = false;
+                UnpauseEnabled = true;
+                ContainerPaused = true;
+                TargetScheduler.EventMediator.InvokeContainerPaused(this);
+                SchedulerProgress.Add(SchedulerProgressVM.PausedLabel);
+
+                int seconds = 0;
+                while (!UnpauseRequested && !token.IsCancellationRequested) {
+                    progress?.Report(new ApplicationStatus() { Status = $"Target Scheduler: paused for {Utils.StoHMS(seconds++)}" });
+                    await Task.Delay(1000);
+                }
+            } finally {
+                TSLogger.Info("TS Container unpaused");
+                TargetScheduler.EventMediator.InvokeContainerUnpaused(this);
+                PauseEnabled = true;
+                UnpauseEnabled = false;
+                ContainerPaused = false;
+                UnpauseRequested = false;
+                progress?.Report(new ApplicationStatus() { Status = "" });
             }
         }
 
@@ -571,6 +628,67 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             }
 
             return null;
+        }
+
+        public ICommand PauseCommand { get; private set; }
+        public ICommand UnpauseCommand { get; private set; }
+
+        public void RequestPause() {
+            TSLogger.Info("TS Container pause requested");
+            PauseRequested = true;
+            UnpauseRequested = false;
+        }
+
+        public void RequestUnpause() {
+            TSLogger.Info("TS Container unpause requested");
+            PauseRequested = false;
+            UnpauseRequested = true;
+        }
+
+        private bool pauseEnabled = false;
+        private bool unpauseEnabled = false;
+        private bool pauseRequested = false;
+        private bool unpauseRequested = false;
+        private bool containerPaused = false;
+
+        public bool PauseEnabled {
+            get => pauseEnabled;
+            set {
+                pauseEnabled = value;
+                RaisePropertyChanged(nameof(PauseEnabled));
+            }
+        }
+
+        public bool UnpauseEnabled {
+            get => unpauseEnabled;
+            set {
+                unpauseEnabled = value;
+                RaisePropertyChanged(nameof(UnpauseEnabled));
+            }
+        }
+
+        public bool PauseRequested {
+            get => pauseRequested;
+            set {
+                pauseRequested = value;
+                RaisePropertyChanged(nameof(PauseRequested));
+            }
+        }
+
+        public bool UnpauseRequested {
+            get => unpauseRequested;
+            set {
+                unpauseRequested = value;
+                RaisePropertyChanged(nameof(UnpauseRequested));
+            }
+        }
+
+        public bool ContainerPaused {
+            get => containerPaused;
+            set {
+                containerPaused = value;
+                RaisePropertyChanged(nameof(ContainerPaused));
+            }
         }
 
         private void InformTSConditionChecks() {

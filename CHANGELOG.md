@@ -1,6 +1,10 @@
 # Target Scheduler
 
-## 5.5.1.0 - 2025-05-XX
+## 5.6.0.0 - 2025-05-05
+* Added a TS dockable panel for the NINA Imaging tab.
+* Added pause/resume buttons to TS instruction and dockable panel.
+
+## 5.5.1.0 - 2025-05-02
 * Fixed issue with meridian window and out-of-range target transit time.
 * Fixed issue with targets not continuing after a meridian flip pause.
 

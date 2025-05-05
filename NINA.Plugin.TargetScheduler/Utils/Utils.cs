@@ -98,6 +98,10 @@ namespace NINA.Plugin.TargetScheduler.Util {
             return $"{baseName} ({newMax})";
         }
 
+        public static string FormatDateTime(DateTime? dateTime) {
+            return dateTime.HasValue ? String.Format("{0:yyyy-MM-dd HH:mm:ss}", dateTime) : "n/a";
+        }
+
         public static string FormatDateTimeFull(DateTime? dateTime) {
             return dateTime.HasValue ? String.Format("{0:yyyy-MM-dd HH:mm:ss zzzz}", dateTime) : "n/a";
         }

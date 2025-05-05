@@ -10,6 +10,7 @@ using NINA.Plugin.TargetScheduler.Controls.Reporting;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
+using NINA.Plugin.TargetScheduler.Sequencer;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.SyncService.Sync;
 using NINA.Profile.Interfaces;
@@ -26,6 +27,11 @@ namespace NINA.Plugin.TargetScheduler {
 
     [Export(typeof(IPluginManifest))]
     public class TargetScheduler : PluginBase, INotifyPropertyChanged {
+
+        // Singleton event mediator for TS events (intra-plugin communication)
+        private static readonly Lazy<TargetSchedulerEventMediator> lazy = new Lazy<TargetSchedulerEventMediator>(() => new TargetSchedulerEventMediator());
+
+        public static TargetSchedulerEventMediator EventMediator { get => lazy.Value; }
 
         // Plugin specific image file patterns
         public static readonly ImagePattern FlatSessionIdImagePattern = new ImagePattern("$$TSSESSIONID$$", "Session identifier for working with TS lights and flats", "Target Scheduler");

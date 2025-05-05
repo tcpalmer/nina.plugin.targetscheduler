@@ -104,7 +104,16 @@ namespace NINA.Plugin.TargetScheduler.Test.Util {
         public void TestFormatDateTimeFull() {
             Utils.FormatDateTimeFull(null).Should().Be("n/a");
             Utils.FormatDateTimeFull(new DateTime(2025, 1, 2, 3, 4, 5)).Should().Be("2025-01-02 03:04:05 -05:00");
+            Utils.FormatDateTimeFull(new DateTime(2025, 6, 21, 3, 4, 5)).Should().Be("2025-06-21 03:04:05 -04:00");
             Utils.FormatDateTimeFull(new DateTime(2025, 12, 31, 23, 59, 59)).Should().Be("2025-12-31 23:59:59 -05:00");
+        }
+
+        [Test]
+        public void TestFormatDateTime() {
+            Utils.FormatDateTime(null).Should().Be("n/a");
+            Utils.FormatDateTime(new DateTime(2025, 1, 2, 3, 4, 5)).Should().Be("2025-01-02 03:04:05");
+            Utils.FormatDateTime(new DateTime(2025, 6, 21, 3, 4, 5)).Should().Be("2025-06-21 03:04:05");
+            Utils.FormatDateTime(new DateTime(2025, 12, 31, 23, 59, 59)).Should().Be("2025-12-31 23:59:59");
         }
 
         [Test]

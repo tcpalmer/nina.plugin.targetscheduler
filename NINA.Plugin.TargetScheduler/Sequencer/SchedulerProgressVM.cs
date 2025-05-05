@@ -15,6 +15,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public const string BeforeTargetLabel = "BeforeTarget";
         public const string SwitchFilterLabel = "SwitchFilter";
         public const string TakeExposureLabel = "TakeExposure";
+        public const string PausedLabel = "Paused";
         public const string DitherLabel = "Dither";
 
         public SchedulerProgressVM() {

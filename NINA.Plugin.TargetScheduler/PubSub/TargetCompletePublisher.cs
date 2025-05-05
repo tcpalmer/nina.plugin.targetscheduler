@@ -4,11 +4,12 @@ using NINA.Plugin.TargetScheduler.Planning;
 namespace NINA.Plugin.TargetScheduler.PubSub {
 
     public class TargetCompletePublisher : TSPublisher {
+        public const string TOPIC = "TargetScheduler-TargetComplete";
 
         public TargetCompletePublisher(IMessageBroker messageBroker) : base(messageBroker) {
         }
 
-        public override string Topic => "TargetScheduler-TargetComplete";
+        public override string Topic => TOPIC;
         public override int Version => 1;
 
         public void Publish(SchedulerPlan plan) {

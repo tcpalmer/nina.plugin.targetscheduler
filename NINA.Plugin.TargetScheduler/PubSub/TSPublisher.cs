@@ -8,12 +8,14 @@ using System.Text;
 namespace NINA.Plugin.TargetScheduler.PubSub {
 
     public abstract class TSPublisher {
+        public const string SENDER = "Target Scheduler";
+
         private IMessageBroker MessageBroker;
 
         public TSPublisher(IMessageBroker messageBroker) {
             this.MessageBroker = messageBroker;
             MessageSenderId = Guid.Parse("B4541BA9-7B07-4D71-B8E1-6C73D4933EA0");
-            MessageSender = "Target Scheduler";
+            MessageSender = SENDER;
         }
 
         public Guid MessageSenderId { get; }

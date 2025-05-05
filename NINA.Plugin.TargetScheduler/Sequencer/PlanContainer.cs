@@ -151,6 +151,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 ITarget target = ReloadTarget(plan.PlanTarget);
                 if (target != null && !target.Project.ExposureCompletionHelper.IsIncomplete(target)) {
                     parentContainer.ExecuteEventContainer(parentContainer.AfterTargetCompleteContainer, progress, token).Wait();
+                    TargetScheduler.EventMediator.InvokeTargetComplete(target);
                     parentContainer.targetCompletePublisher.Publish(plan);
                 }
 
