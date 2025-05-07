@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.6.0.1 - 2025-05-XX
+* Fixed project/target name truncation in new panel for Imaging tab.
+
 ## 5.6.0.0 - 2025-05-05
 * Added a TS dockable panel for the NINA Imaging tab.
 * Added pause/resume buttons to TS instruction and dockable panel.
