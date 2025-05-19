@@ -1,7 +1,8 @@
 # Target Scheduler
 
-## 5.6.0.1 - 2025-05-XX
+## 5.6.2.0 - 2025-05-XX
 * Fixed project/target name truncation in new panel for Imaging tab.
+* Fixed issue where previous target was allowed to continue even though next exposure was not suitable for current twilight level.
 
 ## 5.6.0.0 - 2025-05-05
 * Added a TS dockable panel for the NINA Imaging tab.
