@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.6.2.0 - 2025-05-XX
+## 5.6.2.0 - 2025-05-19
 * Fixed project/target name truncation in new panel for Imaging tab.
 * Fixed issue where previous target was allowed to continue even though next exposure was not suitable for current twilight level.
 
