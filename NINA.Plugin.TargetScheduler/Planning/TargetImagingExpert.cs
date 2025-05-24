@@ -110,7 +110,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Recheck minimum time after potential meridian clip
             if (project.MeridianWindow > 0 && target.MeridianWindow.Duration < project.MinimumTime * 60) {
-                TSLogger.Trace($"Target not visible for min time after meridian window clip {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
+                TSLogger.Debug($"Target not visible for min time after meridian window clip: {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
                 SetRejected(target, Reasons.TargetNotVisible);
                 return false;
             }
@@ -119,14 +119,22 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // span, then adjust the target start or end times to avoid the MF safety zone.
             TimeInterval meridianFlipClippedSpan = null;
             if (profile.MeridianFlipSettings?.PauseTimeBeforeMeridian > 0) {
-                meridianFlipClippedSpan = new MeridianFlipClipper(atTime, target).Clip(profile, targetStartTime, targetTransitTime, targetEndTime);
+                MeridianFlipClipper mfClipper = new MeridianFlipClipper(profile, atTime, target, targetStartTime, targetTransitTime, targetEndTime);
+                meridianFlipClippedSpan = mfClipper.Clip();
                 if (meridianFlipClippedSpan == null) {
+                    TSLogger.Debug($"Target meridian flip clip {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)}");
                     SetRejected(target, Reasons.TargetMeridianFlipClipped);
                     return false;
                 }
 
-                targetStartTime = meridianFlipClippedSpan.StartTime;
-                targetEndTime = meridianFlipClippedSpan.EndTime;
+                // Recheck minimum time after potential meridian flip clip
+                if (meridianFlipClippedSpan.Duration < project.MinimumTime * 60) {
+                    TSLogger.Debug($"Target not visible for min time before meridian flip, potentially visible later: {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
+                    targetStartTime = mfClipper.GetSafeAfterTime();
+                } else {
+                    targetStartTime = meridianFlipClippedSpan.StartTime;
+                    targetEndTime = meridianFlipClippedSpan.EndTime;
+                }
             }
 
             // If the start time is in the future, reject ... for now

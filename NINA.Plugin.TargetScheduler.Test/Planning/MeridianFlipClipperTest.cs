@@ -20,7 +20,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddHours(2);
             DateTime transitTime = startTime.AddHours(1);
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            TimeInterval interval = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime).Clip();
             interval.StartTime.Should().Be(startTime);
             interval.EndTime.Should().Be(endTime);
         }
@@ -34,9 +34,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddHours(2);
             DateTime transitTime = startTime.AddHours(3);
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            MeridianFlipClipper sut = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime);
+            TimeInterval interval = sut.Clip();
             interval.StartTime.Should().Be(startTime);
             interval.EndTime.Should().Be(endTime);
+            sut.GetSafeAfterTime().Should().Be(transitTime.AddMinutes(5).AddSeconds(30));
         }
 
         [Test]
@@ -48,7 +50,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddHours(2);
             DateTime transitTime = startTime.AddHours(-1);
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            TimeInterval interval = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime).Clip();
             interval.StartTime.Should().Be(startTime);
             interval.EndTime.Should().Be(endTime);
         }
@@ -62,7 +64,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddHours(2);
             DateTime transitTime = startTime.AddMinutes(30);
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            TimeInterval interval = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime).Clip();
             interval.StartTime.Should().Be(startTime);
             interval.EndTime.Should().Be(transitTime.AddMinutes(-5).AddSeconds(-30));
         }
@@ -76,7 +78,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddMinutes(27);
             DateTime transitTime = startTime.AddMinutes(30);
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            TimeInterval interval = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime).Clip();
             interval.StartTime.Should().Be(startTime);
             interval.EndTime.Should().Be(transitTime.AddMinutes(-5).AddSeconds(-30));
         }
@@ -90,7 +92,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddHours(2);
             DateTime transitTime = startTime.AddMinutes(5);
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            TimeInterval interval = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime).Clip();
             interval.StartTime.Should().Be(transitTime.AddMinutes(10).AddSeconds(30));
             interval.EndTime.Should().Be(endTime);
         }
@@ -104,7 +106,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddMinutes(15);
             DateTime transitTime = startTime.AddMinutes(10);
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            TimeInterval interval = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime).Clip();
             interval.Should().BeNull();
         }
 
@@ -116,7 +118,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             DateTime endTime = startTime.AddHours(2);
             DateTime transitTime = DateTime.MinValue;
 
-            TimeInterval interval = new MeridianFlipClipper(startTime, target).Clip(profile, startTime, transitTime, endTime);
+            TimeInterval interval = new MeridianFlipClipper(profile, startTime, target, startTime, transitTime, endTime).Clip();
             interval.StartTime.Should().Be(startTime);
             interval.EndTime.Should().Be(endTime);
         }

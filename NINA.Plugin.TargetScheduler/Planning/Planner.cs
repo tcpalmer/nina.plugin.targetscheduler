@@ -227,7 +227,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// </summary>
         /// <param name="projects"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public ITarget GetNextPossibleTarget(List<IProject> projects) {
             if (NoProjects(projects)) { return null; }
 

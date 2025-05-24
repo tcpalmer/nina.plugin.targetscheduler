@@ -20,15 +20,26 @@ namespace NINA.Plugin.TargetScheduler.Planning {
     /// this extra implicit visibility information.
     /// </summary>
     public class MeridianFlipClipper {
+        private const int SECONDS_DELTA = 30;
+
+        private IProfile profile;
         private DateTime atTime;
         private ITarget target;
+        private DateTime targetStartTime;
+        private DateTime targetTransitTime;
+        private DateTime targetEndTime;
 
-        public MeridianFlipClipper(DateTime atTime, ITarget target) {
+        public MeridianFlipClipper(IProfile profile, DateTime atTime, ITarget target,
+            DateTime targetStartTime, DateTime targetTransitTime, DateTime targetEndTime) {
+            this.profile = profile;
             this.atTime = atTime;
             this.target = target;
+            this.targetStartTime = targetStartTime;
+            this.targetTransitTime = targetTransitTime;
+            this.targetEndTime = targetEndTime;
         }
 
-        public TimeInterval Clip(IProfile profile, DateTime targetStartTime, DateTime targetTransitTime, DateTime targetEndTime) {
+        public TimeInterval Clip() {
             double pauseMinutes = profile.MeridianFlipSettings.PauseTimeBeforeMeridian;
             if (pauseMinutes == 0) {
                 return new TimeInterval(targetStartTime, targetEndTime);
@@ -43,9 +54,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             DateTime transitTime = targetTransitTime;
             DateTime endTime = targetEndTime;
 
-            DateTime pauseTime = targetTransitTime.AddMinutes(-pauseMinutes).AddSeconds(-30);
-            double safeAfterMinutes = profile.MeridianFlipSettings.MinutesAfterMeridian;
-            DateTime safeAfterTime = targetTransitTime.AddMinutes(safeAfterMinutes).AddSeconds(30); ;
+            DateTime pauseTime = targetTransitTime.AddMinutes(-pauseMinutes).AddSeconds(-1 * SECONDS_DELTA);
+            DateTime safeAfterTime = GetSafeAfterTime();
 
             // The pause time (P) and the safe after time (A) define an unsafe 'no flip' interval around the target transit (T).
             // There are six cases of the timing of target start (S) and end (E) with respect to the no flip zone (P===T===A).
@@ -79,6 +89,11 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Cases 1 and 2 (the 'no change' cases) are handled implicitly
             return new TimeInterval(startTime, endTime);
+        }
+
+        public DateTime GetSafeAfterTime() {
+            double safeAfterMinutes = profile.MeridianFlipSettings.MinutesAfterMeridian;
+            return targetTransitTime.AddMinutes(safeAfterMinutes).AddSeconds(SECONDS_DELTA);
         }
     }
 }

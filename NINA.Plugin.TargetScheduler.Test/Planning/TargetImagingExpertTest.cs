@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FluentAssertions.Extensions;
 using Moq;
+using NINA.Astrometry;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
@@ -113,6 +114,44 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             t1.Rejected.Should().BeTrue();
             t1.RejectedReason.Should().Be(Reasons.TargetMeridianFlipClipped);
             t1.StartTime.Should().BeCloseTo(new DateTime(2025, 1, 1, 23, 17, 22), 1.Seconds()); // start shifted until after MF unsafe zone
+        }
+
+        [Test]
+        public void testVisibilityMeridianFlipPauseMinimum() {
+            IProfile profile = GetProfileService(15, 15);
+            DateTime atTime = new DateTime(2025, 5, 20, 1, 8, 0);
+            DateTime sunset = atTime.AddHours(-6);
+            DateTime sunrise = atTime.AddHours(6);
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 20;
+
+            Coordinates RhoP4 = new Coordinates(AstroUtil.HMSToDegrees("16:21:17"), AstroUtil.DMSToDegrees("-26:23:12"), Epoch.J2000, Coordinates.RAType.Degrees);
+            ObserverInfo TestLoc = new ObserverInfo();
+            TestLoc.Latitude = 31.54;
+            TestLoc.Longitude = -79;
+            TestLoc.Elevation = 0;
+
+            ITarget t1 = PlanMocks.GetMockPlanTarget("RhoP4", RhoP4).Object;
+            t1.StartTime = DateTime.MinValue;
+            t1.Project = p1;
+            IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            e1.TwilightLevel = TwilightLevel.Nighttime;
+            t1.ExposurePlans.Add(e1);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+            TargetVisibility viz = new TargetVisibility(t1, TestLoc, atTime, sunset, sunrise);
+            TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestLoc, atTime);
+
+            sut.Visibility(atTime, t1, twilightCircumstances, viz).Should().BeTrue(); // starting at 1:08, we can fit in 20m minimum
+            t1.Rejected.Should().BeFalse();
+
+            atTime = atTime.AddMinutes(10);
+            sut.Visibility(atTime, t1, twilightCircumstances, viz).Should().BeFalse(); // but 10m later, we can't fit 20m before pause
+            t1.Rejected.Should().BeTrue();
+            t1.RejectedReason.Should().Be(Reasons.TargetMeridianFlipClipped);
+
+            // But it is available when it's safe after the MF
+            t1.StartTime.Should().BeCloseTo(new DateTime(2025, 5, 20, 2, 0, 30), TimeSpan.FromSeconds(1));
         }
 
         [Test]
