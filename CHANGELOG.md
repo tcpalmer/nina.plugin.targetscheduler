@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.6.4.0 - 2025-06-02
+* Fixed issue with missing active/inactive icons on project and target panels.
+
 ## 5.6.3.0 - 2025-05-24
 * Fixed issue with MF pause handling and project minimum time check.
 

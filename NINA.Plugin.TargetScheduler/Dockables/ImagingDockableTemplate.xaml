@@ -1,24 +1,21 @@
-﻿<ResourceDictionary x:Class="NINA.Plugin.TargetScheduler.Dockables.ImagingDockableTemplate"
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Dockables">
+﻿<ResourceDictionary
+    x:Class="NINA.Plugin.TargetScheduler.Dockables.ImagingDockableTemplate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Dockables">
 
     <DataTemplate DataType="{x:Type local:ImagingDockableVM}">
 
-        <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Auto">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical">
 
-                <StackPanel Margin="5"
-                            Orientation="Horizontal">
+                <StackPanel Margin="5" Orientation="Horizontal">
                     <TextBlock Text="Status: " />
                     <TextBlock Text="{Binding Status}" />
-                    <TextBlock Text=" (pause requested)"
-                               Visibility="{Binding ContainerPauseRequested, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                    <TextBlock Text=" (pause requested)" Visibility="{Binding ContainerPauseRequested, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
                 </StackPanel>
 
-                <Grid Margin="5"
-                      Visibility="{Binding IsWaiting, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                <Grid Margin="5" Visibility="{Binding IsWaiting, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                     <Grid.RowDefinitions>
                         <RowDefinition MinHeight="18" />
                         <RowDefinition MinHeight="18" />
@@ -27,55 +24,64 @@
                         <ColumnDefinition Width="80" />
                         <ColumnDefinition MaxWidth="600" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0"
-                               Grid.Column="0"
-                               Text="Wait Until: " />
-                    <TextBlock Grid.Row="0"
-                               Grid.Column="1"
-                               Text="{Binding WaitUntil}" />
-                    <TextBlock Grid.Row="1"
-                               Grid.Column="0"
-                               Text="Next Target" />
-                    <TextBlock Grid.Row="1"
-                               Grid.Column="1"
-                               Text="{Binding TargetName}" />
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Text="Wait Until: " />
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Text="{Binding WaitUntil}" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Text="Next Target" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Text="{Binding TargetName}" />
                 </Grid>
 
-                <StackPanel Margin="0,10,0,10"
-                            Orientation="Vertical"
-                            Visibility="{Binding IsImaging, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                <StackPanel
+                    Margin="0,10,0,10"
+                    Orientation="Vertical"
+                    Visibility="{Binding IsImaging, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
 
                     <StackPanel Orientation="Horizontal">
-                        <Button Margin="6,0,0,0"
-                                VerticalAlignment="Center"
-                                HorizontalContentAlignment="Left"
-                                Command="{Binding PauseCommand}"
-                                IsEnabled="True"
-                                ToolTip="Request scheduler pause after current exposure"
-                                ToolTipService.ShowOnDisabled="True">
+                        <Button
+                            Margin="6,0,0,0"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding PauseCommand}"
+                            IsEnabled="True"
+                            ToolTip="Request scheduler pause after current exposure"
+                            ToolTipService.ShowOnDisabled="True">
                             <Grid>
-                                <Path Width="12"
-                                      Height="12"
-                                      Margin="5"
-                                      Data="{Binding PauseSVG}"
-                                      Fill="{StaticResource ButtonForegroundBrush}"
-                                      Stretch="Uniform" />
+                                <Path
+                                    Width="12"
+                                    Height="12"
+                                    Margin="5"
+                                    Data="{Binding PauseSVG}"
+                                    Fill="{StaticResource ButtonForegroundBrush}"
+                                    Stretch="Uniform" />
                             </Grid>
                         </Button>
-                        <Button Margin="6,0,0,0"
-                                VerticalAlignment="Center"
-                                HorizontalContentAlignment="Left"
-                                Command="{Binding UnpauseCommand}"
-                                IsEnabled="False"
-                                ToolTip="Request scheduler restart"
-                                ToolTipService.ShowOnDisabled="True">
+                        <Button
+                            Margin="6,0,0,0"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding UnpauseCommand}"
+                            IsEnabled="False"
+                            ToolTip="Request scheduler restart"
+                            ToolTipService.ShowOnDisabled="True">
                             <Grid>
-                                <Path Width="12"
-                                      Height="12"
-                                      Margin="5"
-                                      Data="{Binding PlaySVG}"
-                                      Fill="{StaticResource ButtonForegroundBrush}"
-                                      Stretch="Uniform" />
+                                <Path
+                                    Width="12"
+                                    Height="12"
+                                    Margin="5"
+                                    Data="{Binding PlaySVG}"
+                                    Fill="{StaticResource ButtonForegroundBrush}"
+                                    Stretch="Uniform" />
                             </Grid>
                         </Button>
                     </StackPanel>
@@ -93,83 +99,100 @@
                             <RowDefinition MinHeight="18" />
                             <RowDefinition MinHeight="18" />
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0"
-                                   Grid.Column="0"
-                                   Text="Target" />
-                        <TextBlock Grid.Row="0"
-                                   Grid.Column="1"
-                                   Text="{Binding TargetName}" />
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Target" />
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="{Binding TargetName}" />
 
-                        <TextBlock Grid.Row="1"
-                                   Grid.Column="0"
-                                   Text="Coordinates" />
-                        <TextBlock Grid.Row="1"
-                                   Grid.Column="1"
-                                   Text="{Binding Coordinates}" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Text="Coordinates" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Text="{Binding Coordinates}" />
 
-                        <TextBlock Grid.Row="2"
-                                   Grid.Column="0"
-                                   Text="Rotation" />
-                        <TextBlock Grid.Row="2"
-                                   Grid.Column="1"
-                                   Text="{Binding Rotation}" />
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Text="Rotation" />
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Text="{Binding Rotation}" />
 
-                        <TextBlock Grid.Row="3"
-                                   Grid.Column="0"
-                                   Text="Filter" />
-                        <TextBlock Grid.Row="3"
-                                   Grid.Column="1"
-                                   Text="{Binding FilterName}" />
+                        <TextBlock
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            Text="Filter" />
+                        <TextBlock
+                            Grid.Row="3"
+                            Grid.Column="1"
+                            Text="{Binding FilterName}" />
 
-                        <TextBlock Grid.Row="4"
-                                   Grid.Column="0"
-                                   Text="Exposure" />
-                        <TextBlock Grid.Row="4"
-                                   Grid.Column="1"
-                                   Text="{Binding ExposureLength}" />
+                        <TextBlock
+                            Grid.Row="4"
+                            Grid.Column="0"
+                            Text="Exposure" />
+                        <TextBlock
+                            Grid.Row="4"
+                            Grid.Column="1"
+                            Text="{Binding ExposureLength}" />
 
-                        <TextBlock Grid.Row="5"
-                                   Grid.Column="0"
-                                   Text="Stop At" />
-                        <TextBlock Grid.Row="5"
-                                   Grid.Column="1"
-                                   Text="{Binding StopAt}" />
+                        <TextBlock
+                            Grid.Row="5"
+                            Grid.Column="0"
+                            Text="Stop At" />
+                        <TextBlock
+                            Grid.Row="5"
+                            Grid.Column="1"
+                            Text="{Binding StopAt}" />
                     </Grid>
                 </StackPanel>
 
-                <StackPanel Margin="0,10,0,0"
-                            Orientation="Horizontal"
-                            Visibility="{Binding IsPaused, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-                    <Button Margin="6,0,0,0"
-                            VerticalAlignment="Center"
-                            HorizontalContentAlignment="Left"
-                            Command="{Binding PauseCommand}"
-                            IsEnabled="False"
-                            ToolTip="Request scheduler pause after current exposure"
-                            ToolTipService.ShowOnDisabled="True">
+                <StackPanel
+                    Margin="0,10,0,0"
+                    Orientation="Horizontal"
+                    Visibility="{Binding IsPaused, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                    <Button
+                        Margin="6,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Left"
+                        Command="{Binding PauseCommand}"
+                        IsEnabled="False"
+                        ToolTip="Request scheduler pause after current exposure"
+                        ToolTipService.ShowOnDisabled="True">
                         <Grid>
-                            <Path Width="12"
-                                  Height="12"
-                                  Margin="5"
-                                  Data="{Binding PauseSVG}"
-                                  Fill="{StaticResource ButtonForegroundBrush}"
-                                  Stretch="Uniform" />
+                            <Path
+                                Width="12"
+                                Height="12"
+                                Margin="5"
+                                Data="{Binding PauseSVG}"
+                                Fill="{StaticResource ButtonForegroundBrush}"
+                                Stretch="Uniform" />
                         </Grid>
                     </Button>
-                    <Button Margin="6,0,0,0"
-                            VerticalAlignment="Center"
-                            HorizontalContentAlignment="Left"
-                            Command="{Binding UnpauseCommand}"
-                            IsEnabled="True"
-                            ToolTip="Request scheduler restart"
-                            ToolTipService.ShowOnDisabled="True">
+                    <Button
+                        Margin="6,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Left"
+                        Command="{Binding UnpauseCommand}"
+                        IsEnabled="True"
+                        ToolTip="Request scheduler restart"
+                        ToolTipService.ShowOnDisabled="True">
                         <Grid>
-                            <Path Width="12"
-                                  Height="12"
-                                  Margin="5"
-                                  Data="{Binding PlaySVG}"
-                                  Fill="{StaticResource ButtonForegroundBrush}"
-                                  Stretch="Uniform" />
+                            <Path
+                                Width="12"
+                                Height="12"
+                                Margin="5"
+                                Data="{Binding PlaySVG}"
+                                Fill="{StaticResource ButtonForegroundBrush}"
+                                Stretch="Uniform" />
                         </Grid>
                     </Button>
                 </StackPanel>
