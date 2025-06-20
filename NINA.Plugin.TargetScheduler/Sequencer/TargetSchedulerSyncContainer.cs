@@ -184,6 +184,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 SyncAfterAllTargetsContainer.ResetProgress();
                 SyncAfterTargetCompleteContainer.ResetProgress();
             }
+
+            base.ResetProgress();
         }
 
         public override void SequenceBlockInitialize() {

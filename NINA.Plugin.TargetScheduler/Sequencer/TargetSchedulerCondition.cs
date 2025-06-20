@@ -111,6 +111,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             Status = SequenceEntityStatus.CREATED;
             CheckIsActive = true;
             ConditionWasCompleted = false;
+            base.ResetProgress();
         }
 
         public override void Initialize() {

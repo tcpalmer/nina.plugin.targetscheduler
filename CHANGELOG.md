@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.6.5.0 - 2025-06-20
+* Fixed issue where TS Sync Condition was not resetting properly.
+
 ## 5.6.4.0 - 2025-06-02
 * Fixed issue with missing active/inactive icons on project and target panels.
 
