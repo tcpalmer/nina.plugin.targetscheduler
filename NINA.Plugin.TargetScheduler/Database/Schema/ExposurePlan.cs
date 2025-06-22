@@ -106,15 +106,15 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public ExposurePlan GetPasteCopy(string newProfileId) {
+        public ExposurePlan GetPasteCopy(string newProfileId, bool moveOp = false) {
             ExposurePlan exposurePlan = new ExposurePlan();
 
             exposurePlan.profileId = newProfileId;
             exposurePlan.ExposureTemplateId = this.ExposureTemplateId;
             exposurePlan.exposure = exposure;
             exposurePlan.desired = desired;
-            exposurePlan.acquired = 0;
-            exposurePlan.accepted = 0;
+            exposurePlan.acquired = moveOp ? acquired : 0;
+            exposurePlan.accepted = moveOp ? accepted : 0;
 
             return exposurePlan;
         }

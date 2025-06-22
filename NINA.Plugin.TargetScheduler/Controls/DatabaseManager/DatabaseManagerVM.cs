@@ -660,7 +660,6 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                     parentItem.Items.Add(targetItem);
                     targetItem.IsSelected = true;
                     parentItem.IsExpanded = true;
-
                     SetTreeColorizeMode(SelectedColorizeMode);
                 } else {
                     Notification.ShowError("Failed to add new Scheduler Target (see log for details)");
@@ -727,6 +726,57 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                     SetTreeColorizeMode(SelectedColorizeMode);
                 } else {
                     Notification.ShowError("Failed to paste new Scheduler Project (see log for details)");
+                }
+            }
+        }
+
+        public void MoveTarget(Project project) {
+            if (!Clipboard.HasType(TreeDataType.Target)) {
+                TSLogger.Error($"expected clipboard to hold Target");
+                return;
+            }
+
+            TreeDataItem sourceItem = Clipboard.GetItem();
+            Target source = sourceItem.Data as Target;
+
+            if (source.ProjectId == project.Id) {
+                MyMessageBox.Show("You cannot move a target to the same project.", "Oops");
+                Clipboard.SetItem(sourceItem);
+                return;
+            }
+
+            if (project.Targets.Where(t => t.Name == source.Name).Any()) {
+                MyMessageBox.Show($"Destination project already has a target named '{source.Name}'.  You must rename one before moving.", "Oops");
+                Clipboard.SetItem(sourceItem);
+                return;
+            }
+
+            string message = $"Move target '{source.Name}' from project '{source.Project.Name}' to '{project.Name}'?  Be sure you are not actively imaging this target.";
+            if (MyMessageBox.Show(message, "Move Target?", MessageBoxButton.YesNo, MessageBoxResult.No) == MessageBoxResult.No) {
+                Clipboard.SetItem(sourceItem);
+                return;
+            }
+
+            TreeDataItem parentItem = activeTreeDataItem;
+
+            /*
+             * Update docs:
+             * - will transition related AI and FH rows
+             * - filter cadence cleared
+             * - icon table
+             */
+
+            using (var context = database.GetContext()) {
+                Target movedTarget = context.MoveTarget(project, source);
+                if (movedTarget != null) {
+                    TreeDataItem newTargetItem = new TreeDataItem(TreeDataType.Target, movedTarget.Name, movedTarget, parentItem);
+                    parentItem.Items.Add(newTargetItem);
+                    sourceItem.TreeParent.Items.Remove(sourceItem);
+                    newTargetItem.IsSelected = true;
+                    parentItem.IsExpanded = true;
+                    SetTreeColorizeMode(SelectedColorizeMode);
+                } else {
+                    Notification.ShowError("Failed to move Target to Project (see log for details)");
                 }
             }
         }
@@ -800,6 +850,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                     TreeDataItem parentItem = activeTreeDataItem.TreeParent;
                     parentItem.Items.Remove(activeTreeDataItem);
                     parentItem.IsSelected = true;
+                    SetTreeColorizeMode(SelectedColorizeMode);
                 } else {
                     Notification.ShowError("Failed to delete Scheduler Target (see log for details)");
                 }
@@ -1040,35 +1091,38 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             TextBlock textBlock = null;
             SelectedColorizeMode = colorize;
 
-            TreeDataItem.VisitAll(RootProjectsList[0], item => {
-                switch (item.Type) {
-                    case TreeDataType.Project:
-                        Project project = item.Data as Project;
-                        textBlock = item.Header as TextBlock;
+            using (var context = database.GetContext()) {
+                TreeDataItem.VisitAll(RootProjectsList[0], item => {
+                    switch (item.Type) {
+                        case TreeDataType.Project:
+                            Project project = item.Data as Project;
+                            textBlock = item.Header as TextBlock;
 
-                        if (colorize) {
-                            helper = GetExposureCompletionHelper(item.TreeParent.Data as ProfileMeta, project);
-                            textBlock.Foreground = ProjectActive(helper, project) ? ActiveBrush : InactiveBrush;
-                        } else {
-                            textBlock.Foreground = ColorSchemaPrimaryColorBrush;
-                        }
+                            if (colorize) {
+                                project = context.GetProject(project.Id); // be sure it's up to date
+                                helper = GetExposureCompletionHelper(item.TreeParent.Data as ProfileMeta, project);
+                                textBlock.Foreground = ProjectActive(helper, project) ? ActiveBrush : InactiveBrush;
+                            } else {
+                                textBlock.Foreground = ColorSchemaPrimaryColorBrush;
+                            }
 
-                        break;
+                            break;
 
-                    case TreeDataType.Target:
-                        Target target = item.Data as Target;
-                        textBlock = item.Header as TextBlock;
+                        case TreeDataType.Target:
+                            Target target = item.Data as Target;
+                            textBlock = item.Header as TextBlock;
 
-                        if (colorize) {
-                            project = item.TreeParent.Data as Project;
-                            textBlock.Foreground = TargetActive(helper, project, target) ? ActiveBrush : InactiveBrush;
-                        } else {
-                            textBlock.Foreground = ColorSchemaPrimaryColorBrush;
-                        }
+                            if (colorize) {
+                                project = item.TreeParent.Data as Project;
+                                textBlock.Foreground = TargetActive(helper, project, target) ? ActiveBrush : InactiveBrush;
+                            } else {
+                                textBlock.Foreground = ColorSchemaPrimaryColorBrush;
+                            }
 
-                        break;
-                }
-            });
+                            break;
+                    }
+                });
+            }
         }
 
         private ExposureCompletionHelper GetExposureCompletionHelper(ProfileMeta profile, Project project) {
@@ -1193,6 +1247,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             TreeDataItem item = Instance.item;
             SetItem(null);
             return item;
+        }
+
+        public static void Clear() {
+            SetItem(null);
         }
 
         private Clipboard() {

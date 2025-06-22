@@ -1,111 +1,101 @@
-﻿<UserControl
-    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.ActionMenuBar"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    mc:Ignorable="d">
+﻿<UserControl x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.ActionMenuBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary Source="../Resources/Resources.xaml" />
     </UserControl.Resources>
 
-    <StackPanel Margin="0,0,0,16" Orientation="Horizontal">
-        <Button
-            Width="25"
-            Height="25"
-            Margin="10,0,0,0"
-            VerticalAlignment="Center"
-            HorizontalContentAlignment="Right"
-            Command="{Binding EditCommand}"
-            IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-            Style="{StaticResource BackgroundButton}"
-            ToolTip="Edit"
-            ToolTipService.ShowOnDisabled="True">
+    <StackPanel Margin="0,0,0,16"
+                Orientation="Horizontal">
+        <Button Width="25"
+                Height="25"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
+                Command="{Binding EditCommand}"
+                IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                Style="{StaticResource BackgroundButton}"
+                ToolTip="Edit"
+                ToolTipService.ShowOnDisabled="True">
             <Grid>
-                <Path
-                    Margin="5"
-                    Data="{StaticResource SS_EditSVG}"
-                    Fill="{StaticResource ButtonForegroundBrush}"
-                    Stretch="Uniform" />
+                <Path Margin="5"
+                      Data="{StaticResource SS_EditSVG}"
+                      Fill="{StaticResource ButtonForegroundBrush}"
+                      Stretch="Uniform" />
             </Grid>
         </Button>
-        <Button
-            Width="25"
-            Height="25"
-            Margin="10,0,0,0"
-            VerticalAlignment="Center"
-            HorizontalContentAlignment="Right"
-            Command="{Binding CopyCommand}"
-            IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-            Style="{StaticResource BackgroundButton}"
-            ToolTip="Copy"
-            ToolTipService.ShowOnDisabled="True">
+        <Button Width="25"
+                Height="25"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
+                Command="{Binding CopyCommand}"
+                IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                Style="{StaticResource BackgroundButton}"
+                ToolTip="Copy for Paste or Move"
+                ToolTipService.ShowOnDisabled="True">
             <Grid>
-                <Path
-                    Margin="5"
-                    Data="{StaticResource SS_CopySVG}"
-                    Fill="{StaticResource ButtonForegroundBrush}"
-                    Stretch="Uniform" />
+                <Path Margin="5"
+                      Data="{StaticResource SS_CopySVG}"
+                      Fill="{StaticResource ButtonForegroundBrush}"
+                      Stretch="Uniform" />
             </Grid>
         </Button>
-        <Button
-            Width="25"
-            Height="25"
-            Margin="10,0,0,0"
-            VerticalAlignment="Center"
-            HorizontalContentAlignment="Right"
-            Command="{Binding DeleteCommand}"
-            IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-            Style="{StaticResource BackgroundButton}"
-            ToolTip="Delete"
-            ToolTipService.ShowOnDisabled="True">
+        <Button Width="25"
+                Height="25"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
+                Command="{Binding DeleteCommand}"
+                IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                Style="{StaticResource BackgroundButton}"
+                ToolTip="Delete"
+                ToolTipService.ShowOnDisabled="True">
             <Grid>
-                <Path
-                    Margin="5"
-                    Data="{StaticResource SS_DeleteSVG}"
-                    Fill="{StaticResource ButtonForegroundBrush}"
-                    Stretch="Uniform" />
+                <Path Margin="5"
+                      Data="{StaticResource SS_DeleteSVG}"
+                      Fill="{StaticResource ButtonForegroundBrush}"
+                      Stretch="Uniform" />
             </Grid>
         </Button>
-        <Button
-            Width="25"
-            Height="25"
-            Margin="10,0,0,0"
-            VerticalAlignment="Center"
-            HorizontalContentAlignment="Right"
-            Command="{Binding SaveCommand}"
-            IsEnabled="{Binding ItemEdited}"
-            Style="{StaticResource BackgroundButton}"
-            ToolTip="Save"
-            ToolTipService.ShowOnDisabled="True">
+        <Button Width="25"
+                Height="25"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
+                Command="{Binding SaveCommand}"
+                IsEnabled="{Binding ItemEdited}"
+                Style="{StaticResource BackgroundButton}"
+                ToolTip="Save"
+                ToolTipService.ShowOnDisabled="True">
             <Grid>
-                <Path
-                    Margin="5"
-                    Data="{StaticResource SS_SaveSVG}"
-                    Fill="{StaticResource ButtonForegroundBrush}"
-                    Stretch="Uniform" />
+                <Path Margin="5"
+                      Data="{StaticResource SS_SaveSVG}"
+                      Fill="{StaticResource ButtonForegroundBrush}"
+                      Stretch="Uniform" />
             </Grid>
         </Button>
-        <Button
-            Width="25"
-            Height="25"
-            Margin="10,0,0,0"
-            VerticalAlignment="Center"
-            HorizontalContentAlignment="Right"
-            Command="{Binding CancelCommand}"
-            IsEnabled="{Binding ShowEditView}"
-            Style="{StaticResource BackgroundButton}"
-            ToolTip="Cancel"
-            ToolTipService.ShowOnDisabled="True">
+        <Button Width="25"
+                Height="25"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Right"
+                Command="{Binding CancelCommand}"
+                IsEnabled="{Binding ShowEditView}"
+                Style="{StaticResource BackgroundButton}"
+                ToolTip="Cancel"
+                ToolTipService.ShowOnDisabled="True">
             <Grid>
-                <Path
-                    Margin="5"
-                    Data="{StaticResource SS_CancelSVG}"
-                    Fill="{StaticResource ButtonForegroundBrush}"
-                    Stretch="Uniform" />
+                <Path Margin="5"
+                      Data="{StaticResource SS_CancelSVG}"
+                      Fill="{StaticResource ButtonForegroundBrush}"
+                      Stretch="Uniform" />
             </Grid>
         </Button>
     </StackPanel>

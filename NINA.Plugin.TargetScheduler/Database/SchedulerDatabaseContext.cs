@@ -577,6 +577,49 @@ namespace NINA.Plugin.TargetScheduler.Database {
             }
         }
 
+        public Target MoveTarget(Project project, Target source) {
+            using (var transaction = Database.BeginTransaction()) {
+                try {
+                    Target movedTarget = null;
+                    Target oldTarget = GetTargetByProject(source.ProjectId, source.Id);
+                    Target newTarget = source.GetPasteCopy(project.ProfileId, true);
+
+                    project = GetProject(project.Id);
+                    project.Targets.Add(newTarget);
+
+                    Project oldProject = GetProject(source.ProjectId);
+                    oldProject.Targets.Remove(oldTarget);
+                    TargetSet.Remove(oldTarget);
+
+                    ProjectSet.AddOrUpdate(project);
+                    ProjectSet.AddOrUpdate(oldProject);
+
+                    SaveChanges();
+                    movedTarget = GetTarget(project.Id, newTarget.Id);
+
+                    AcquiredImageSet.Where(ai => ai.TargetId == source.Id).ForEach(ai => {
+                        ai.ProjectId = movedTarget.ProjectId;
+                        ai.TargetId = movedTarget.Id;
+                        AcquiredImageSet.AddOrUpdate(ai);
+                    });
+
+                    FlatHistorySet.Where(fh => fh.targetId == source.Id).ForEach(fh => {
+                        fh.targetId = movedTarget.Id;
+                        FlatHistorySet.AddOrUpdate(fh);
+                    });
+
+                    SaveChanges();
+
+                    transaction.Commit();
+                    return movedTarget;
+                } catch (Exception e) {
+                    TSLogger.Error($"error moving target: {e.Message} {e.StackTrace}");
+                    RollbackTransaction(transaction);
+                    return null;
+                }
+            }
+        }
+
         public bool DeleteTarget(Target target) {
             ClearExistingOverrideExposureOrders(target.Id);
             ClearExistingFilterCadences(target.Id);

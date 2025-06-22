@@ -54,6 +54,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             AddTargetCommand = new RelayCommand(AddTarget);
             ResetTargetsCommand = new RelayCommand(ResetTargets);
             PasteTargetCommand = new RelayCommand(PasteTarget);
+            MoveTargetCommand = new RelayCommand(MoveTarget);
             ImportMosaicPanelsCommand = new RelayCommand(ImportMosaicPanels);
             CopyScoringRuleWeightsCommand = new RelayCommand(CopyScoringRuleWeights);
             PasteScoringRuleWeightsCommand = new RelayCommand(PasteScoringRuleWeights);
@@ -233,6 +234,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public ICommand AddTargetCommand { get; private set; }
         public ICommand ResetTargetsCommand { get; private set; }
         public ICommand PasteTargetCommand { get; private set; }
+        public ICommand MoveTargetCommand { get; private set; }
         public ICommand ImportMosaicPanelsCommand { get; private set; }
         public ICommand CopyScoringRuleWeightsCommand { get; private set; }
         public ICommand PasteScoringRuleWeightsCommand { get; private set; }
@@ -296,6 +298,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         private void PasteTarget() {
             managerVM.PasteTarget(ProjectProxy.Proxy);
+            ProjectActive = ActiveNowWithActiveTargets(ProjectProxy.Project);
+        }
+
+        private void MoveTarget() {
+            managerVM.MoveTarget(ProjectProxy.Proxy);
             ProjectActive = ActiveNowWithActiveTargets(ProjectProxy.Project);
         }
 

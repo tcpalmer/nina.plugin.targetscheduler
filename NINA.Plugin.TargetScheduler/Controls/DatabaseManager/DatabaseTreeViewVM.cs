@@ -102,6 +102,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
             DisplayMode = TreeDisplayMode.DisplayAll;
             ColorizeProjectsTargets = false;
+            Clipboard.Clear();
         }
     }
 

@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.7.0.0 - 2025-06-XX
+* Added ability to move a target from one project to another.
+
 ## 5.6.5.0 - 2025-06-20
 * Fixed issue where TS Sync Condition was not resetting properly.
 

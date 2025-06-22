@@ -270,16 +270,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             dec = Coordinates.Dec;
         }
 
-        public Target GetPasteCopy(string profileId) {
+        public Target GetPasteCopy(string profileId, bool moveOp = false) {
             Target target = new Target();
 
-            target.name = Utils.CopiedItemName(name);
+            target.name = moveOp ? name : Utils.CopiedItemName(name);
             target.ra = ra;
             target.dec = dec;
             target.epochCode = epochCode;
             target.rotation = rotation;
             target.roi = roi;
-            ExposurePlans.ForEach(item => target.ExposurePlans.Add(item.GetPasteCopy(profileId)));
+            ExposurePlans.ForEach(item => target.ExposurePlans.Add(item.GetPasteCopy(profileId, moveOp)));
             OverrideExposureOrders.ForEach(item => target.OverrideExposureOrders.Add(item.GetPasteCopy(Id)));
 
             return target;
