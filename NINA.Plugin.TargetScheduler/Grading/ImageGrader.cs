@@ -20,7 +20,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum GradingResult {
-        Accepted, Rejected_RMS, Rejected_Stars, Rejected_HFR, Rejected_FWHM, Rejected_Eccentricity, Exception
+        Accepted, Rejected_RMS, Rejected_Stars, Rejected_HFR, Rejected_FWHM, Rejected_Eccentricity, Rejected_Manual, Exception
     };
 
     public class ImageGrader : IImageGrader {
@@ -31,6 +31,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public static readonly string REJECT_HFR = "HFR";
         public static readonly string REJECT_FWHM = "FWHM";
         public static readonly string REJECT_ECCENTRICITY = "Eccentricity";
+        public static readonly string REJECT_MANUAL = "Manual";
 
         private object lockObj = new object();
 
@@ -175,7 +176,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             return result == GradingResult.Accepted ? GradingStatus.Accepted : GradingStatus.Rejected;
         }
 
-        public string GradingResultToReason(GradingResult result) {
+        public static string GradingResultToReason(GradingResult result) {
             switch (result) {
                 case GradingResult.Accepted: return string.Empty;
                 case GradingResult.Rejected_RMS: return REJECT_RMS;
@@ -183,6 +184,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                 case GradingResult.Rejected_HFR: return REJECT_HFR;
                 case GradingResult.Rejected_FWHM: return REJECT_FWHM;
                 case GradingResult.Rejected_Eccentricity: return REJECT_ECCENTRICITY;
+                case GradingResult.Rejected_Manual: return REJECT_MANUAL;
                 default: return "?";
             }
         }

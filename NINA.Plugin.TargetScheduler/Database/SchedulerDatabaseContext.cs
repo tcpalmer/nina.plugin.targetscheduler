@@ -1,4 +1,5 @@
 ﻿using LinqKit;
+using NINA.Core.MyMessageBox;
 using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
 using NINA.Plugin.TargetScheduler.Astrometry;
@@ -144,6 +145,10 @@ namespace NINA.Plugin.TargetScheduler.Database {
             project.Targets.ForEach(t => t.FilterCadences = GetFilterCadences(t.Id));
             project.FilterCadenceBreakingChange = false;
             return project;
+        }
+
+        public Project GetProjectOnly(int projectId) {
+            return ProjectSet.Where(p => p.Id == projectId).FirstOrDefault();
         }
 
         public Target GetTargetOnly(int targetId) {
@@ -307,6 +312,44 @@ namespace NINA.Plugin.TargetScheduler.Database {
             }
 
             return AcquiredImageSet.AsNoTracking().AsExpandable().Where(predicate).Count();
+        }
+
+        public AcquiredImage ManualUpdateGrading(AcquiredImage acquiredImage, GradingStatus oldStatus, GradingStatus newStatus) {
+            using (var transaction = Database.BeginTransaction()) {
+                try {
+                    int acceptedDelta = GetAcceptedDelta(oldStatus, newStatus);
+                    if (acceptedDelta != 0) {
+                        ExposurePlan ep = GetExposurePlan(acquiredImage.ExposureId);
+                        if (ep == null) {
+                            MyMessageBox.Show("Failed to load the exposure plan associated with this exposure (perhaps it was removed?).", "Oops");
+                            return null;
+                        }
+
+                        ep.Accepted = ep.Accepted + acceptedDelta;
+                        ExposurePlanSet.AddOrUpdate(ep);
+                    }
+
+                    AcquiredImage ai = GetAcquiredImage(acquiredImage.Id);
+                    ai.GradingStatus = newStatus;
+                    ai.RejectReason = newStatus == GradingStatus.Rejected ? ImageGrader.GradingResultToReason(GradingResult.Rejected_Manual) : "";
+                    AcquiredImageSet.AddOrUpdate(ai);
+
+                    SaveChanges();
+                    transaction.Commit();
+                    return ai;
+                } catch (Exception e) {
+                    TSLogger.Error($"error manually updating acquired image grading: {e.Message} {e.StackTrace}");
+                    RollbackTransaction(transaction);
+                    return null;
+                }
+            }
+        }
+
+        private int GetAcceptedDelta(GradingStatus oldStatus, GradingStatus newStatus) {
+            if (oldStatus == GradingStatus.Pending) return newStatus == GradingStatus.Accepted ? 1 : 0;
+            if (oldStatus == GradingStatus.Accepted) return newStatus == GradingStatus.Pending ? -1 : -1;
+            if (oldStatus == GradingStatus.Rejected) return newStatus == GradingStatus.Pending ? 0 : 1;
+            return 0;
         }
 
         public void DeleteOverrideExposureOrders(int targetId) {

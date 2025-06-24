@@ -18,4 +18,5 @@
     <ac:MinutesToHMConverter x:Key="MinutesToHMConverter" />
     <ac:StatusConverter x:Key="StatusConverter" />
     <ac:StatusMarkColorConverter x:Key="StatusMarkColorConverter" />
+    <ac:GradingStatusConverter x:Key="GradingStatusConverter" />
 </ResourceDictionary>

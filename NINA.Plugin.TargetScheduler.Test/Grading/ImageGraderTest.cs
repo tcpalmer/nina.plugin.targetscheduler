@@ -195,12 +195,12 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
         [Test]
         public void testGradingResultToReason() {
             ImageGrader sut = new ImageGrader();
-            sut.GradingResultToReason(GradingResult.Accepted).Should().Be("");
-            sut.GradingResultToReason(GradingResult.Rejected_RMS).Should().Be(ImageGrader.REJECT_RMS);
-            sut.GradingResultToReason(GradingResult.Rejected_Stars).Should().Be(ImageGrader.REJECT_STARS);
-            sut.GradingResultToReason(GradingResult.Rejected_HFR).Should().Be(ImageGrader.REJECT_HFR);
-            sut.GradingResultToReason(GradingResult.Rejected_FWHM).Should().Be(ImageGrader.REJECT_FWHM);
-            sut.GradingResultToReason(GradingResult.Rejected_Eccentricity).Should().Be(ImageGrader.REJECT_ECCENTRICITY);
+            ImageGrader.GradingResultToReason(GradingResult.Accepted).Should().Be("");
+            ImageGrader.GradingResultToReason(GradingResult.Rejected_RMS).Should().Be(ImageGrader.REJECT_RMS);
+            ImageGrader.GradingResultToReason(GradingResult.Rejected_Stars).Should().Be(ImageGrader.REJECT_STARS);
+            ImageGrader.GradingResultToReason(GradingResult.Rejected_HFR).Should().Be(ImageGrader.REJECT_HFR);
+            ImageGrader.GradingResultToReason(GradingResult.Rejected_FWHM).Should().Be(ImageGrader.REJECT_FWHM);
+            ImageGrader.GradingResultToReason(GradingResult.Rejected_Eccentricity).Should().Be(ImageGrader.REJECT_ECCENTRICITY);
         }
 
         private ExposurePlan GetExposurePlan(int id, string filterName, int desired, int accepted) {

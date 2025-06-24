@@ -1,23 +1,21 @@
-﻿<UserControl
-    x:Class="NINA.Plugin.TargetScheduler.Controls.AcquiredImages.AcquiredImagesManagerView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ninactrl="clr-namespace:NINA.CustomControlLibrary;assembly=NINA.CustomControlLibrary"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    mc:Ignorable="d">
+﻿<UserControl x:Class="NINA.Plugin.TargetScheduler.Controls.AcquiredImages.AcquiredImagesManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ninactrl="clr-namespace:NINA.CustomControlLibrary;assembly=NINA.CustomControlLibrary"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary Source="../Resources/Resources.xaml" />
     </UserControl.Resources>
 
     <StackPanel>
-        <Border
-            Margin="0,10,0,10"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="1">
+        <Border Margin="0,10,0,10"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="400" />
@@ -28,10 +26,9 @@
                 </Grid.RowDefinitions>
 
                 <Border Grid.Column="0">
-                    <Grid
-                        Width="600"
-                        Margin="15,20,5,12"
-                        HorizontalAlignment="Left">
+                    <Grid Width="600"
+                          Margin="15,20,5,12"
+                          HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="130" />
                             <ColumnDefinition Width="260" />
@@ -45,165 +42,149 @@
                             <RowDefinition MinHeight="25" />
                         </Grid.RowDefinitions>
 
-                        <TextBlock
-                            Grid.Row="0"
-                            Grid.Column="0"
-                            MaxWidth="120"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            FontWeight="Bold"
-                            Text="Fixed Date Range" />
-                        <ComboBox
-                            Grid.Row="0"
-                            Grid.Column="1"
-                            MinWidth="233"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            DisplayMemberPath="Value"
-                            ItemsSource="{Binding FixedDateRangeChoices}"
-                            SelectedValue="{Binding SelectedFixedDateRange, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            SelectedValuePath="Key" />
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="0"
+                                   MaxWidth="120"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="Fixed Date Range" />
+                        <ComboBox Grid.Row="0"
+                                  Grid.Column="1"
+                                  MinWidth="233"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  DisplayMemberPath="Value"
+                                  ItemsSource="{Binding FixedDateRangeChoices}"
+                                  SelectedValue="{Binding SelectedFixedDateRange, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectedValuePath="Key" />
 
-                        <TextBlock
-                            Grid.Row="1"
-                            Grid.Column="0"
-                            MaxWidth="120"
-                            Margin="0,0,0,12"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            FontWeight="Bold"
-                            Text="Custom Date Range" />
-                        <StackPanel
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            Margin="0,0,0,12"
-                            Orientation="Horizontal">
-                            <DatePicker VerticalAlignment="Center" SelectedDate="{Binding FromDate}" />
-                            <TextBlock
-                                Margin="10,0,10,0"
-                                VerticalAlignment="Center"
-                                FontStyle="Italic"
-                                Text="to" />
-                            <DatePicker VerticalAlignment="Center" SelectedDate="{Binding ToDate}" />
+                        <TextBlock Grid.Row="1"
+                                   Grid.Column="0"
+                                   MaxWidth="120"
+                                   Margin="0,0,0,12"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="Custom Date Range" />
+                        <StackPanel Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="0,0,0,12"
+                                    Orientation="Horizontal">
+                            <DatePicker VerticalAlignment="Center"
+                                        SelectedDate="{Binding FromDate}" />
+                            <TextBlock Margin="10,0,10,0"
+                                       VerticalAlignment="Center"
+                                       FontStyle="Italic"
+                                       Text="to" />
+                            <DatePicker VerticalAlignment="Center"
+                                        SelectedDate="{Binding ToDate}" />
                         </StackPanel>
 
-                        <TextBlock
-                            Grid.Row="2"
-                            Grid.Column="0"
-                            MaxWidth="80"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            FontWeight="Bold"
-                            Text="Project" />
-                        <ComboBox
-                            Grid.Row="2"
-                            Grid.Column="1"
-                            MinWidth="233"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            DisplayMemberPath="Value"
-                            ItemsSource="{Binding ProjectChoices}"
-                            SelectedValue="{Binding SelectedProjectId}"
-                            SelectedValuePath="Key" />
+                        <TextBlock Grid.Row="2"
+                                   Grid.Column="0"
+                                   MaxWidth="80"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="Project" />
+                        <ComboBox Grid.Row="2"
+                                  Grid.Column="1"
+                                  MinWidth="233"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  DisplayMemberPath="Value"
+                                  ItemsSource="{Binding ProjectChoices}"
+                                  SelectedValue="{Binding SelectedProjectId}"
+                                  SelectedValuePath="Key" />
 
-                        <TextBlock
-                            Grid.Row="3"
-                            Grid.Column="0"
-                            MaxWidth="80"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            FontWeight="Bold"
-                            Text="Target" />
-                        <ComboBox
-                            Grid.Row="3"
-                            Grid.Column="1"
-                            MinWidth="233"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            DisplayMemberPath="Value"
-                            ItemsSource="{Binding TargetChoices}"
-                            SelectedValue="{Binding SelectedTargetId}"
-                            SelectedValuePath="Key" />
+                        <TextBlock Grid.Row="3"
+                                   Grid.Column="0"
+                                   MaxWidth="80"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="Target" />
+                        <ComboBox Grid.Row="3"
+                                  Grid.Column="1"
+                                  MinWidth="233"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  DisplayMemberPath="Value"
+                                  ItemsSource="{Binding TargetChoices}"
+                                  SelectedValue="{Binding SelectedTargetId}"
+                                  SelectedValuePath="Key" />
 
-                        <TextBlock
-                            Grid.Row="4"
-                            Grid.Column="0"
-                            MaxWidth="80"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            FontWeight="Bold"
-                            Text="Filter" />
-                        <ComboBox
-                            Grid.Row="4"
-                            Grid.Column="1"
-                            MinWidth="233"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            DisplayMemberPath="Value"
-                            ItemsSource="{Binding FilterChoices}"
-                            SelectedValue="{Binding SelectedFilterId}"
-                            SelectedValuePath="Key" />
+                        <TextBlock Grid.Row="4"
+                                   Grid.Column="0"
+                                   MaxWidth="80"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="Filter" />
+                        <ComboBox Grid.Row="4"
+                                  Grid.Column="1"
+                                  MinWidth="233"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  DisplayMemberPath="Value"
+                                  ItemsSource="{Binding FilterChoices}"
+                                  SelectedValue="{Binding SelectedFilterId}"
+                                  SelectedValuePath="Key" />
 
-                        <StackPanel
-                            Grid.Row="5"
-                            Grid.Column="0"
-                            Orientation="Horizontal">
-                            <Button
-                                Width="18"
-                                Height="18"
-                                Margin="0,5,0,0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Command="{Binding RefreshTableCommand}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Refresh the table to reflect external changes"
-                                ToolTipService.ShowOnDisabled="True">
+                        <StackPanel Grid.Row="5"
+                                    Grid.Column="0"
+                                    Orientation="Horizontal">
+                            <Button Width="18"
+                                    Height="18"
+                                    Margin="0,5,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding RefreshTableCommand}"
+                                    Style="{StaticResource BackgroundButton}"
+                                    ToolTip="Refresh the table to reflect external changes"
+                                    ToolTipService.ShowOnDisabled="True">
                                 <Grid>
-                                    <Path
-                                        Data="{StaticResource SS_RefreshSVG}"
-                                        Fill="{StaticResource ButtonForegroundBrush}"
-                                        Stretch="Uniform" />
+                                    <Path Data="{StaticResource SS_RefreshSVG}"
+                                          Fill="{StaticResource ButtonForegroundBrush}"
+                                          Stretch="Uniform" />
                                 </Grid>
                             </Button>
-                            <Button
-                                Width="18"
-                                Height="18"
-                                Margin="10,5,0,0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Command="{Binding CsvOutputCommand}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Write current query results to a CSV file"
-                                ToolTipService.ShowOnDisabled="True">
+                            <Button Width="18"
+                                    Height="18"
+                                    Margin="10,5,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding CsvOutputCommand}"
+                                    Style="{StaticResource BackgroundButton}"
+                                    ToolTip="Write current query results to a CSV file"
+                                    ToolTipService.ShowOnDisabled="True">
                                 <Grid>
-                                    <Path
-                                        Data="{StaticResource SS_CsvSVG}"
-                                        Fill="{StaticResource ButtonForegroundBrush}"
-                                        Stretch="Uniform" />
+                                    <Path Data="{StaticResource SS_CsvSVG}"
+                                          Fill="{StaticResource ButtonForegroundBrush}"
+                                          Stretch="Uniform" />
                                 </Grid>
                             </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
                 <Border Grid.Column="1">
-                    <Expander
-                        Margin="15,20,5,12"
-                        ExpandDirection="Down"
-                        IsExpanded="False">
+                    <Expander Margin="15,20,5,12"
+                              ExpandDirection="Down"
+                              IsExpanded="False">
                         <Expander.Header>
-                            <TextBlock FontWeight="Bold" Text="Purge Records" />
+                            <TextBlock FontWeight="Bold"
+                                       Text="Purge Records" />
                         </Expander.Header>
                         <StackPanel>
-                            <TextBlock
-                                Margin="15,5,0,0"
-                                FontSize="12"
-                                FontStyle="Italic"
-                                Text="Delete acquired image records by date or date and target.  This will not remove image files - only the Target Scheduler database records."
-                                TextWrapping="Wrap" />
-                            <Grid
-                                Width="600"
-                                Margin="15,10,5,12"
-                                HorizontalAlignment="Left">
+                            <TextBlock Margin="15,5,0,0"
+                                       FontSize="12"
+                                       FontStyle="Italic"
+                                       Text="Delete acquired image records by date or date and target.  This will not remove image files - only the Target Scheduler database records."
+                                       TextWrapping="Wrap" />
+                            <Grid Width="600"
+                                  Margin="15,10,5,12"
+                                  HorizontalAlignment="Left">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="130" />
                                     <ColumnDefinition Width="260" />
@@ -214,57 +195,51 @@
                                     <RowDefinition MinHeight="25" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    MaxWidth="120"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    FontWeight="Bold"
-                                    Text="Older Than" />
-                                <DatePicker
-                                    Grid.Row="0"
-                                    Grid.Column="1"
-                                    Width="200"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    SelectedDate="{Binding PurgeOlderThanDate}" />
+                                <TextBlock Grid.Row="0"
+                                           Grid.Column="0"
+                                           MaxWidth="120"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           FontWeight="Bold"
+                                           Text="Older Than" />
+                                <DatePicker Grid.Row="0"
+                                            Grid.Column="1"
+                                            Width="200"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            SelectedDate="{Binding PurgeOlderThanDate}" />
 
-                                <TextBlock
-                                    Grid.Row="1"
-                                    Grid.Column="0"
-                                    MaxWidth="120"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    FontWeight="Bold"
-                                    Text="Target" />
-                                <ComboBox
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    Width="200"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    DisplayMemberPath="Value"
-                                    ItemsSource="{Binding PurgeTargetChoices}"
-                                    SelectedValue="{Binding PurgeSelectedTargetId}"
-                                    SelectedValuePath="Key" />
+                                <TextBlock Grid.Row="1"
+                                           Grid.Column="0"
+                                           MaxWidth="120"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           FontWeight="Bold"
+                                           Text="Target" />
+                                <ComboBox Grid.Row="1"
+                                          Grid.Column="1"
+                                          Width="200"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
+                                          DisplayMemberPath="Value"
+                                          ItemsSource="{Binding PurgeTargetChoices}"
+                                          SelectedValue="{Binding PurgeSelectedTargetId}"
+                                          SelectedValuePath="Key" />
 
-                                <Button
-                                    Grid.Row="3"
-                                    Grid.Column="0"
-                                    Width="18"
-                                    Height="18"
-                                    Margin="10,5,0,0"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Command="{Binding PurgeCommand}"
-                                    Style="{StaticResource BackgroundButton}"
-                                    ToolTip="Delete acquired image records based on date/target selections">
+                                <Button Grid.Row="3"
+                                        Grid.Column="0"
+                                        Width="18"
+                                        Height="18"
+                                        Margin="10,5,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Command="{Binding PurgeCommand}"
+                                        Style="{StaticResource BackgroundButton}"
+                                        ToolTip="Delete acquired image records based on date/target selections">
                                     <Grid>
-                                        <Path
-                                            Data="{StaticResource SS_DeleteSVG}"
-                                            Fill="{StaticResource ButtonForegroundBrush}"
-                                            Stretch="Uniform" />
+                                        <Path Data="{StaticResource SS_DeleteSVG}"
+                                              Fill="{StaticResource ButtonForegroundBrush}"
+                                              Stretch="Uniform" />
                                     </Grid>
                                 </Button>
                             </Grid>
@@ -274,67 +249,81 @@
             </Grid>
         </Border>
 
-        <TextBlock
-            Grid.Row="4"
-            Grid.Column="0"
-            Margin="3,3,0,10"
-            FontSize="12"
-            FontStyle="Italic"
-            Text="Click the table headers to sort, select a row to show details" />
+        <TextBlock Grid.Row="4"
+                   Grid.Column="0"
+                   Margin="3,3,0,10"
+                   FontSize="12"
+                   FontStyle="Italic"
+                   Text="Click the table headers to sort, select a row to show details" />
 
-        <Grid Height="350" Visibility="{Binding TableLoading, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-            <ninactrl:LoadingControl
-                MaxWidth="100"
-                MaxHeight="100"
-                Margin="0,30,0,0"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                LoadingImageBrush="{StaticResource PrimaryBrush}"
-                Visibility="{Binding TableLoading, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+        <Grid Height="350"
+              Visibility="{Binding TableLoading, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+            <ninactrl:LoadingControl MaxWidth="100"
+                                     MaxHeight="100"
+                                     Margin="0,30,0,0"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     LoadingImageBrush="{StaticResource PrimaryBrush}"
+                                     Visibility="{Binding TableLoading, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
         </Grid>
 
-        <DataGrid
-            Grid.Row="0"
-            Height="350"
-            Margin="12,0,0,0"
-            AutoGenerateColumns="False"
-            BorderThickness="0"
-            CanUserAddRows="False"
-            CanUserSortColumns="True"
-            HorizontalScrollBarVisibility="Disabled"
-            IsReadOnly="True"
-            IsSynchronizedWithCurrentItem="False"
-            ItemsSource="{Binding ItemsView}"
-            RowHeight="25"
-            SelectedItem="{Binding SelectedItem}"
-            VerticalScrollBarVisibility="Auto"
-            Visibility="{Binding TableLoading, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
+        <DataGrid Grid.Row="0"
+                  Height="650"
+                  Margin="12,0,0,0"
+                  AutoGenerateColumns="False"
+                  BorderThickness="0"
+                  CanUserAddRows="False"
+                  CanUserSortColumns="True"
+                  HorizontalScrollBarVisibility="Disabled"
+                  IsReadOnly="True"
+                  IsSynchronizedWithCurrentItem="False"
+                  ItemsSource="{Binding ItemsView}"
+                  RowHeight="25"
+                  SelectedItem="{Binding SelectedItem}"
+                  VerticalScrollBarVisibility="Auto"
+                  Visibility="{Binding TableLoading, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
 
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="HorizontalAlignment" Value="Left" />
-                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="MinHeight" Value="25" />
-                    <Setter Property="Margin" Value="5,3,5,3" />
-                    <Setter Property="FontWeight" Value="Bold" />
-                    <Setter Property="FontSize" Value="12" />
-                    <EventSetter Event="Click" Handler="columnHeader_Click" />
+                    <Setter Property="HorizontalAlignment"
+                            Value="Left" />
+                    <Setter Property="BorderBrush"
+                            Value="{StaticResource BorderBrush}" />
+                    <Setter Property="BorderThickness"
+                            Value="0" />
+                    <Setter Property="MinHeight"
+                            Value="25" />
+                    <Setter Property="Margin"
+                            Value="5,3,5,3" />
+                    <Setter Property="FontWeight"
+                            Value="Bold" />
+                    <Setter Property="FontSize"
+                            Value="12" />
+                    <EventSetter Event="Click"
+                                 Handler="columnHeader_Click" />
                 </Style>
             </DataGrid.ColumnHeaderStyle>
 
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
-                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="MinHeight" Value="22" />
-                    <Setter Property="Margin" Value="5,3,5,3" />
+                    <Setter Property="BorderBrush"
+                            Value="{StaticResource BorderBrush}" />
+                    <Setter Property="BorderThickness"
+                            Value="0" />
+                    <Setter Property="MinHeight"
+                            Value="22" />
+                    <Setter Property="Margin"
+                            Value="5,3,5,3" />
                     <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource ButtonBackgroundBrush}" />
+                        <Trigger Property="IsSelected"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="{StaticResource ButtonBackgroundBrush}" />
                         </Trigger>
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter Property="Background" Value="Transparent" />
+                        <Trigger Property="IsSelected"
+                                 Value="False">
+                            <Setter Property="Background"
+                                    Value="Transparent" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -342,15 +331,22 @@
 
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
-                    <Setter Property="MinHeight" Value="22" />
-                    <Setter Property="Background" Value="Transparent" />
-                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="MinHeight"
+                            Value="22" />
+                    <Setter Property="Background"
+                            Value="Transparent" />
+                    <Setter Property="VerticalAlignment"
+                            Value="Center" />
                     <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource TertiaryBackgroundBrush}" />
+                        <Trigger Property="IsSelected"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="{StaticResource TertiaryBackgroundBrush}" />
                         </Trigger>
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter Property="Background" Value="Transparent" />
+                        <Trigger Property="IsSelected"
+                                 Value="False">
+                            <Setter Property="Background"
+                                    Value="Transparent" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -358,286 +354,269 @@
 
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Padding="10">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Acquired" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Project" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Target" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Filter" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Exposure (secs)" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Exposure Template" />
-                                <TextBlock
-                                    Margin="0,3,0,16"
-                                    VerticalAlignment="Center"
-                                    Text="Image File" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Profile" />
+                    <StackPanel Orientation="Vertical">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    Padding="10">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Acquired" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Project" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Target" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Filter" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Exposure (secs)" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Exposure Template" />
+                                    <TextBlock Margin="0,3,0,16"
+                                               VerticalAlignment="Center"
+                                               Text="Image File" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Profile" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Padding="10"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="0,0,2,0">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding AcquiredDate, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ProjectName}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding TargetName}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding FilterName}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ExposureDuration}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ExposureTemplateName}" />
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Hidden">
+                                        <TextBlock Margin="0,3,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding FileName}" />
+                                    </ScrollViewer>
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Hidden">
+                                        <TextBlock Margin="0,3,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding ProfileName}" />
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2"
+                                    Padding="10">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Gain" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Offset" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Binning" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Stars" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="HFR" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="FWHM" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Eccentricity" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="3"
+                                    Padding="10"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="0,0,2,0">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding Gain}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding Offset}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding Binning}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding DetectedStars}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding HFR}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding FWHM}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding Eccentricity}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="4"
+                                    Padding="10">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Airmass" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="ADU Min" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="ADU Max" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="ADU Mean" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="ADU Median" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="ADU Std Dev" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="5"
+                                    Padding="10"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="0,0,2,0">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding Airmass}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ADUMin}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ADUMax}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ADUMean}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ADUMedian}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding ADUStDev}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="6"
+                                    Padding="10">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Guiding RMS" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Guiding RMS &quot;" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Guiding RMS RA" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Guiding RMS RA &quot;" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Guiding RMS Dec" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Guiding RMS Dec &quot;" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="7"
+                                    Padding="10"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="0,0,2,0">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding GuidingRMS}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding GuidingRMSArcSec}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding GuidingRMSRA}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding GuidingRMSRAArcSec}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding GuidingRMSDEC}" />
+                                    <TextBlock Margin="0,3,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding GuidingRMSDECArcSec}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Width="{Binding ThumbnailWidth}"
+                                   Height="{Binding ThumbnailHeight}"
+                                   Margin="10"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Top"
+                                   Source="{Binding Thumbnail}" />
+                            <StackPanel Margin="0,12,0,0"
+                                        Orientation="Vertical">
+                                <TextBlock Width="180"
+                                           Margin="0,0,0,5"
+                                           Text="Manually change the current grading of this exposure:"
+                                           TextWrapping="Wrap" />
+                                <RadioButton Margin="5"
+                                             Command="{Binding Path=UpdateGradingCommand}"
+                                             CommandParameter="Pending"
+                                             Content="Pending"
+                                             GroupName="GradingStatus"
+                                             IsChecked="{Binding GradingStatusValue, ConverterParameter=0, Converter={StaticResource GradingStatusConverter}, Mode=TwoWay}" />
+                                <RadioButton Margin="5"
+                                             Command="{Binding Path=UpdateGradingCommand}"
+                                             CommandParameter="Accepted"
+                                             Content="Accepted"
+                                             GroupName="GradingStatus"
+                                             IsChecked="{Binding GradingStatusValue, ConverterParameter=1, Converter={StaticResource GradingStatusConverter}, Mode=TwoWay}" />
+                                <RadioButton Margin="5"
+                                             Command="{Binding Path=UpdateGradingCommand}"
+                                             CommandParameter="Rejected"
+                                             Content="Rejected"
+                                             GroupName="GradingStatus"
+                                             IsChecked="{Binding GradingStatusValue, ConverterParameter=2, Converter={StaticResource GradingStatusConverter}, Mode=TwoWay}" />
                             </StackPanel>
-                        </Border>
-                        <Border
-                            Grid.Column="1"
-                            Padding="10"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="0,0,2,0">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding AcquiredDate, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ProjectName}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding TargetName}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding FilterName}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ExposureDuration}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ExposureTemplateName}" />
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
-                                    <TextBlock
-                                        Margin="0,3,0,0"
-                                        VerticalAlignment="Center"
-                                        Text="{Binding FileName}" />
-                                </ScrollViewer>
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
-                                    <TextBlock
-                                        Margin="0,3,0,0"
-                                        VerticalAlignment="Center"
-                                        Text="{Binding ProfileName}" />
-                                </ScrollViewer>
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="2" Padding="10">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Gain" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Offset" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Binning" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Stars" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="HFR" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="FWHM" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Eccentricity" />
-                            </StackPanel>
-                        </Border>
-                        <Border
-                            Grid.Column="3"
-                            Padding="10"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="0,0,2,0">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Gain}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Offset}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Binning}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding DetectedStars}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding HFR}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding FWHM}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Eccentricity}" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="4" Padding="10">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Airmass" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="ADU Min" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="ADU Max" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="ADU Mean" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="ADU Median" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="ADU Std Dev" />
-                            </StackPanel>
-                        </Border>
-                        <Border
-                            Grid.Column="5"
-                            Padding="10"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="0,0,2,0">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Airmass}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ADUMin}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ADUMax}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ADUMean}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ADUMedian}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding ADUStDev}" />
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="6" Padding="10">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Guiding RMS" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Guiding RMS &quot;" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Guiding RMS RA" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Guiding RMS RA &quot;" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Guiding RMS Dec" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="Guiding RMS Dec &quot;" />
-                            </StackPanel>
-                        </Border>
-                        <Border
-                            Grid.Column="7"
-                            Padding="10"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="0,0,2,0">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding GuidingRMS}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding GuidingRMSArcSec}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding GuidingRMSRA}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding GuidingRMSRAArcSec}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding GuidingRMSDEC}" />
-                                <TextBlock
-                                    Margin="0,3,0,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding GuidingRMSDECArcSec}" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
+                        </StackPanel>
+                    </StackPanel>
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
 
@@ -649,7 +628,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding AcquiredDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding AcquiredDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -660,7 +640,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding ProjectName}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding ProjectName}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -671,7 +652,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding TargetName}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding TargetName}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -682,7 +664,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding FilterName}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding FilterName}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -693,7 +676,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding DetectedStars}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding DetectedStars}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -704,7 +688,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding HFR}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding HFR}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -715,7 +700,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding FWHM}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding FWHM}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -726,7 +712,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding Eccentricity}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding Eccentricity}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -737,7 +724,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding GradingStatus}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding GradingStatus}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -748,7 +736,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding RejectReason}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding RejectReason}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

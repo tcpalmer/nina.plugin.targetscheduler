@@ -7,6 +7,7 @@ using NINA.Core.MyMessageBox;
 using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile;
@@ -26,7 +27,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
+using RelayCommandParam = CommunityToolkit.Mvvm.Input.RelayCommand<object>;
 
 namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
 
@@ -553,6 +556,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
     public class AcquiredImageVM : BaseINPC {
         private AcquiredImage acquiredImage;
         private string exposureTemplateName;
+        private SchedulerDatabaseInteraction database;
 
         public AcquiredImageVM() {
         }
@@ -563,7 +567,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             string targetName;
             string profileName;
 
-            SchedulerDatabaseInteraction database = new SchedulerDatabaseInteraction();
+            database = new SchedulerDatabaseInteraction();
+            UpdateGradingCommand = new RelayCommandParam(UpdateGrading, CanCmdExec);
 
             NamesItem names = ProjectTargetNameCache.GetNames(acquiredImage.ProjectId, acquiredImage.TargetId);
             if (names == null) {
@@ -583,6 +588,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
 
             ProjectName = projectName;
             TargetName = targetName;
+            GradingStatusValue = (int)acquiredImage.GradingStatus;
 
             using (var context = database.GetContext()) {
                 var ep = context.GetExposurePlan(acquiredImage.ExposureId);
@@ -643,6 +649,71 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
         public string CameraTemp { get { return Utils.FormatDbl(acquiredImage.Metadata.CameraTemp); } }
         public string CameraTargetTemp { get { return Utils.FormatDbl(acquiredImage.Metadata.CameraTargetTemp); } }
         public string Airmass { get { return Utils.FormatDbl(acquiredImage.Metadata.Airmass); } }
+
+        private ImageData imageData;
+
+        public ImageData ImageData {
+            get {
+                if (imageData == null) {
+                    using (var context = database.GetContext()) {
+                        imageData = context.GetImageData(acquiredImage.Id);
+                    }
+                }
+
+                return imageData;
+            }
+        }
+
+        private ImageSource thumbnail;
+
+        public ImageSource Thumbnail {
+            get {
+                if (thumbnail == null && ImageData != null) {
+                    thumbnail = Thumbnails.RestoreThumbnail(ImageData.Data);
+                }
+
+                return thumbnail;
+            }
+        }
+
+        public int ThumbnailWidth { get => ImageData != null ? ImageData.Width : 0; }
+        public int ThumbnailHeight { get => ImageData != null ? ImageData.Height : 0; }
+
+        private int gradingStatusValue = 0;
+
+        public int GradingStatusValue {
+            get { return gradingStatusValue; }
+            set {
+                gradingStatusValue = value;
+                RaisePropertyChanged(nameof(GradingStatusValue));
+            }
+        }
+
+        public ICommand UpdateGradingCommand { get; private set; }
+
+        private void UpdateGrading(object obj) {
+            GradingStatus oldStatus = acquiredImage.GradingStatus;
+            GradingStatus newStatus;
+            Enum.TryParse(obj.ToString(), out newStatus);
+
+            using (var context = database.GetContext()) {
+                Project project = context.GetProjectOnly(acquiredImage.ProjectId);
+                if (project == null || !project.EnableGrader) {
+                    MyMessageBox.Show("Associated project has grading disabled or project cannot be found (perhaps it was removed?).", "Oops");
+                    return;
+                }
+
+                AcquiredImage ai = context.ManualUpdateGrading(acquiredImage, oldStatus, newStatus);
+                if (ai != null) {
+                    this.acquiredImage = ai;
+                    GradingStatusValue = (int)newStatus;
+                    RaiseAllPropertiesChanged();
+                    TSLogger.Debug($"updated grading status from {oldStatus} to {newStatus} for record ai={acquiredImage.Id}");
+                }
+            }
+        }
+
+        private bool CanCmdExec(object obj) => true;
     }
 
     internal class CsvAcquiredImage {
