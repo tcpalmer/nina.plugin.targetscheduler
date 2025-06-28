@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.7.1.0 - 2025-06-28
+* Fixed issue with target move and how associated acquired image rows are updated.
+
 ## 5.7.0.0 - 2025-06-24
 * Added ability to move a target from one project to another.
 * Added display of the thumbnail image to the acquired image detail view.

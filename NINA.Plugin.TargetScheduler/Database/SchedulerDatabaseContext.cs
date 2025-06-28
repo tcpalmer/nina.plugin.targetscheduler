@@ -624,8 +624,11 @@ namespace NINA.Plugin.TargetScheduler.Database {
             using (var transaction = Database.BeginTransaction()) {
                 try {
                     Target movedTarget = null;
+                    Dictionary<int, int> exposurePlanMap = new Dictionary<int, int>();
+
                     Target oldTarget = GetTargetByProject(source.ProjectId, source.Id);
                     Target newTarget = source.GetPasteCopy(project.ProfileId, true);
+                    oldTarget.ExposurePlans.ForEach(ep => { exposurePlanMap[ep.Id] = 0; });
 
                     project = GetProject(project.Id);
                     project.Targets.Add(newTarget);
@@ -640,9 +643,16 @@ namespace NINA.Plugin.TargetScheduler.Database {
                     SaveChanges();
                     movedTarget = GetTarget(project.Id, newTarget.Id);
 
+                    // Map from old to new exposure plan Ids
+                    int pos = 0;
+                    foreach (var item in exposurePlanMap) {
+                        exposurePlanMap[item.Key] = movedTarget.ExposurePlans[pos++].Id;
+                    }
+
                     AcquiredImageSet.Where(ai => ai.TargetId == source.Id).ForEach(ai => {
                         ai.ProjectId = movedTarget.ProjectId;
                         ai.TargetId = movedTarget.Id;
+                        ai.ExposureId = exposurePlanMap[ai.ExposureId];
                         AcquiredImageSet.AddOrUpdate(ai);
                     });
 

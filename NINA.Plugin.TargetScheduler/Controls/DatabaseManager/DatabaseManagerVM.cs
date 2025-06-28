@@ -759,13 +759,6 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
             TreeDataItem parentItem = activeTreeDataItem;
 
-            /*
-             * Update docs:
-             * - will transition related AI and FH rows
-             * - filter cadence cleared
-             * - icon table
-             */
-
             using (var context = database.GetContext()) {
                 Target movedTarget = context.MoveTarget(project, source);
                 if (movedTarget != null) {
