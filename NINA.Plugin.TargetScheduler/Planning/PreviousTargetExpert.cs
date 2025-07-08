@@ -1,5 +1,6 @@
 ﻿using NINA.Astrometry;
 using NINA.Core.Model;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
@@ -10,6 +11,7 @@ using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NINA.Plugin.TargetScheduler.Planning {
 
@@ -40,7 +42,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// <param name="atTime"></param>
         /// <param name="previousTarget"></param>
         /// <returns></returns>
-        public bool CanContinue(DateTime atTime, ITarget previousTarget) {
+        public bool CanContinue(DateTime atTime, IWeatherDataMediator weatherDataMediator, ITarget previousTarget) {
             if (previousTarget == null) { return false; }
 
             UpdateTargetExposurePlans(previousTarget);
@@ -54,10 +56,17 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // Recheck for moon avoidance
             TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
             targetExpert.MoonAvoidanceFilter(atTime, previousTarget, new MoonAvoidanceExpert(observerInfo));
-            bool allRejected = true;
-            previousTarget.ExposurePlans.ForEach(ep => { if (!ep.Rejected) { allRejected = false; } });
+            bool allRejected = previousTarget.ExposurePlans.All(ep => ep.Rejected);
             if (allRejected) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all remaining exposure plans rejected for moon avoidance");
+                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all remaining exposure plans now rejected for moon avoidance");
+                return false;
+            }
+
+            // Recheck for humidity
+            targetExpert.HumidityFilter(previousTarget, weatherDataMediator);
+            allRejected = previousTarget.ExposurePlans.All(ep => ep.Rejected);
+            if (allRejected) {
+                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all remaining exposure plans now rejected for humidity");
                 return false;
             }
 

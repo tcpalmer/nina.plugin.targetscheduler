@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NINA.Core.Enum;
 using NINA.Core.Model;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Planning;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
@@ -24,13 +25,15 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private DateTime LastPlanEndTime;
 
         [ImportingConstructor]
-        public TargetSchedulerBackgroundCondition(IProfileService profileService) {
+        public TargetSchedulerBackgroundCondition(IProfileService profileService, IWeatherDataMediator weatherDataMediator) {
             this.profileService = profileService;
+            this.weatherDataMediator = weatherDataMediator;
             LastPlanEndTime = DateTime.Now;
             ConditionWatchdog = new ConditionWatchdog(InterruptWhenNoTargetsRemain, TimeSpan.FromSeconds(60));
         }
 
-        private TargetSchedulerBackgroundCondition(TargetSchedulerBackgroundCondition cloneMe, IProfileService profileService) : this(profileService) {
+        private TargetSchedulerBackgroundCondition(TargetSchedulerBackgroundCondition cloneMe, IProfileService profileService, IWeatherDataMediator weatherDataMediator)
+            : this(profileService, weatherDataMediator) {
             CopyMetaData(cloneMe);
         }
 
@@ -54,7 +57,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             try {
                 TSLogger.Info("TargetSchedulerBackgroundCondition: running planner");
-                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), true, false);
+                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), weatherDataMediator, true, false);
                 SchedulerPlan plan = planner.GetPlan(null);
 
                 if (plan == null) {
@@ -82,7 +85,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         public override object Clone() {
-            return new TargetSchedulerBackgroundCondition(this, profileService);
+            return new TargetSchedulerBackgroundCondition(this, profileService, weatherDataMediator);
         }
 
         public override void AfterParentChanged() {

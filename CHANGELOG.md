@@ -1,5 +1,10 @@
 # Target Scheduler
 
+## 5.8.0.0 - 2025-07-XX
+* Added support for exposure rejection for humidity.
+* TWILIGHT OFFSET?
+* EP DISABLE?
+
 ## 5.7.1.0 - 2025-06-28
 * Fixed issue with target move and how associated acquired image rows are updated.
 

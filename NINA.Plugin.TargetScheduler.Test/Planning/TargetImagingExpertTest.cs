@@ -2,6 +2,7 @@
 using FluentAssertions.Extensions;
 using Moq;
 using NINA.Astrometry;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
@@ -275,6 +276,52 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             sut.TwilightFilter(t1, TwilightLevel.Civil);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be(Reasons.FilterTwilight);
+        }
+
+        [Test]
+        public void testHumidityFilter() {
+            IProfile profile = GetProfileService();
+            DateTime atTime = new DateTime(2025, 1, 1, 20, 0, 0);
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 30;
+            ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42).Object;
+            t1.StartTime = atTime.AddHours(1);
+            t1.Project = p1;
+            IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            IExposure e2 = PlanMocks.GetMockPlanExposure("R", 10, 0).Object;
+            e1.MaximumHumidity = 50;
+            e2.MaximumHumidity = 80;
+            t1.ExposurePlans.Add(e1);
+            t1.ExposurePlans.Add(e2);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
+
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeFalse();
+            e2.Rejected.Should().BeFalse();
+            sut.ClearRejections(t1);
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 60);
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeTrue();
+            e1.RejectedReason.Should().Be(Reasons.FilterHumidity);
+            e2.Rejected.Should().BeFalse();
+            sut.ClearRejections(t1);
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 80);
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeTrue();
+            e1.RejectedReason.Should().Be(Reasons.FilterHumidity);
+            e2.Rejected.Should().BeFalse();
+            sut.ClearRejections(t1);
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 81);
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeTrue();
+            e1.RejectedReason.Should().Be(Reasons.FilterHumidity);
+            e2.Rejected.Should().BeTrue();
+            e2.RejectedReason.Should().Be(Reasons.FilterHumidity);
         }
 
         [Test]

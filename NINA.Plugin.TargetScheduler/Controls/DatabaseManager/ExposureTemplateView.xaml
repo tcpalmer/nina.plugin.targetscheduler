@@ -208,14 +208,28 @@
 
             <TextBlock VerticalAlignment="Center"
                        FontWeight="Bold"
-                       IsEnabled="False"
                        Text="Maximum Humidity"
-                       ToolTip="TBD future"
-                       ToolTipService.ShowOnDisabled="True" />
+                       ToolTip="Maximum allowed humidity (set to zero to ignore)" />
+            <TextBox MaxHeight="20"
+                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                <TextBox.Text>
+                    <Binding Path="ExposureTemplateProxy.ExposureTemplate.MaximumHumidity"
+                             UpdateSourceTrigger="LostFocus">
+                        <Binding.ValidationRules>
+                            <rules:DoubleRangeRule>
+                                <rules:DoubleRangeRule.ValidRange>
+                                    <rules:DoubleRangeChecker Maximum="100"
+                                                              Minimum="0" />
+                                </rules:DoubleRangeRule.ValidRange>
+                            </rules:DoubleRangeRule>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
             <TextBlock MaxHeight="20"
                        Margin="3,3,0,0"
-                       IsEnabled="False"
-                       Text="{Binding ExposureTemplateProxy.ExposureTemplate.MaximumHumidity}" />
+                       Text="{Binding ExposureTemplateProxy.ExposureTemplate.MaximumHumidity, Converter={StaticResource PercentDisplayConverter}}"
+                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
         </UniformGrid>
 
         <TextBlock Margin="0,12,0,6"

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
@@ -20,6 +21,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForReadyComplete() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
@@ -35,10 +37,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanFilter(pt, pf);
             PlanMocks.AddMockPlanTarget(pp2, pt);
 
-            Assert.That(new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(null), Is.Null);
+            Assert.That(new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForIncomplete(null), Is.Null);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object, pp2.Object);
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForIncomplete(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(2);
 
@@ -67,6 +69,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForIncomplete() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
@@ -82,7 +85,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForIncomplete(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -112,6 +115,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
             ProfilePreference prefs = GetPrefs();
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
 
@@ -138,7 +142,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             // Blue is not complete ...
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, false, false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, weatherData, false, false).FilterForIncomplete(projects);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
             projects[0].Targets[0].Rejected.Should().BeFalse();
@@ -150,7 +154,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pt.Object.ExposurePlans = new List<IExposure>() { peRed, peGreen, peBlue };
 
             // All are now complete due to throttle
-            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, false, false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 15, 18, 0, 0), profile, prefs, weatherData, false, false).FilterForIncomplete(projects);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeTrue();
             projects[0].RejectedReason.Should().Be(Reasons.ProjectComplete);
@@ -162,6 +166,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testTargetNoExposurePlans() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
@@ -173,7 +178,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForIncomplete(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForIncomplete(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -197,13 +202,14 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Southern hemisphere location and IC1805
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.South_Mid_Lat);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("IC1805", TestData.IC1805);
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -220,6 +226,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForVisibilityNotNow() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
@@ -228,7 +235,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 6, 17, 18, 0, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 6, 17, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -245,6 +252,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForVisibilityVisible() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
@@ -254,7 +262,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
             DateTime atTime = new DateTime(2023, 12, 17, 19, 0, 0);
-            projects = new Planner(atTime, profile, GetPrefs(), false, false).FilterForVisibility(projects);
+            projects = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -274,6 +282,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForVisibilityInMeridianWindow() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp1.SetupProperty(m => m.MeridianWindow, 30);
@@ -283,7 +292,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 23, 36, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 23, 36, 0), profile, GetPrefs(), weatherData, false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -303,6 +312,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForVisibilityWaitForMeridianWindow() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp1.SetupProperty(m => m.MeridianWindow, 30);
@@ -312,7 +322,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 19, 0, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 19, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -328,6 +338,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForVisibilityMeridianWindowCircumpolar() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Sanikiluaq_NU);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp1.SetupProperty(m => m.MeridianWindow, 30);
@@ -337,7 +348,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 17, 20, 38, 0), profile, GetPrefs(), false, false).FilterForVisibility(projects);
+            projects = new Planner(new DateTime(2023, 12, 17, 20, 38, 0), profile, GetPrefs(), weatherData, false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -357,6 +368,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForMaxAltitude() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp1.SetupProperty(p => p.MaximumAltitude, 45);
@@ -367,7 +379,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
             DateTime atTime = new DateTime(2024, 12, 18, 1, 0, 0);
-            projects = new Planner(atTime, profile, GetPrefs(), false, false).FilterForVisibility(projects);
+            projects = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).FilterForVisibility(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -383,6 +395,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForMoonAvoidance() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
 
             Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
@@ -404,7 +417,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt);
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
 
-            projects = new Planner(new DateTime(2023, 12, 25, 18, 0, 0), profile, GetPrefs(), false, false).FilterForMoonAvoidance(projects);
+            projects = new Planner(new DateTime(2023, 12, 25, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForMoonAvoidance(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
 
@@ -427,9 +440,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForTwilightCivil() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 17, 0, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 17, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeTrue();
@@ -447,9 +461,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForTwilightNautical() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 18, 0, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 18, 0, 0), profile, GetPrefs(), weatherData, false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
@@ -466,9 +481,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForTwilightAstronomical() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 18, 20, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 18, 20, 0), profile, GetPrefs(), weatherData, false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
@@ -484,9 +500,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testFilterForTwilightNight() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             List<IProject> projects = GetProjectForFilterTest();
 
-            projects = new Planner(new DateTime(2024, 12, 1, 19, 20, 0), profile, GetPrefs(), false, false).FilterForTwilight(projects);
+            projects = new Planner(new DateTime(2024, 12, 1, 19, 20, 0), profile, GetPrefs(), weatherData, false, false).FilterForTwilight(projects);
             Assert.That(projects, Is.Not.Null);
             projects.Count.Should().Be(1);
             projects[0].Rejected.Should().BeFalse();
@@ -498,13 +515,225 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         }
 
         [Test]
+        public void testFilterForHumidity() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime atTime = new DateTime(2025, 1, 1, 18, 0, 0);
+
+            List<IProject> projects = new List<IProject>();
+            Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            Mock<ITarget> pt1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42);
+            pt1.SetupProperty(t => t.StartTime, atTime.AddHours(1));
+            Mock<IExposure> pf1 = PlanMocks.GetMockPlanExposure("R", 10, 0);
+            Mock<IExposure> pf2 = PlanMocks.GetMockPlanExposure("G", 10, 0);
+            Mock<IExposure> pf3 = PlanMocks.GetMockPlanExposure("B", 10, 0);
+
+            pf1.SetupProperty(m => m.MaximumHumidity, 60);
+            pf2.SetupProperty(m => m.MaximumHumidity, 70);
+            pf3.SetupProperty(m => m.MaximumHumidity, 80);
+
+            PlanMocks.AddMockPlanFilter(pt1, pf1);
+            PlanMocks.AddMockPlanFilter(pt1, pf2);
+            PlanMocks.AddMockPlanFilter(pt1, pf3);
+            PlanMocks.AddMockPlanTarget(pp1, pt1);
+            projects = PlanMocks.ProjectsList(pp1.Object);
+
+            // No weather data connected
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
+            var sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+            List<IProject> result = sut.FilterForHumidity(projects, weatherData);
+            result[0].Rejected.Should().BeFalse();
+            ITarget target = result[0].Targets[0];
+            target.Rejected.Should().BeFalse();
+            target.ExposurePlans[0].Rejected.Should().BeFalse();
+            target.ExposurePlans[1].Rejected.Should().BeFalse();
+            target.ExposurePlans[2].Rejected.Should().BeFalse();
+
+            // Weather data connected but humidity is low
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 10);
+            sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+            result = sut.FilterForHumidity(projects, weatherData);
+            result[0].Rejected.Should().BeFalse();
+            target = result[0].Targets[0];
+            target.Rejected.Should().BeFalse();
+            target.ExposurePlans[0].Rejected.Should().BeFalse();
+            target.ExposurePlans[1].Rejected.Should().BeFalse();
+            target.ExposurePlans[2].Rejected.Should().BeFalse();
+
+            // Should start to reject ...
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 65);
+            sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+            result = sut.FilterForHumidity(projects, weatherData);
+            result[0].Rejected.Should().BeFalse();
+            target = result[0].Targets[0];
+            target.Rejected.Should().BeFalse();
+            target.ExposurePlans[0].Rejected.Should().BeTrue();
+            target.ExposurePlans[0].RejectedReason.Should().Be(Reasons.FilterHumidity);
+            target.ExposurePlans[1].Rejected.Should().BeFalse();
+            target.ExposurePlans[2].Rejected.Should().BeFalse();
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 75);
+            sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+            result = sut.FilterForHumidity(projects, weatherData);
+            result[0].Rejected.Should().BeFalse();
+            target = result[0].Targets[0];
+            target.Rejected.Should().BeFalse();
+            target.ExposurePlans[0].Rejected.Should().BeTrue();
+            target.ExposurePlans[0].RejectedReason.Should().Be(Reasons.FilterHumidity);
+            target.ExposurePlans[1].Rejected.Should().BeTrue();
+            target.ExposurePlans[1].RejectedReason.Should().Be(Reasons.FilterHumidity);
+            target.ExposurePlans[2].Rejected.Should().BeFalse();
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 85);
+            sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+            result = sut.FilterForHumidity(projects, weatherData);
+            result[0].Rejected.Should().BeTrue();
+            target = result[0].Targets[0];
+            target.Rejected.Should().BeTrue();
+            target.RejectedReason.Should().Be(Reasons.TargetHumidity);
+            target.ExposurePlans[0].Rejected.Should().BeTrue();
+            target.ExposurePlans[0].RejectedReason.Should().Be(Reasons.FilterHumidity);
+            target.ExposurePlans[1].Rejected.Should().BeTrue();
+            target.ExposurePlans[1].RejectedReason.Should().Be(Reasons.FilterHumidity);
+            target.ExposurePlans[2].Rejected.Should().BeTrue();
+            target.ExposurePlans[2].RejectedReason.Should().Be(Reasons.FilterHumidity);
+        }
+
+        [Test]
+        public void testGetTargetExposureRejectReason() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime atTime = new DateTime(2025, 1, 1, 18, 0, 0);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
+            var sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+
+            Mock<ITarget> pt1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42);
+            Mock<IExposure> pf1 = PlanMocks.GetMockPlanExposure("R", 10, 0);
+            Mock<IExposure> pf2 = PlanMocks.GetMockPlanExposure("G", 10, 0);
+            Mock<IExposure> pf3 = PlanMocks.GetMockPlanExposure("B", 10, 0);
+            PlanMocks.AddMockPlanFilter(pt1, pf1);
+            PlanMocks.AddMockPlanFilter(pt1, pf2);
+            PlanMocks.AddMockPlanFilter(pt1, pf3);
+            ITarget target = pt1.Object;
+            IExposure ep1 = pf1.Object;
+            IExposure ep2 = pf2.Object;
+            IExposure ep3 = pf3.Object;
+            ep1.Rejected = true;
+            ep2.Rejected = true;
+            ep3.Rejected = true;
+
+            ep1.RejectedReason = Reasons.FilterComplete;
+            ep2.RejectedReason = Reasons.FilterComplete;
+            ep3.RejectedReason = Reasons.FilterComplete;
+            sut.GetTargetExposureRejectReason(target).Should().Be(Reasons.TargetComplete);
+
+            ep1.RejectedReason = Reasons.FilterTwilight;
+            ep2.RejectedReason = Reasons.FilterTwilight;
+            ep3.RejectedReason = Reasons.FilterTwilight;
+            sut.GetTargetExposureRejectReason(target).Should().Be(Reasons.TargetTwilight);
+
+            ep1.RejectedReason = Reasons.FilterMoonAvoidance;
+            ep2.RejectedReason = Reasons.FilterMoonAvoidance;
+            ep3.RejectedReason = Reasons.FilterMoonAvoidance;
+            sut.GetTargetExposureRejectReason(target).Should().Be(Reasons.TargetMoonAvoidance);
+
+            ep1.RejectedReason = Reasons.FilterHumidity;
+            ep2.RejectedReason = Reasons.FilterHumidity;
+            ep3.RejectedReason = Reasons.FilterHumidity;
+            sut.GetTargetExposureRejectReason(target).Should().Be(Reasons.TargetHumidity);
+
+            ep1.RejectedReason = Reasons.FilterHumidity;
+            ep2.RejectedReason = Reasons.FilterHumidity;
+            ep3.RejectedReason = Reasons.FilterComplete;
+            sut.GetTargetExposureRejectReason(target).Should().Be(Reasons.TargetAllExposurePlans);
+        }
+
+        [Test]
+        public void testAllRejectedForHumidity() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
+            DateTime atTime = new DateTime(2025, 1, 1, 18, 0, 0);
+            var sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+
+            List<IProject> projects = new List<IProject>();
+            Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            Mock<ITarget> pt1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42);
+            pt1.SetupProperty(t => t.StartTime, atTime.AddHours(1));
+            Mock<IExposure> pf1 = PlanMocks.GetMockPlanExposure("R", 10, 0);
+            Mock<IExposure> pf2 = PlanMocks.GetMockPlanExposure("G", 10, 0);
+            PlanMocks.AddMockPlanFilter(pt1, pf1);
+            PlanMocks.AddMockPlanFilter(pt1, pf2);
+            PlanMocks.AddMockPlanTarget(pp1, pt1);
+            projects = PlanMocks.ProjectsList(pp1.Object);
+
+            pf1.Object.Rejected = true;
+            pf1.Object.RejectedReason = Reasons.FilterHumidity;
+
+            projects = sut.PropagateRejections(projects);
+            sut.AllRejectedForHumidity(projects).Should().BeFalse();
+
+            pf2.Object.Rejected = true;
+            pf2.Object.RejectedReason = Reasons.FilterHumidity;
+            pt1.Object.Rejected = false;
+            projects = sut.PropagateRejections(projects);
+            sut.AllRejectedForHumidity(projects).Should().BeTrue();
+
+            pf1.Object.RejectedReason = Reasons.FilterMoonAvoidance;
+            pf2.Object.RejectedReason = Reasons.FilterMoonAvoidance;
+            pt1.Object.Rejected = false;
+            projects = sut.PropagateRejections(projects);
+            sut.AllRejectedForHumidity(projects).Should().BeFalse();
+        }
+
+        [Test]
+        public void testNextRejectedForHumidity() {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
+            DateTime atTime = new DateTime(2025, 1, 1, 18, 0, 0);
+            var sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, false);
+
+            List<IProject> projects = new List<IProject>();
+            Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            Mock<ITarget> mt1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42);
+            Mock<ITarget> mt2 = PlanMocks.GetMockPlanTarget("T2", TestData.M42);
+            Mock<ITarget> mt3 = PlanMocks.GetMockPlanTarget("T3", TestData.M42);
+
+            mt1.Object.StartTime = atTime.AddHours(2);
+            mt1.Object.Rejected = true;
+            mt1.Object.RejectedReason = Reasons.TargetHumidity;
+
+            mt2.Object.StartTime = atTime.AddHours(3);
+            mt2.Object.Rejected = true;
+            mt2.Object.RejectedReason = Reasons.TargetHumidity;
+
+            mt3.Object.StartTime = atTime.AddHours(1);
+            mt3.Object.Rejected = true;
+            mt3.Object.RejectedReason = Reasons.TargetHumidity;
+
+            PlanMocks.AddMockPlanTarget(pp1, mt1);
+            PlanMocks.AddMockPlanTarget(pp1, mt2);
+            PlanMocks.AddMockPlanTarget(pp1, mt3);
+            projects = PlanMocks.ProjectsList(pp1.Object);
+
+            ITarget t = sut.NextRejectedForHumidity(projects);
+            t.Should().BeNull(); // all in future
+
+            mt3.Object.StartTime = atTime;
+            t = sut.NextRejectedForHumidity(projects);
+            t.Name.Should().Be("T3");
+        }
+
+        [Test]
         public void testTargetsReadyNow() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             DateTime atTime = new DateTime(2023, 12, 25, 18, 0, 0);
 
             List<IProject> projects = new List<IProject>();
-            List<ITarget> targets = new Planner(atTime, profile, GetPrefs(), false, false).GetTargetsReadyNow(projects);
+            List<ITarget> targets = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).GetTargetsReadyNow(projects);
             targets.Count.Should().Be(0);
 
             // 2 targets in future
@@ -523,14 +752,14 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             projects = PlanMocks.ProjectsList(pp1.Object);
 
-            targets = new Planner(atTime, profile, GetPrefs(), false, false).GetTargetsReadyNow(projects);
+            targets = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).GetTargetsReadyNow(projects);
             targets.Count.Should().Be(0);
 
             // 2 targets ready now
             pt1.SetupProperty(t => t.StartTime, atTime.AddSeconds(10));
             pt2.SetupProperty(t => t.StartTime, atTime.AddSeconds(5));
 
-            targets = new Planner(atTime, profile, GetPrefs(), false, false).GetTargetsReadyNow(projects);
+            targets = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).GetTargetsReadyNow(projects);
             targets.Count.Should().Be(2);
         }
 
@@ -538,20 +767,21 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testSelectTargetByScore() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             DateTime atTime = new DateTime(2024, 12, 1, 20, 0, 0);
 
             List<ITarget> readyTargets = new List<ITarget>();
-            Action score = () => new Planner(atTime, profile, GetPrefs(), false, false).SelectTargetByScore(readyTargets, null);
+            Action score = () => new Planner(atTime, profile, GetPrefs(), weatherData, false, false).SelectTargetByScore(readyTargets, null);
             score.Should().Throw<ArgumentException>().WithMessage("no ready targets in SelectTargetByScore");
 
             ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M31).Object;
             readyTargets.Add(t1);
-            ITarget selected = new Planner(atTime, profile, GetPrefs(), false, false).SelectTargetByScore(readyTargets, null);
+            ITarget selected = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).SelectTargetByScore(readyTargets, null);
             (t1 == selected).Should().BeTrue();
 
             ITarget t2 = PlanMocks.GetMockPlanTarget("T2", TestData.M31).Object;
             readyTargets.Add(t2);
-            selected = new Planner(atTime, profile, GetPrefs(), false, false).SelectTargetByScore(readyTargets, GetTestScoringEngine());
+            selected = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).SelectTargetByScore(readyTargets, GetTestScoringEngine());
 
             (t2 == selected).Should().BeTrue();
             t1.Rejected.Should().BeTrue();
@@ -563,6 +793,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testGetNextPossibleTarget() {
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             DateTime atTime = new DateTime(2023, 12, 25, 18, 0, 0);
 
             // 2 targets in future
@@ -580,7 +811,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PlanMocks.AddMockPlanTarget(pp1, pt2);
 
             List<IProject> projects = PlanMocks.ProjectsList(pp1.Object);
-            ITarget target = new Planner(atTime, profile, GetPrefs(), false, false).GetNextPossibleTarget(projects);
+            ITarget target = new Planner(atTime, profile, GetPrefs(), weatherData, false, false).GetNextPossibleTarget(projects);
             target.Should().Be(pt1.Object);
             target.StartTime.Should().Be(atTime.AddHours(1));
         }

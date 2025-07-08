@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NINA.Core.Enum;
 using NINA.Core.Model;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Flats;
 using NINA.Plugin.TargetScheduler.Planning;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
@@ -25,8 +26,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private const string FLATS_NEEDED = "While Flats Needed";
 
         [ImportingConstructor]
-        public TargetSchedulerCondition(IProfileService profileService) {
+        public TargetSchedulerCondition(IProfileService profileService, IWeatherDataMediator weatherDataMediator) {
             this.profileService = profileService;
+            this.weatherDataMediator = weatherDataMediator;
 
             Modes = new List<string>() { TARGETS_REMAIN, ACTIVE_PROJECTS_REMAIN, FLATS_NEEDED };
             SelectedMode = TARGETS_REMAIN;
@@ -44,12 +46,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             }
         }
 
-        private TargetSchedulerCondition(TargetSchedulerCondition cloneMe, IProfileService profileService) : this(profileService) {
+        private TargetSchedulerCondition(TargetSchedulerCondition cloneMe, IProfileService profileService, IWeatherDataMediator weatherDataMediator)
+            : this(profileService, weatherDataMediator) {
             CopyMetaData(cloneMe);
         }
 
         public override object Clone() {
-            return new TargetSchedulerCondition(this, profileService) {
+            return new TargetSchedulerCondition(this, profileService, weatherDataMediator) {
                 SelectedMode = this.SelectedMode
             };
         }
@@ -137,7 +140,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private bool HasRemainingTargets() {
             try {
-                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), true, false);
+                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), weatherDataMediator, true, false);
                 bool result = planner.GetPlan(null) != null;
                 TSLogger.Info($"TargetSchedulerCondition check for remaining targets, continue={result}");
                 return result;
@@ -149,7 +152,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private bool HasActiveProjects() {
             try {
-                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), true, false);
+                Planner planner = new Planner(DateTime.Now, GetApplicableProfile(), GetProfilePreferences(), weatherDataMediator, true, false);
                 bool result = planner.HasActiveProjects(null);
                 TSLogger.Info($"TargetSchedulerCondition check for active projects, continue={result}");
                 return result;

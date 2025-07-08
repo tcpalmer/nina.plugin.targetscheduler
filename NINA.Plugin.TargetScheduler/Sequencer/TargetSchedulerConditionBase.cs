@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.TargetScheduler.Controls.Util;
+﻿using NINA.Equipment.Interfaces.Mediator;
+using NINA.Plugin.TargetScheduler.Controls.Util;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
@@ -13,6 +14,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
     public abstract class TargetSchedulerConditionBase : SequenceCondition {
         protected IProfileService profileService;
+        protected IWeatherDataMediator weatherDataMediator;
 
         protected IProfile GetApplicableProfile() {
             if (!SyncManager.Instance.RunningClient) {

@@ -1,4 +1,5 @@
 ﻿using NINA.Astrometry;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
@@ -199,6 +200,38 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         }
 
         /// <summary>
+        /// Reject target exposures that are not suitable for the current level of humidity.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="weatherDataMediator"></param>
+        public void HumidityFilter(ITarget target, IWeatherDataMediator weatherDataMediator) {
+            if (target.Rejected) { return; }
+
+            double currentHumidity = double.MinValue;
+            foreach (IExposure exposure in target.ExposurePlans) {
+                if (!exposure.Rejected && exposure.IsIncomplete() && exposure.MaximumHumidity > 0) {
+                    currentHumidity = GetHumidity(currentHumidity, weatherDataMediator);
+                    if (currentHumidity != double.MinValue && currentHumidity > 0 && currentHumidity > exposure.MaximumHumidity) {
+                        SetRejected(exposure, Reasons.FilterHumidity);
+                    }
+                }
+            }
+        }
+
+        private double GetHumidity(double currentHumidity, IWeatherDataMediator weatherDataMediator) {
+            if (currentHumidity != double.MinValue) { return currentHumidity; }
+
+            if (!weatherDataMediator.GetInfo().Connected) {
+                TSLogger.Warning("exposure specifies a maximum humidity but no weather device is connected");
+                return double.MinValue;
+            }
+
+            double humidity = weatherDataMediator.GetInfo().Humidity;
+            TSLogger.Debug($"current humidity for exposure check: {Utils.FormatDbl(humidity, "{0:0.##}")}");
+            return humidity;
+        }
+
+        /// <summary>
         /// Reject target exposures that are not suitable based on moon avoidance settings.
         /// </summary>
         /// <param name="atTime"></param>
@@ -223,8 +256,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// <param name="atTime"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public bool ReadyNow(DateTime atTime, ITarget target) {
-            if (target.Rejected) { return false; }
+        public bool ReadyNow(DateTime atTime, ITarget target, bool rejectRejected = true) {
+            if (rejectRejected && target.Rejected) { return false; }
 
             TimeSpan diff = atTime - target.StartTime;
             return Math.Abs(diff.TotalSeconds) <= targetVisibilitySampleInterval * 2;

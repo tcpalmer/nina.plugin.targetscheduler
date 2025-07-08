@@ -61,6 +61,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private readonly IRotatorMediator rotatorMediator;
         private readonly IGuiderMediator guiderMediator;
         private readonly ICameraMediator cameraMediator;
+        private readonly IWeatherDataMediator weatherDataMediator;
         private readonly IImagingMediator imagingMediator;
         private readonly IImageSaveMediator imageSaveMediator;
         private readonly IImageHistoryVM imageHistoryVM;
@@ -105,6 +106,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 IRotatorMediator rotatorMediator,
                 IGuiderMediator guiderMediator,
                 ICameraMediator cameraMediator,
+                IWeatherDataMediator weatherDataMediator,
                 IImagingMediator imagingMediator,
                 IImageSaveMediator imageSaveMediator,
                 IImageHistoryVM imageHistoryVM,
@@ -123,6 +125,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             this.rotatorMediator = rotatorMediator;
             this.guiderMediator = guiderMediator;
             this.cameraMediator = cameraMediator;
+            this.weatherDataMediator = weatherDataMediator;
             this.imagingMediator = imagingMediator;
             this.imageSaveMediator = imageSaveMediator;
             this.imageHistoryVM = imageHistoryVM;
@@ -282,7 +285,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
                 atTime = GetPlannerTime(DateTime.Now, atTime);
                 profilePreferences = GetProfilePreferences();
-                SchedulerPlan plan = new Planner(atTime, profileService.ActiveProfile, profilePreferences, false, false).GetPlan(previousPlanTarget);
+                SchedulerPlan plan = new Planner(atTime, profileService.ActiveProfile, profilePreferences, weatherDataMediator, false, false).GetPlan(previousPlanTarget);
                 SetSyncServerState(ServerState.Ready);
 
                 if (plan == null) {
@@ -786,6 +789,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 cloneMe.rotatorMediator,
                 cloneMe.guiderMediator,
                 cloneMe.cameraMediator,
+                cloneMe.weatherDataMediator,
                 cloneMe.imagingMediator,
                 cloneMe.imageSaveMediator,
                 cloneMe.imageHistoryVM,
@@ -810,6 +814,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 rotatorMediator,
                 guiderMediator,
                 cameraMediator,
+                weatherDataMediator,
                 imagingMediator,
                 imageSaveMediator,
                 imageHistoryVM,

@@ -1,10 +1,15 @@
-﻿using NINA.Plugin.TargetScheduler.Database.Schema;
+﻿using NINA.Equipment.Equipment.MyWeatherData;
+using NINA.Equipment.Interfaces;
+using NINA.Equipment.Interfaces.Mediator;
+using NINA.Equipment.Interfaces.ViewModel;
+using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NINA.Plugin.TargetScheduler.Planning {
 
@@ -30,12 +35,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             DitherManagerCache.Clear();
             List<SchedulerPlan> plans = new List<SchedulerPlan>();
+            IWeatherDataMediator weatherData = new DisconnectedWeatherDataMediator();
             DateTime currentTime = atTime;
             previousTarget = null;
 
             try {
                 SchedulerPlan plan;
-                while ((plan = new Planner(currentTime, profileService.ActiveProfile, profilePreferences, false, true, projects).GetPlan(previousTarget)) != null) {
+                while ((plan = new Planner(currentTime, profileService.ActiveProfile, profilePreferences, weatherData, false, true, projects).GetPlan(previousTarget)) != null) {
                     plans.Add(plan);
                     currentTime = plan.IsWait ? (DateTime)plan.WaitForNextTargetTime : plan.EndTime;
                     PrepForNextRun(projects, plan);
@@ -83,6 +89,72 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                     }
                 }
             }
+        }
+    }
+
+    internal class DisconnectedWeatherDataMediator : IWeatherDataMediator {
+
+        public event Func<object, EventArgs, Task> Connected;
+
+        public event Func<object, EventArgs, Task> Disconnected;
+
+        private WeatherDataInfo weatherData;
+
+        public DisconnectedWeatherDataMediator() {
+            weatherData = new();
+            weatherData.Connected = false;
+        }
+
+        public string Action(string actionName, string actionParameters) {
+            throw new NotImplementedException();
+        }
+
+        public void Broadcast(WeatherDataInfo deviceInfo) {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> Connect() {
+            throw new NotImplementedException();
+        }
+
+        public Task Disconnect() {
+            throw new NotImplementedException();
+        }
+
+        public IDevice GetDevice() {
+            throw new NotImplementedException();
+        }
+
+        public WeatherDataInfo GetInfo() {
+            return weatherData;
+        }
+
+        public void RegisterConsumer(IWeatherDataConsumer consumer) {
+            throw new NotImplementedException();
+        }
+
+        public void RegisterHandler(IWeatherDataVM handler) {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveConsumer(IWeatherDataConsumer consumer) {
+            throw new NotImplementedException();
+        }
+
+        public Task<IList<string>> Rescan() {
+            throw new NotImplementedException();
+        }
+
+        public void SendCommandBlind(string command, bool raw = true) {
+            throw new NotImplementedException();
+        }
+
+        public bool SendCommandBool(string command, bool raw = true) {
+            throw new NotImplementedException();
+        }
+
+        public string SendCommandString(string command, bool raw = true) {
+            throw new NotImplementedException();
         }
     }
 }
