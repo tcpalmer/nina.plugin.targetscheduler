@@ -16,6 +16,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Interfaces {
         ITarget PlanTarget { get; set; }
 
         TwilightLevel TwilightLevel { get; set; }
+        public int MinutesOffset { get; set; }
         public int DitherEvery { get; set; }
         bool MoonAvoidanceEnabled { get; set; }
         double MoonAvoidanceSeparation { get; set; }

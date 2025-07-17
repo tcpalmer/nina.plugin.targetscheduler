@@ -22,6 +22,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public ITarget PlanTarget { get; set; }
 
         public TwilightLevel TwilightLevel { get; set; }
+        public int MinutesOffset { get; set; }
         public int DitherEvery { get; set; }
 
         public bool MoonAvoidanceEnabled { get; set; }
@@ -55,6 +56,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             this.PlanTarget = planTarget;
 
             this.TwilightLevel = exposureTemplate.TwilightLevel;
+            this.MinutesOffset = exposureTemplate.MinutesOffset;
             this.DitherEvery = exposureTemplate.DitherEvery;
 
             this.MoonAvoidanceEnabled = exposureTemplate.MoonAvoidanceEnabled;

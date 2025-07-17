@@ -209,7 +209,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 if (project.Rejected) { continue; }
 
                 foreach (ITarget target in project.Targets) {
-                    targetExpert.TwilightFilter(target, currentTwilightLevel);
+                    targetExpert.TwilightFilter(target, atTime, twilightCircumstances, currentTwilightLevel);
                 }
             }
 

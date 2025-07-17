@@ -245,35 +245,35 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
-            sut.TwilightFilter(t1, TwilightLevel.Astronomical);
+            sut.TwilightFilter(t1, atTime, TwilightLevel.Astronomical);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be(Reasons.FilterTwilight);
             sut.ClearRejections(t1);
 
-            sut.TwilightFilter(t1, TwilightLevel.Nighttime);
+            sut.TwilightFilter(t1, atTime, TwilightLevel.Nighttime);
             e1.Rejected.Should().BeFalse();
             sut.ClearRejections(t1);
 
             e1.Rejected = true;
             e1.RejectedReason = "other";
-            sut.TwilightFilter(t1, TwilightLevel.Nighttime);
+            sut.TwilightFilter(t1, atTime, TwilightLevel.Nighttime);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be("other");
             sut.ClearRejections(t1);
 
-            sut.TwilightFilter(t1, null);
+            sut.TwilightFilter(t1, atTime, null);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be(Reasons.FilterTwilight);
             sut.ClearRejections(t1);
 
             e1.TwilightLevel = TwilightLevel.Nautical;
-            sut.TwilightFilter(t1, TwilightLevel.Nautical);
+            sut.TwilightFilter(t1, atTime, TwilightLevel.Nautical);
             e1.Rejected.Should().BeFalse();
-            sut.TwilightFilter(t1, TwilightLevel.Astronomical);
+            sut.TwilightFilter(t1, atTime, TwilightLevel.Astronomical);
             e1.Rejected.Should().BeFalse();
-            sut.TwilightFilter(t1, TwilightLevel.Nighttime);
+            sut.TwilightFilter(t1, atTime, TwilightLevel.Nighttime);
             e1.Rejected.Should().BeFalse();
-            sut.TwilightFilter(t1, TwilightLevel.Civil);
+            sut.TwilightFilter(t1, atTime, TwilightLevel.Civil);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be(Reasons.FilterTwilight);
         }

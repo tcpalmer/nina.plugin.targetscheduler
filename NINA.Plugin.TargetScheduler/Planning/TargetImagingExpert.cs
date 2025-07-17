@@ -184,14 +184,27 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// </summary>
         /// <param name="target"></param>
         /// <param name="currentTwilightLevel"></param>
-        public void TwilightFilter(ITarget target, TwilightLevel? currentTwilightLevel) {
+        public void TwilightFilter(ITarget target, DateTime atTime, TwilightCircumstances twilightCircumstances, TwilightLevel? currentTwilightLevel) {
             if (target.Rejected) { return; }
 
             foreach (IExposure exposure in target.ExposurePlans) {
                 if (!exposure.Rejected && exposure.IsIncomplete()) {
                     if (currentTwilightLevel.HasValue) {
-                        if (currentTwilightLevel > exposure.TwilightLevel)
+                        int offset = exposure.MinutesOffset;
+
+                        if (offset == 0 && currentTwilightLevel > exposure.TwilightLevel) {
                             SetRejected(exposure, Reasons.FilterTwilight);
+                        }
+
+                        // TODO!
+                        throw new NotImplementedException();
+                        // WAIT WHAT: not comparing to the exposure's level ??
+                        // Since the levels span all darker levels ... currentTwilightLevel <= exposure.TwilightLevel ??? No!
+                        // because we could be in nautical and accepted level is astro but offset extends into nautical
+                        /*
+                        if (offset > 0 && !twilightCircumstances.CheckTwilightWithOffset(atTime, currentTwilightLevel, offset))
+                            SetRejected(exposure, Reasons.FilterTwilight);
+                        */
                     } else {
                         SetRejected(exposure, Reasons.FilterTwilight);
                     }
@@ -291,7 +304,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 }
 
                 if (!target.Rejected) {
-                    TwilightFilter(target, twilightCircumstances.GetCurrentTwilightLevel(atTime));
+                    TwilightFilter(target, atTime, twilightCircumstances, twilightCircumstances.GetCurrentTwilightLevel(atTime));
                     if (AllExposurePlansRejected(target)) {
                         SetRejected(target, Reasons.FilterTwilight);
                     }

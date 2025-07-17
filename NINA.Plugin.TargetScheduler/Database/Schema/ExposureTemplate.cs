@@ -28,6 +28,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int readoutMode { get; set; }
 
         public int twilightlevel_col { get; set; }
+        public int minutesOffset { get; set; }
 
         public bool moonAvoidanceEnabled { get; set; }
         public double moonAvoidanceSeparation { get; set; }
@@ -129,6 +130,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             set {
                 twilightlevel_col = (int)value;
                 RaisePropertyChanged(nameof(TwilightLevel));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public int MinutesOffset {
+            get { return minutesOffset; }
+            set {
+                minutesOffset = value;
+                RaisePropertyChanged(nameof(MinutesOffset));
             }
         }
 
@@ -237,6 +248,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             ReadoutMode = -1;
 
             TwilightLevel = TwilightLevel.Nighttime;
+            MinutesOffset = 0;
 
             MoonAvoidanceEnabled = false;
             MoonAvoidanceSeparation = 60;
@@ -274,6 +286,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             copy.BinningMode = BinningMode;
             copy.ReadoutMode = ReadoutMode;
             copy.TwilightLevel = TwilightLevel;
+            copy.MinutesOffset = MinutesOffset;
             copy.MoonAvoidanceEnabled = MoonAvoidanceEnabled;
             copy.MoonAvoidanceSeparation = MoonAvoidanceSeparation;
             copy.MoonAvoidanceWidth = MoonAvoidanceWidth;
@@ -297,6 +310,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             sb.AppendLine($"BinningMode: {BinningMode}");
             sb.AppendLine($"ReadoutMode: {ReadoutMode}");
             sb.AppendLine($"TwilightLevel: {TwilightLevel}");
+            sb.AppendLine($"MinutesOffset: {MinutesOffset}");
             sb.AppendLine($"MoonAvoidanceEnabled: {MoonAvoidanceEnabled}");
             sb.AppendLine($"MoonAvoidanceSeparation: {MoonAvoidanceSeparation}");
             sb.AppendLine($"MoonAvoidanceWidth: {MoonAvoidanceWidth}");

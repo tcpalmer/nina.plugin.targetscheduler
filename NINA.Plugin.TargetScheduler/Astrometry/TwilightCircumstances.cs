@@ -106,6 +106,15 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             return null;
         }
 
+        public bool CheckTwilightWithOffset(DateTime atTime, TwilightLevel? currentTwilightLevel, int offset) {
+            if (currentTwilightLevel.HasValue) {
+                TimeInterval span = GetTwilightSpan((TwilightLevel)currentTwilightLevel);
+                return atTime >= span.StartTime.AddMinutes(offset) && atTime <= span.EndTime.AddMinutes(-offset);
+            }
+
+            throw new ArgumentException("current twilight level cannot be null for offsetting");
+        }
+
         public static TwilightCircumstances AdjustTwilightCircumstances(ObserverInfo observerInfo, DateTime atTime) {
             TwilightCircumstances twilightCircumstances = new TwilightCircumstances(observerInfo, atTime);
             DateTime? CivilTwilightStart = twilightCircumstances.CivilTwilightStart;

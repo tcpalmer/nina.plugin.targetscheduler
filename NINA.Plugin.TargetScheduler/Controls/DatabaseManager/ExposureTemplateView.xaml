@@ -38,12 +38,12 @@
         </StackPanel>
 
         <UniformGrid Width="280"
-                     Height="220"
+                     Height="242"
                      Margin="12,0,0,6"
                      HorizontalAlignment="Left"
                      VerticalAlignment="Top"
                      Columns="2"
-                     Rows="10">
+                     Rows="11">
 
             <TextBlock VerticalAlignment="Center"
                        FontWeight="Bold"
@@ -186,6 +186,34 @@
                        Margin="3,3,0,0"
                        Text="{Binding ExposureTemplateProxy.ExposureTemplate.TwilightLevel}"
                        Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+            <TextBlock VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       Text="Twilight Offset"
+                       ToolTip="Twilight time offset in minutes (plus or minus)" />
+            <TextBox MaxHeight="20"
+                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                <TextBox.Text>
+                    <Binding Path="ExposureTemplateProxy.ExposureTemplate.MinutesOffset"
+                             UpdateSourceTrigger="LostFocus">
+                        <Binding.ValidationRules>
+                            <rules:IntRangeRule>
+                                <rules:IntRangeRule.ValidRange>
+                                    <rules:IntRangeChecker Maximum="999"
+                                                           Minimum="-999" />
+                                </rules:IntRangeRule.ValidRange>
+                            </rules:IntRangeRule>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <StackPanel Margin="3,3,0,0"
+                        Orientation="Horizontal">
+                <TextBlock MaxHeight="20"
+                           Text="{Binding ExposureTemplateProxy.ExposureTemplate.MinutesOffset}"
+                           Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                <TextBlock Text=" m" />
+            </StackPanel>
 
             <TextBlock VerticalAlignment="Center"
                        FontWeight="Bold"
