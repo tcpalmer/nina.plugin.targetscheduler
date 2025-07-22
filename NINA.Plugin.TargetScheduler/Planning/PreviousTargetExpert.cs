@@ -49,7 +49,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Recheck exposure completion
             if (previousTarget.ExposurePlans.Count == 0) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all exposure plans complete");
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: all exposure plans complete");
                 return false;
             }
 
@@ -58,7 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             targetExpert.MoonAvoidanceFilter(atTime, previousTarget, new MoonAvoidanceExpert(observerInfo));
             bool allRejected = previousTarget.ExposurePlans.All(ep => ep.Rejected);
             if (allRejected) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all remaining exposure plans now rejected for moon avoidance");
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: all remaining exposure plans now rejected for moon avoidance");
                 return false;
             }
 
@@ -66,7 +66,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             targetExpert.HumidityFilter(previousTarget, weatherDataMediator);
             allRejected = previousTarget.ExposurePlans.All(ep => ep.Rejected);
             if (allRejected) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: all remaining exposure plans now rejected for humidity");
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: all remaining exposure plans now rejected for humidity");
                 return false;
             }
 
@@ -88,15 +88,18 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // a brighter level of twilight but once those are complete, we're only left with exposures
             // that are not suitable now.  If so, we bail out but note that this might mean we've started
             // imaging on a target but won't run for the minimum time.
-            TwilightLevel? twilightLevel = GetTwilightLevel(atTime);
-            if (!twilightLevel.HasValue || (twilightLevel.HasValue && twilightLevel > nextExposure.TwilightLevel)) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: next exposure ({nextExposure.FilterName}) not suitable for current twilight level ({twilightLevel})");
+
+            TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observerInfo, atTime);
+            TwilightLevel? twilightLevel = twilightCircumstances.GetCurrentTwilightLevel(atTime);
+            targetExpert.ExposureTwilightFilter(nextExposure, atTime, twilightCircumstances, (TwilightLevel)twilightLevel);
+            if (nextExposure.Rejected) {
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: next exposure ({nextExposure.FilterName}) not suitable for current twilight level ({twilightLevel})");
                 return false;
             }
 
             // Be sure that the next exposure can fit in the remaining permitted time span
             if (atTime.AddSeconds(nextExposure.ExposureLength) > previousTarget.BonusTimeSpanEnd) {
-                TSLogger.Info($"not continuing previous target {previousTarget.Name}: minimum/allowed time window exceeded ({previousTarget.BonusTimeSpanEnd})");
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: minimum/allowed time window exceeded ({previousTarget.BonusTimeSpanEnd})");
                 return false;
             }
 
@@ -159,11 +162,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private void SetRejected(IExposure exposure, string reason) {
             exposure.Rejected = true;
             exposure.RejectedReason = reason;
-        }
-
-        private TwilightLevel? GetTwilightLevel(DateTime atTime) {
-            TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observerInfo, atTime);
-            return twilightCircumstances.GetCurrentTwilightLevel(atTime);
         }
     }
 }

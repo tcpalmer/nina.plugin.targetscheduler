@@ -66,7 +66,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
 
             // Get the most inclusive twilight over all incomplete exposure plans
-            TimeInterval twilightSpan = twilightCircumstances.GetTwilightSpan(GetOverallTwilight(target));
+            TimeInterval twilightSpan = GetTwilightSpan(twilightCircumstances, target);
 
             // At high latitudes near the summer solsice, you can lose nighttime completely (even below the polar circle)
             if (twilightSpan == null) {
@@ -162,6 +162,33 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         }
 
         /// <summary>
+        /// Return the span of time for the exposure with the most 'permissive' (brightest) twilight, taking
+        /// into account an optional twilight offset.
+        /// </summary>
+        /// <param name="twilightCircumstances"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public TimeInterval GetTwilightSpan(TwilightCircumstances twilightCircumstances, ITarget target) {
+            DateTime start = DateTime.MaxValue;
+            DateTime end = DateTime.MinValue;
+
+            foreach (IExposure exposure in target.ExposurePlans) {
+                if (!exposure.Rejected && exposure.IsIncomplete()) {
+                    TimeInterval span = twilightCircumstances.GetTwilightSpan(exposure.TwilightLevel);
+                    if (span != null) {
+                        DateTime d = span.StartTime.AddMinutes(exposure.MinutesOffset);
+                        if (start > d) start = d;
+                        d = span.EndTime.AddMinutes(-1 * exposure.MinutesOffset);
+                        if (end < d) end = d;
+                    }
+                }
+            }
+
+            return (start == DateTime.MaxValue || end == DateTime.MinValue) ? null : new TimeInterval(start, end);
+        }
+
+        /// <summary>
         /// Reject targets that are currently above the project's max altitude setting.
         /// </summary>
         /// <param name="atTime"></param>
@@ -190,25 +217,23 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             foreach (IExposure exposure in target.ExposurePlans) {
                 if (!exposure.Rejected && exposure.IsIncomplete()) {
                     if (currentTwilightLevel.HasValue) {
-                        int offset = exposure.MinutesOffset;
-
-                        if (offset == 0 && currentTwilightLevel > exposure.TwilightLevel) {
-                            SetRejected(exposure, Reasons.FilterTwilight);
-                        }
-
-                        // TODO!
-                        throw new NotImplementedException();
-                        // WAIT WHAT: not comparing to the exposure's level ??
-                        // Since the levels span all darker levels ... currentTwilightLevel <= exposure.TwilightLevel ??? No!
-                        // because we could be in nautical and accepted level is astro but offset extends into nautical
-                        /*
-                        if (offset > 0 && !twilightCircumstances.CheckTwilightWithOffset(atTime, currentTwilightLevel, offset))
-                            SetRejected(exposure, Reasons.FilterTwilight);
-                        */
+                        ExposureTwilightFilter(exposure, atTime, twilightCircumstances, (TwilightLevel)currentTwilightLevel);
                     } else {
                         SetRejected(exposure, Reasons.FilterTwilight);
                     }
                 }
+            }
+        }
+
+        public void ExposureTwilightFilter(IExposure exposure, DateTime atTime, TwilightCircumstances twilightCircumstances, TwilightLevel currentTwilightLevel) {
+            int offset = exposure.MinutesOffset;
+
+            if (offset == 0 && currentTwilightLevel > exposure.TwilightLevel) {
+                SetRejected(exposure, Reasons.FilterTwilight);
+            }
+
+            if (offset > 0 && !twilightCircumstances.CheckTwilightWithOffset(atTime, exposure.TwilightLevel, offset)) {
+                SetRejected(exposure, Reasons.FilterTwilight);
             }
         }
 
@@ -351,18 +376,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             target.Rejected = false;
             target.RejectedReason = null;
             target.ExposurePlans.ForEach(e => { e.Rejected = false; e.RejectedReason = null; });
-        }
-
-        private TwilightLevel GetOverallTwilight(ITarget target) {
-            TwilightLevel twilightLevel = TwilightLevel.Nighttime;
-            foreach (IExposure exposure in target.ExposurePlans) {
-                // find most permissive (brightest) twilight over all incomplete plans
-                if (exposure.TwilightLevel > twilightLevel && exposure.IsIncomplete()) {
-                    twilightLevel = exposure.TwilightLevel;
-                }
-            }
-
-            return twilightLevel;
         }
 
         private void SetRejected(ITarget target, string reason) {

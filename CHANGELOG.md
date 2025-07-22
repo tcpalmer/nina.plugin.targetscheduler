@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.8.0.0 - 2025-07-XX
+## 5.8.0.0 (beta) - 2025-07-XX
 * Added support for exposure rejection for humidity.
 * Added support for an offset in minutes from twilight acceptable times.
 * EP DISABLE?

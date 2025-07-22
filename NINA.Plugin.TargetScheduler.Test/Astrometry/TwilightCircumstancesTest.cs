@@ -159,6 +159,17 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
             var sut = new TwilightCircumstances(TestData.North_Mid_Lat, dateTime);
 
+            /*
+Civil start:        7/9/2025 8:32:20 PM
+Nautical start:     7/9/2025 9:03:13 PM
+Astronomical start: 7/9/2025 9:39:27 PM
+Night start:        7/9/2025 10:18:30 PM
+Night end:          7/10/2025 4:23:55 AM
+Astronomical end:   7/10/2025 5:03:45 AM
+Nautical end:       7/10/2025 5:39:58 AM
+Civil end:          7/10/2025 6:10:26 AM
+             */
+
             DateTime now = new DateTime(2025, 7, 9, 22, 0, 0);
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nighttime, -10).Should().BeFalse(); // at 10:00
             sut.CheckTwilightWithOffset(now.AddMinutes(10), TwilightLevel.Nighttime, -10).Should().BeTrue(); // at 10:10

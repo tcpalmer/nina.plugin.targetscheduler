@@ -315,6 +315,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             sut.CanContinue(atTime, weatherData, target).Should().BeFalse();
 
             // Advance time to nighttime -> Lum now OK
+            LumExpMock.Object.Rejected = false;
+            LumExpMock.Object.RejectedReason = null;
             sut.CanContinue(atTime.AddMinutes(20), weatherData, target).Should().BeTrue();
             target.SelectedExposure.FilterName.Should().Be("Lum");
         }

@@ -96,6 +96,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pe.SetupProperty(m => m.Acquired, 0);
             pe.SetupProperty(m => m.Accepted, accepted);
             pe.SetupProperty(m => m.DitherEvery, -1);
+            pe.SetupProperty(m => m.Offset, 0);
             pe.SetupProperty(m => m.MoonRelaxScale, 0);
             pe.SetupProperty(m => m.MaximumHumidity, 0);
 

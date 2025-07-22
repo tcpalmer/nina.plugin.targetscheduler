@@ -160,7 +160,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         /// <summary>
         /// Return the target altitude at the provided time.  The altitude is based on the samples so approximate.
         ///
-        /// If imaging isn't possible at all or the time falls outside that sampled timespan, DateTime.MinValue is
+        /// If imaging isn't possible at all or the time falls outside that sampled timespan, double.MinValue is
         /// returned.
         /// </summary>
         /// <param name="atTime"></param>

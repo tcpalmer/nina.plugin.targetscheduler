@@ -106,9 +106,9 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             return null;
         }
 
-        public bool CheckTwilightWithOffset(DateTime atTime, TwilightLevel? currentTwilightLevel, int offset) {
-            if (currentTwilightLevel.HasValue) {
-                TimeInterval span = GetTwilightSpan((TwilightLevel)currentTwilightLevel);
+        public bool CheckTwilightWithOffset(DateTime atTime, TwilightLevel? acceptableTwilightLevel, int offset) {
+            if (acceptableTwilightLevel.HasValue) {
+                TimeInterval span = GetTwilightSpan((TwilightLevel)acceptableTwilightLevel);
                 return atTime >= span.StartTime.AddMinutes(offset) && atTime <= span.EndTime.AddMinutes(-offset);
             }
 
