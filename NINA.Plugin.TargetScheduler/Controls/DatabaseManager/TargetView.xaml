@@ -1,100 +1,91 @@
-﻿<UserControl
-    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.TargetView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:astro="clr-namespace:NINA.Astrometry;assembly=NINA.Astrometry"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ninactrl="clr-namespace:NINA.CustomControlLibrary;assembly=NINA.CustomControlLibrary"
-    xmlns:nrules="clr-namespace:NINA.Core.Utility.ValidationRules;assembly=NINA.Core"
-    xmlns:rules="clr-namespace:NINA.Plugin.TargetScheduler.Controls.ValidationRules"
-    xmlns:uc="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
-    xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
-    d:DesignHeight="500"
-    d:DesignWidth="800"
-    mc:Ignorable="d">
+﻿<UserControl x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.TargetView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:astro="clr-namespace:NINA.Astrometry;assembly=NINA.Astrometry"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ninactrl="clr-namespace:NINA.CustomControlLibrary;assembly=NINA.CustomControlLibrary"
+             xmlns:nrules="clr-namespace:NINA.Core.Utility.ValidationRules;assembly=NINA.Core"
+             xmlns:rules="clr-namespace:NINA.Plugin.TargetScheduler.Controls.ValidationRules"
+             xmlns:uc="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
+             xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
+             d:DesignHeight="500"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary Source="../Resources/Resources.xaml" />
     </UserControl.Resources>
 
-    <StackPanel
-        Name="TargetViewPanel"
-        Width="700"
-        Margin="20,10,0,0"
-        Orientation="Vertical">
+    <StackPanel Name="TargetViewPanel"
+                Width="700"
+                Margin="20,10,0,0"
+                Orientation="Vertical">
         <StackPanel Orientation="Horizontal">
-            <Label
-                Margin="0,0,0,6"
-                VerticalAlignment="Center"
-                Content="Target:"
-                FontSize="18"
-                FontWeight="Bold" />
-            <Label
-                Margin="0,0,0,6"
-                VerticalAlignment="Center"
-                Content="{Binding TargetProxy.Target.Name}"
-                FontSize="18" />
-            <Path
-                Width="15"
-                Height="15"
-                Margin="6,0,3,6"
-                VerticalAlignment="Center"
-                Data="{Binding TargetActive, Converter={StaticResource StatusConverter}}"
-                Fill="{Binding TargetActive, Converter={StaticResource StatusMarkColorConverter}}"
-                Stretch="Uniform"
-                ToolTip="Target active for planner?" />
+            <Label Margin="0,0,0,6"
+                   VerticalAlignment="Center"
+                   Content="Target:"
+                   FontSize="18"
+                   FontWeight="Bold" />
+            <Label Margin="0,0,0,6"
+                   VerticalAlignment="Center"
+                   Content="{Binding TargetProxy.Target.Name}"
+                   FontSize="18" />
+            <Path Width="15"
+                  Height="15"
+                  Margin="6,0,3,6"
+                  VerticalAlignment="Center"
+                  Data="{Binding TargetActive, Converter={StaticResource StatusConverter}}"
+                  Fill="{Binding TargetActive, Converter={StaticResource StatusMarkColorConverter}}"
+                  Stretch="Uniform"
+                  ToolTip="Target active for planner?" />
             <uc:DocumentationLink URL="target-management/targets.html" />
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <uc:ActionMenuBar DataContext="{Binding}" />
-            <StackPanel Margin="18,0,0,16" Orientation="Horizontal">
-                <Button
-                    Width="25"
-                    Height="25"
-                    Margin="10,0,0,0"
-                    VerticalAlignment="Center"
-                    HorizontalContentAlignment="Right"
-                    Command="{Binding ShowTargetImportViewCommand}"
-                    IsEnabled="{Binding ShowEditView}"
-                    Style="{StaticResource BackgroundButton}"
-                    ToolTip="Import coordinates"
-                    ToolTipService.ShowOnDisabled="True">
+            <StackPanel Margin="18,0,0,16"
+                        Orientation="Horizontal">
+                <Button Width="25"
+                        Height="25"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Right"
+                        Command="{Binding ShowTargetImportViewCommand}"
+                        IsEnabled="{Binding ShowEditView}"
+                        Style="{StaticResource BackgroundButton}"
+                        ToolTip="Import coordinates"
+                        ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path
-                            Margin="5"
-                            Data="{StaticResource SS_ImportSVG}"
-                            Fill="{StaticResource ButtonForegroundBrush}"
-                            Stretch="Uniform" />
+                        <Path Margin="5"
+                              Data="{StaticResource SS_ImportSVG}"
+                              Fill="{StaticResource ButtonForegroundBrush}"
+                              Stretch="Uniform" />
                     </Grid>
                 </Button>
-                <Button
-                    Width="25"
-                    Height="25"
-                    Margin="10,0,0,0"
-                    VerticalAlignment="Center"
-                    HorizontalContentAlignment="Right"
-                    Command="{Binding ResetTargetCommand}"
-                    IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                    Style="{StaticResource BackgroundButton}"
-                    ToolTip="Reset target completion"
-                    ToolTipService.ShowOnDisabled="True">
+                <Button Width="25"
+                        Height="25"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Right"
+                        Command="{Binding ResetTargetCommand}"
+                        IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                        Style="{StaticResource BackgroundButton}"
+                        ToolTip="Reset target completion"
+                        ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path
-                            Margin="5"
-                            Data="{StaticResource SS_RefreshSVG}"
-                            Fill="{StaticResource ButtonForegroundBrush}"
-                            Stretch="Uniform" />
+                        <Path Margin="5"
+                              Data="{StaticResource SS_RefreshSVG}"
+                              Fill="{StaticResource ButtonForegroundBrush}"
+                              Stretch="Uniform" />
                     </Grid>
                 </Button>
             </StackPanel>
         </StackPanel>
 
-        <Grid
-            Width="600"
-            Margin="12,0,0,6"
-            HorizontalAlignment="Left">
+        <Grid Width="600"
+              Margin="12,0,0,6"
+              HorizontalAlignment="Left">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140" />
                 <ColumnDefinition Width="460" />
@@ -107,77 +98,70 @@
                 <RowDefinition MinHeight="25" />
             </Grid.RowDefinitions>
 
-            <TextBlock
-                Grid.Row="0"
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                FontWeight="Bold"
-                Text="Name"
-                ToolTip="Name of the Target" />
-            <TextBox
-                Grid.Row="0"
-                Grid.Column="1"
-                Width="180"
-                MaxHeight="20"
-                HorizontalAlignment="Left"
-                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+            <TextBlock Grid.Row="0"
+                       Grid.Column="0"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       Text="Name"
+                       ToolTip="Name of the Target" />
+            <TextBox Grid.Row="0"
+                     Grid.Column="1"
+                     Width="180"
+                     MaxHeight="20"
+                     HorizontalAlignment="Left"
+                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                 <TextBox.Text>
-                    <Binding Path="TargetProxy.Target.Name" UpdateSourceTrigger="LostFocus">
+                    <Binding Path="TargetProxy.Target.Name"
+                             UpdateSourceTrigger="LostFocus">
                         <Binding.ValidationRules>
                             <rules:RequiredFieldValidationRule />
                         </Binding.ValidationRules>
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <TextBlock
-                Grid.Row="0"
-                Grid.Column="1"
-                MaxHeight="20"
-                Margin="0,0,0,0"
-                Text="{Binding TargetProxy.Target.Name}"
-                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+            <TextBlock Grid.Row="0"
+                       Grid.Column="1"
+                       MaxHeight="20"
+                       Margin="0,0,0,0"
+                       Text="{Binding TargetProxy.Target.Name}"
+                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-            <TextBlock
-                Grid.Row="1"
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                FontWeight="Bold"
-                Text="Enabled"
-                ToolTip="Target enabled for acquisition" />
-            <CheckBox
-                Grid.Row="1"
-                Grid.Column="1"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                IsChecked="{Binding Path=TargetProxy.Target.Enabled, Mode=TwoWay}"
-                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-            <TextBlock
-                Grid.Row="1"
-                Grid.Column="1"
-                MaxHeight="20"
-                Margin="0,0,0,0"
-                Text="{Binding TargetProxy.Target.Enabled}"
-                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+            <TextBlock Grid.Row="1"
+                       Grid.Column="0"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       Text="Enabled"
+                       ToolTip="Target enabled for acquisition" />
+            <CheckBox Grid.Row="1"
+                      Grid.Column="1"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Center"
+                      IsChecked="{Binding Path=TargetProxy.Target.Enabled, Mode=TwoWay}"
+                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+            <TextBlock Grid.Row="1"
+                       Grid.Column="1"
+                       MaxHeight="20"
+                       Margin="0,0,0,0"
+                       Text="{Binding TargetProxy.Target.Enabled}"
+                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-            <TextBlock
-                Grid.Row="2"
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                FontWeight="Bold"
-                Text="Coordinates"
-                ToolTip="Target coordinates" />
-            <StackPanel
-                Grid.Row="2"
-                Grid.Column="1"
-                Orientation="Horizontal"
-                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-                <TextBox
-                    MinWidth="25"
-                    Margin="0,0,0,0"
-                    VerticalContentAlignment="Center"
-                    TextAlignment="Right">
+            <TextBlock Grid.Row="2"
+                       Grid.Column="0"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       Text="Coordinates"
+                       ToolTip="Target coordinates" />
+            <StackPanel Grid.Row="2"
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                <TextBox MinWidth="25"
+                         Margin="0,0,0,0"
+                         VerticalContentAlignment="Center"
+                         TextAlignment="Right">
                     <TextBox.Text>
-                        <Binding Path="TargetProxy.Target.RAHours" UpdateSourceTrigger="LostFocus">
+                        <Binding Path="TargetProxy.Target.RAHours"
+                                 UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <nrules:HoursRule />
                             </Binding.ValidationRules>
@@ -185,13 +169,13 @@
                     </TextBox.Text>
                 </TextBox>
                 <TextBlock VerticalAlignment="Center">h</TextBlock>
-                <TextBox
-                    MinWidth="25"
-                    Margin="8,0,0,0"
-                    VerticalContentAlignment="Center"
-                    TextAlignment="Right">
+                <TextBox MinWidth="25"
+                         Margin="8,0,0,0"
+                         VerticalContentAlignment="Center"
+                         TextAlignment="Right">
                     <TextBox.Text>
-                        <Binding Path="TargetProxy.Target.RAMinutes" UpdateSourceTrigger="LostFocus">
+                        <Binding Path="TargetProxy.Target.RAMinutes"
+                                 UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <nrules:MinutesRule />
                             </Binding.ValidationRules>
@@ -199,16 +183,14 @@
                     </TextBox.Text>
                 </TextBox>
                 <TextBlock VerticalAlignment="Center">m</TextBlock>
-                <TextBox
-                    MinWidth="25"
-                    Margin="8,0,0,0"
-                    VerticalContentAlignment="Center"
-                    TextAlignment="Right">
+                <TextBox MinWidth="25"
+                         Margin="8,0,0,0"
+                         VerticalContentAlignment="Center"
+                         TextAlignment="Right">
                     <TextBox.Text>
-                        <Binding
-                            Path="TargetProxy.Target.RASeconds"
-                            StringFormat="N1"
-                            UpdateSourceTrigger="LostFocus">
+                        <Binding Path="TargetProxy.Target.RASeconds"
+                                 StringFormat="N1"
+                                 UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <nrules:SecondsRule />
                             </Binding.ValidationRules>
@@ -217,13 +199,13 @@
                 </TextBox>
                 <TextBlock VerticalAlignment="Center">s</TextBlock>
 
-                <TextBox
-                    MinWidth="25"
-                    Margin="28,0,0,0"
-                    VerticalContentAlignment="Center"
-                    TextAlignment="Right">
+                <TextBox MinWidth="25"
+                         Margin="28,0,0,0"
+                         VerticalContentAlignment="Center"
+                         TextAlignment="Right">
                     <TextBox.Text>
-                        <MultiBinding Converter="{StaticResource DecDegreeConverter}" UpdateSourceTrigger="LostFocus">
+                        <MultiBinding Converter="{StaticResource DecDegreeConverter}"
+                                      UpdateSourceTrigger="LostFocus">
                             <Binding Path="TargetProxy.Target.NegativeDec" />
                             <Binding Path="TargetProxy.Target.DecDegrees">
                                 <Binding.ValidationRules>
@@ -234,13 +216,13 @@
                     </TextBox.Text>
                 </TextBox>
                 <TextBlock VerticalAlignment="Center">d</TextBlock>
-                <TextBox
-                    MinWidth="25"
-                    Margin="8,0,0,0"
-                    VerticalContentAlignment="Center"
-                    TextAlignment="Right">
+                <TextBox MinWidth="25"
+                         Margin="8,0,0,0"
+                         VerticalContentAlignment="Center"
+                         TextAlignment="Right">
                     <TextBox.Text>
-                        <Binding Path="TargetProxy.Target.DecMinutes" UpdateSourceTrigger="LostFocus">
+                        <Binding Path="TargetProxy.Target.DecMinutes"
+                                 UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <nrules:MinutesRule />
                             </Binding.ValidationRules>
@@ -248,16 +230,14 @@
                     </TextBox.Text>
                 </TextBox>
                 <TextBlock VerticalAlignment="Center">m</TextBlock>
-                <TextBox
-                    MinWidth="25"
-                    Margin="8,0,0,0"
-                    VerticalContentAlignment="Center"
-                    TextAlignment="Right">
+                <TextBox MinWidth="25"
+                         Margin="8,0,0,0"
+                         VerticalContentAlignment="Center"
+                         TextAlignment="Right">
                     <TextBox.Text>
-                        <Binding
-                            Path="TargetProxy.Target.DecSeconds"
-                            StringFormat="N1"
-                            UpdateSourceTrigger="LostFocus">
+                        <Binding Path="TargetProxy.Target.DecSeconds"
+                                 StringFormat="N1"
+                                 UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <nrules:SecondsRule />
                             </Binding.ValidationRules>
@@ -265,292 +245,286 @@
                     </TextBox.Text>
                 </TextBox>
                 <TextBlock VerticalAlignment="Center">s</TextBlock>
-                <ComboBox
-                    MaxHeight="20"
-                    Margin="28,0,0,0"
-                    ItemsSource="{Binding Source={local:EnumBindingSource {x:Type astro:Epoch}}}"
-                    SelectedValue="{Binding TargetProxy.Target.Epoch}" />
+                <ComboBox MaxHeight="20"
+                          Margin="28,0,0,0"
+                          ItemsSource="{Binding Source={local:EnumBindingSource {x:Type astro:Epoch}}}"
+                          SelectedValue="{Binding TargetProxy.Target.Epoch}" />
             </StackPanel>
-            <StackPanel
-                Grid.Row="2"
-                Grid.Column="1"
-                Orientation="Horizontal"
-                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
-                <TextBlock MaxHeight="20" Text="{Binding TargetProxy.Target.RAString}" />
-                <TextBlock
-                    MaxHeight="20"
-                    Margin="16,0,0,0"
-                    Text="{Binding TargetProxy.Target.DecString}" />
-                <TextBlock
-                    MaxHeight="20"
-                    Margin="16,0,0,0"
-                    Text="{Binding TargetProxy.Target.Epoch}" />
-                <Button
-                    Width="25"
-                    Height="25"
-                    Margin="10,0,0,0"
-                    VerticalAlignment="Center"
-                    HorizontalContentAlignment="Right"
-                    Command="{Binding SendCoordinatesToFramingAssistantCommand}"
-                    ToolTip="Send coordinates to the Framing Wizard">
+            <StackPanel Grid.Row="2"
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
+                <TextBlock MaxHeight="20"
+                           Text="{Binding TargetProxy.Target.RAString}" />
+                <TextBlock MaxHeight="20"
+                           Margin="16,0,0,0"
+                           Text="{Binding TargetProxy.Target.DecString}" />
+                <TextBlock MaxHeight="20"
+                           Margin="16,0,0,0"
+                           Text="{Binding TargetProxy.Target.Epoch}" />
+                <Button Width="25"
+                        Height="25"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Right"
+                        Command="{Binding SendCoordinatesToFramingAssistantCommand}"
+                        ToolTip="Send coordinates to the Framing Wizard">
                     <Grid>
-                        <Path
-                            Margin="5"
-                            Data="{StaticResource FocusAssistantSVG}"
-                            Fill="{StaticResource ButtonForegroundBrush}"
-                            Stretch="Uniform" />
+                        <Path Margin="5"
+                              Data="{StaticResource FocusAssistantSVG}"
+                              Fill="{StaticResource ButtonForegroundBrush}"
+                              Stretch="Uniform" />
                     </Grid>
                 </Button>
             </StackPanel>
 
-            <TextBlock
-                Grid.Row="3"
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                FontWeight="Bold"
-                Text="Rotation"
-                ToolTip="Target rotation" />
-            <StackPanel
-                Grid.Row="3"
-                Grid.Column="1"
-                Orientation="Horizontal"
-                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-                <TextBox
-                    Width="45"
-                    MaxHeight="20"
-                    HorizontalAlignment="Left">
+            <TextBlock Grid.Row="3"
+                       Grid.Column="0"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       Text="Rotation"
+                       ToolTip="Target rotation" />
+            <StackPanel Grid.Row="3"
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                <TextBox Width="45"
+                         MaxHeight="20"
+                         HorizontalAlignment="Left">
                     <TextBox.Text>
-                        <Binding Path="TargetProxy.Target.Rotation" UpdateSourceTrigger="LostFocus">
+                        <Binding Path="TargetProxy.Target.Rotation"
+                                 UpdateSourceTrigger="LostFocus">
                             <Binding.ValidationRules>
                                 <rules:DoubleRangeRule>
                                     <rules:DoubleRangeRule.ValidRange>
-                                        <rules:DoubleRangeChecker Maximum="360" Minimum="0" />
+                                        <rules:DoubleRangeChecker Maximum="360"
+                                                                  Minimum="0" />
                                     </rules:DoubleRangeRule.ValidRange>
                                 </rules:DoubleRangeRule>
                             </Binding.ValidationRules>
                         </Binding>
                     </TextBox.Text>
                 </TextBox>
-                <TextBlock Margin="2,0,0,0" Text="°" />
+                <TextBlock Margin="2,0,0,0"
+                           Text="°" />
             </StackPanel>
-            <TextBlock
-                Grid.Row="3"
-                Grid.Column="1"
-                MaxHeight="20"
-                Text="{Binding TargetProxy.Target.Rotation, Converter={StaticResource DegreesDisplayConverter}}"
-                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+            <TextBlock Grid.Row="3"
+                       Grid.Column="1"
+                       MaxHeight="20"
+                       Text="{Binding TargetProxy.Target.Rotation, Converter={StaticResource DegreesDisplayConverter}}"
+                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-            <TextBlock
-                Grid.Row="4"
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                FontWeight="Bold"
-                Text="ROI"
-                ToolTip="Target region of interest" />
-            <TextBox
-                Grid.Row="4"
-                Grid.Column="1"
-                Width="30"
-                MaxHeight="20"
-                HorizontalAlignment="Left"
-                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+            <TextBlock Grid.Row="4"
+                       Grid.Column="0"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       Text="ROI"
+                       ToolTip="Target region of interest" />
+            <TextBox Grid.Row="4"
+                     Grid.Column="1"
+                     Width="30"
+                     MaxHeight="20"
+                     HorizontalAlignment="Left"
+                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
                 <TextBox.Text>
-                    <Binding Path="TargetProxy.Target.ROI" UpdateSourceTrigger="LostFocus">
+                    <Binding Path="TargetProxy.Target.ROI"
+                             UpdateSourceTrigger="LostFocus">
                         <Binding.ValidationRules>
                             <rules:DoubleRangeRule>
                                 <rules:DoubleRangeRule.ValidRange>
-                                    <rules:DoubleRangeChecker Maximum="100" Minimum="1" />
+                                    <rules:DoubleRangeChecker Maximum="100"
+                                                              Minimum="1" />
                                 </rules:DoubleRangeRule.ValidRange>
                             </rules:DoubleRangeRule>
                         </Binding.ValidationRules>
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <TextBlock
-                Grid.Row="4"
-                Grid.Column="1"
-                MaxHeight="20"
-                Text="{Binding TargetProxy.Target.ROI, Converter={StaticResource PercentDisplayConverter}}"
-                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+            <TextBlock Grid.Row="4"
+                       Grid.Column="1"
+                       MaxHeight="20"
+                       Text="{Binding TargetProxy.Target.ROI, Converter={StaticResource PercentDisplayConverter}}"
+                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
         </Grid>
 
-        <StackPanel
-            Margin="12,0,0,6"
-            Orientation="Vertical"
-            Visibility="{Binding ShowTargetImportView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+        <StackPanel Margin="12,0,0,6"
+                    Orientation="Vertical"
+                    Visibility="{Binding ShowTargetImportView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
             <uc:TargetImportView DataContext="{Binding TargetImportVM}" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
-            <TextBlock
-                Margin="12,5,4,6"
-                VerticalAlignment="Center"
-                FontSize="14"
-                FontWeight="Bold"
-                Text="Exposure Plans" />
-            <Button
-                Width="16"
-                Height="16"
-                Margin="12,5,0,6"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Right"
-                Command="{Binding GradeCommand}"
-                IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                Style="{StaticResource BackgroundButton}"
-                ToolTip="Manually trigger grading"
-                ToolTipService.ShowOnDisabled="True">
+            <TextBlock Margin="12,5,4,6"
+                       VerticalAlignment="Center"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Text="Exposure Plans" />
+            <Button Width="16"
+                    Height="16"
+                    Margin="12,5,0,6"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    Command="{Binding GradeCommand}"
+                    IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Manually trigger grading"
+                    ToolTipService.ShowOnDisabled="True">
                 <Grid>
-                    <Path
-                        Data="{StaticResource SS_GradeSVG}"
-                        Fill="{StaticResource ButtonForegroundBrush}"
-                        Stretch="Uniform" />
+                    <Path Data="{StaticResource SS_GradeSVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
                 </Grid>
             </Button>
-            <Button
-                Width="16"
-                Height="16"
-                Margin="12,5,0,6"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Right"
-                Command="{Binding RefreshCommand}"
-                IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                Style="{StaticResource BackgroundButton}"
-                ToolTip="Refresh exposure plans (sync with database)"
-                ToolTipService.ShowOnDisabled="True">
+            <Button Width="16"
+                    Height="16"
+                    Margin="12,5,0,6"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    Command="{Binding RefreshCommand}"
+                    IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Refresh exposure plans (sync with database)"
+                    ToolTipService.ShowOnDisabled="True">
                 <Grid>
-                    <Path
-                        Data="{StaticResource SS_RefreshSVG}"
-                        Fill="{StaticResource ButtonForegroundBrush}"
-                        Stretch="Uniform" />
+                    <Path Data="{StaticResource SS_RefreshSVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
                 </Grid>
             </Button>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
-            <Button
-                Width="25"
-                Height="25"
-                Margin="10,0,0,6"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Left"
-                Command="{Binding AddExposurePlanCommand}"
-                IsEnabled="{Binding ShowEditView}"
-                Style="{StaticResource BackgroundButton}"
-                ToolTip="Add exposure plan"
-                ToolTipService.ShowOnDisabled="True">
+            <Button Width="25"
+                    Height="25"
+                    Margin="10,0,0,6"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Left"
+                    Command="{Binding AddExposurePlanCommand}"
+                    IsEnabled="{Binding ShowEditView}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Add exposure plan"
+                    ToolTipService.ShowOnDisabled="True">
                 <Grid>
-                    <Path
-                        Margin="5"
-                        Data="{StaticResource SS_NewSVG}"
-                        Fill="{StaticResource ButtonForegroundBrush}"
-                        Stretch="Uniform" />
+                    <Path Margin="5"
+                          Data="{StaticResource SS_NewSVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
                 </Grid>
             </Button>
-            <Button
-                Width="25"
-                Height="25"
-                Margin="10,0,0,6"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Left"
-                Command="{Binding CopyExposurePlansCommand}"
-                IsEnabled="{Binding ExposurePlansCopyEnabled}"
-                Style="{StaticResource BackgroundButton}"
-                ToolTip="Copy exposure plans"
-                ToolTipService.ShowOnDisabled="True">
+            <Button Width="25"
+                    Height="25"
+                    Margin="10,0,0,6"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Left"
+                    Command="{Binding CopyExposurePlansCommand}"
+                    IsEnabled="{Binding ExposurePlansCopyEnabled}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Copy exposure plans"
+                    ToolTipService.ShowOnDisabled="True">
                 <Grid>
-                    <Path
-                        Margin="5"
-                        Data="{StaticResource SS_CopySVG}"
-                        Fill="{StaticResource ButtonForegroundBrush}"
-                        Stretch="Uniform" />
+                    <Path Margin="5"
+                          Data="{StaticResource SS_CopySVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
                 </Grid>
             </Button>
-            <Button
-                Width="25"
-                Height="25"
-                Margin="10,0,0,6"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Left"
-                Command="{Binding PasteExposurePlansCommand}"
-                IsEnabled="{Binding ExposurePlansPasteEnabled}"
-                Style="{StaticResource BackgroundButton}"
-                ToolTip="Paste exposure plans"
-                ToolTipService.ShowOnDisabled="True">
+            <Button Width="25"
+                    Height="25"
+                    Margin="10,0,0,6"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Left"
+                    Command="{Binding PasteExposurePlansCommand}"
+                    IsEnabled="{Binding ExposurePlansPasteEnabled}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Paste exposure plans"
+                    ToolTipService.ShowOnDisabled="True">
                 <Grid>
-                    <Path
-                        Margin="5"
-                        Data="{StaticResource SS_PasteSVG}"
-                        Fill="{StaticResource ButtonForegroundBrush}"
-                        Stretch="Uniform" />
+                    <Path Margin="5"
+                          Data="{StaticResource SS_PasteSVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
                 </Grid>
             </Button>
-            <Button
-                Width="25"
-                Height="25"
-                Margin="10,0,0,6"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Left"
-                Command="{Binding DeleteExposurePlansCommand}"
-                IsEnabled="{Binding ExposurePlansDeleteEnabled}"
-                Style="{StaticResource BackgroundButton}"
-                ToolTip="Delete all exposure plans"
-                ToolTipService.ShowOnDisabled="True">
+            <Button Width="25"
+                    Height="25"
+                    Margin="10,0,0,6"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Left"
+                    Command="{Binding DeleteExposurePlansCommand}"
+                    IsEnabled="{Binding ExposurePlansDeleteEnabled}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Delete all exposure plans"
+                    ToolTipService.ShowOnDisabled="True">
                 <Grid>
-                    <Path
-                        Margin="5"
-                        Data="{StaticResource SS_DeleteSVG}"
-                        Fill="{StaticResource ButtonForegroundBrush}"
-                        Stretch="Uniform" />
+                    <Path Margin="5"
+                          Data="{StaticResource SS_DeleteSVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
                 </Grid>
             </Button>
         </StackPanel>
 
-        <DataGrid
-            Name="ExposurePlansDataGrid"
-            Grid.Row="0"
-            Height="180"
-            Margin="12,0,0,0"
-            AutoGenerateColumns="False"
-            BorderThickness="0"
-            CanUserAddRows="False"
-            HorizontalScrollBarVisibility="Disabled"
-            IsReadOnly="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-            ItemsSource="{Binding ExposurePlanVMList}"
-            RowHeight="25"
-            VerticalScrollBarVisibility="Auto">
+        <DataGrid Name="ExposurePlansDataGrid"
+                  Grid.Row="0"
+                  Height="180"
+                  Margin="12,0,0,0"
+                  AutoGenerateColumns="False"
+                  BorderThickness="0"
+                  CanUserAddRows="False"
+                  HorizontalScrollBarVisibility="Disabled"
+                  IsReadOnly="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                  ItemsSource="{Binding ExposurePlanVMList}"
+                  RowHeight="25"
+                  VerticalScrollBarVisibility="Auto">
 
             <DataGrid.Resources>
-                <util:BindingProxy x:Key="bindProxy" Data="{Binding}" />
+                <util:BindingProxy x:Key="bindProxy"
+                                   Data="{Binding}" />
             </DataGrid.Resources>
 
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="HorizontalAlignment" Value="Left" />
-                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="MinHeight" Value="25" />
-                    <Setter Property="Margin" Value="5,3,5,3" />
-                    <Setter Property="FontWeight" Value="Bold" />
-                    <Setter Property="FontSize" Value="12" />
+                    <Setter Property="HorizontalAlignment"
+                            Value="Left" />
+                    <Setter Property="BorderBrush"
+                            Value="{StaticResource BorderBrush}" />
+                    <Setter Property="BorderThickness"
+                            Value="0" />
+                    <Setter Property="MinHeight"
+                            Value="25" />
+                    <Setter Property="Margin"
+                            Value="5,3,5,3" />
+                    <Setter Property="FontWeight"
+                            Value="Bold" />
+                    <Setter Property="FontSize"
+                            Value="12" />
                 </Style>
             </DataGrid.ColumnHeaderStyle>
 
             <DataGrid.CellStyle>
                 <Style TargetType="DataGridCell">
-                    <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
-                    <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="MinHeight" Value="22" />
-                    <Setter Property="Margin" Value="5,3,5,3" />
+                    <Setter Property="BorderBrush"
+                            Value="{StaticResource BorderBrush}" />
+                    <Setter Property="BorderThickness"
+                            Value="0" />
+                    <Setter Property="MinHeight"
+                            Value="22" />
+                    <Setter Property="Margin"
+                            Value="5,3,5,3" />
                     <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource ButtonBackgroundBrush}" />
+                        <Trigger Property="IsSelected"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="{StaticResource ButtonBackgroundBrush}" />
                         </Trigger>
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter Property="Background" Value="Transparent" />
+                        <Trigger Property="IsSelected"
+                                 Value="False">
+                            <Setter Property="Background"
+                                    Value="Transparent" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -558,15 +532,22 @@
 
             <DataGrid.RowStyle>
                 <Style TargetType="DataGridRow">
-                    <Setter Property="MinHeight" Value="22" />
-                    <Setter Property="Background" Value="Transparent" />
-                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="MinHeight"
+                            Value="22" />
+                    <Setter Property="Background"
+                            Value="Transparent" />
+                    <Setter Property="VerticalAlignment"
+                            Value="Center" />
                     <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{StaticResource SecondaryBackgroundBrush}" />
+                        <Trigger Property="IsSelected"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="{StaticResource SecondaryBackgroundBrush}" />
                         </Trigger>
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter Property="Background" Value="Transparent" />
+                        <Trigger Property="IsSelected"
+                                 Value="False">
+                            <Setter Property="Background"
+                                    Value="Transparent" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -574,43 +555,46 @@
 
             <DataGrid.Columns>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.Header>
-                        <TextBlock Text="Template" ToolTip="Exposure template" />
+                        <TextBlock Text="Template"
+                                   ToolTip="Exposure template" />
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding ExposureTemplate.Name}" />
+                            <TextBlock Width="Auto"
+                                       IsEnabled="{Binding IsEnabled}"
+                                       Text="{Binding ExposureTemplate.Name}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <ComboBox
-                                DisplayMemberPath="Value"
-                                ItemsSource="{Binding ElementName=TargetViewPanel, Path=DataContext.ExposureTemplateChoices}"
-                                SelectedValue="{Binding ExposureTemplateId, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
-                                SelectedValuePath="Key"
-                                SelectionChanged="ExposureTemplateId_SelectionChanged" />
+                            <ComboBox DisplayMemberPath="Value"
+                                      ItemsSource="{Binding ElementName=TargetViewPanel, Path=DataContext.ExposureTemplateChoices}"
+                                      SelectedValue="{Binding ExposureTemplateId, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+                                      SelectedValuePath="Key"
+                                      SelectionChanged="ExposureTemplateId_SelectionChanged" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.Header>
-                        <TextBlock Text="Exposure" ToolTip="Exposure time in seconds (leave blank for template default)" />
+                        <TextBlock Text="Exposure"
+                                   ToolTip="Exposure time in seconds (leave blank for template default)" />
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <ninactrl:HintTextBox
-                                Width="Auto"
-                                VerticalAlignment="Center"
-                                HintText="(Template)"
-                                IsEnabled="False">
+                            <ninactrl:HintTextBox Width="Auto"
+                                                  VerticalAlignment="Center"
+                                                  HintText="(Template)"
+                                                  IsEnabled="False">
                                 <ninactrl:HintTextBox.Text>
-                                    <Binding
-                                        Converter="{StaticResource MinusOneToEmptyStringConverter}"
-                                        Path="Exposure"
-                                        UpdateSourceTrigger="LostFocus">
+                                    <Binding Converter="{StaticResource MinusOneToEmptyStringConverter}"
+                                             Path="Exposure"
+                                             UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:NullableDoubleRule />
                                         </Binding.ValidationRules>
@@ -621,15 +605,13 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <ninactrl:HintTextBox
-                                Width="Auto"
-                                VerticalAlignment="Center"
-                                HintText="(Template)">
+                            <ninactrl:HintTextBox Width="Auto"
+                                                  VerticalAlignment="Center"
+                                                  HintText="(Template)">
                                 <ninactrl:HintTextBox.Text>
-                                    <Binding
-                                        Converter="{StaticResource MinusOneToEmptyStringConverter}"
-                                        Path="Exposure"
-                                        UpdateSourceTrigger="LostFocus">
+                                    <Binding Converter="{StaticResource MinusOneToEmptyStringConverter}"
+                                             Path="Exposure"
+                                             UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:NullableDoubleRule />
                                         </Binding.ValidationRules>
@@ -640,24 +622,29 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.Header>
-                        <TextBlock Text="Desired" ToolTip="Total number of desired images" />
+                        <TextBlock Text="Desired"
+                                   ToolTip="Total number of desired images" />
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding Desired}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding Desired}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
                             <TextBox Width="Auto">
                                 <TextBox.Text>
-                                    <Binding Path="Desired" UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="Desired"
+                                             UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:IntRangeRule>
                                                 <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="99999" Minimum="1" />
+                                                    <rules:IntRangeChecker Maximum="99999"
+                                                                           Minimum="1" />
                                                 </rules:IntRangeRule.ValidRange>
                                             </rules:IntRangeRule>
                                         </Binding.ValidationRules>
@@ -668,24 +655,29 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.Header>
-                        <TextBlock Text="Accepted" ToolTip="Total number of accepted images" />
+                        <TextBlock Text="Accepted"
+                                   ToolTip="Total number of accepted images" />
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding Accepted}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding Accepted}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
                             <TextBox Width="Auto">
                                 <TextBox.Text>
-                                    <Binding Path="Accepted" UpdateSourceTrigger="LostFocus">
+                                    <Binding Path="Accepted"
+                                             UpdateSourceTrigger="LostFocus">
                                         <Binding.ValidationRules>
                                             <rules:IntRangeRule>
                                                 <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="99999" Minimum="0" />
+                                                    <rules:IntRangeChecker Maximum="99999"
+                                                                           Minimum="0" />
                                                 </rules:IntRangeRule.ValidRange>
                                             </rules:IntRangeRule>
                                         </Binding.ValidationRules>
@@ -696,20 +688,25 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.Header>
-                        <TextBlock Text="Acquired" ToolTip="Number of images acquired to date (read only)" />
+                        <TextBlock Text="Acquired"
+                                   ToolTip="Number of images acquired to date (read only)" />
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Width="Auto" Text="{Binding Acquired}" />
+                            <TextBlock Width="Auto"
+                                       Text="{Binding Acquired}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.Header>
-                        <TextBlock Text="%" ToolTip="Percent complete" />
+                        <TextBlock Text="%"
+                                   ToolTip="Percent complete" />
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -718,9 +715,11 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
                     <DataGridTemplateColumn.Header>
-                        <TextBlock Text="%*" ToolTip="Provisional percent complete when delayed grading has not yet triggered" />
+                        <TextBlock Text="%*"
+                                   ToolTip="Provisional percent complete when delayed grading has not yet triggered" />
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -729,27 +728,44 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Width="*" CanUserSort="False">
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
+                    <DataGridTemplateColumn.Header>
+                        <TextBlock Text="Enabled?"
+                                   ToolTip="Enable/disable exposure plan" />
+                    </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button
-                                Width="22"
-                                Height="22"
-                                Margin="10,0,0,0"
-                                VerticalAlignment="Center"
-                                HorizontalContentAlignment="Right"
-                                Command="{Binding ElementName=TargetViewPanel, Path=DataContext.DeleteExposurePlanCommand}"
-                                CommandParameter="{Binding}"
-                                IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                                Style="{StaticResource BackgroundButton}"
-                                ToolTip="Delete exposure plan"
-                                ToolTipService.ShowOnDisabled="True">
+                            <CheckBox HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      Command="{Binding ElementName=TargetViewPanel, Path=DataContext.ToggleExposurePlanCommand}"
+                                      CommandParameter="{Binding}"
+                                      IsChecked="{Binding Path=IsEnabled, Mode=TwoWay}"
+                                      IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Width="*"
+                                        CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Width="22"
+                                    Height="22"
+                                    Margin="10,0,0,0"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Right"
+                                    Command="{Binding ElementName=TargetViewPanel, Path=DataContext.DeleteExposurePlanCommand}"
+                                    CommandParameter="{Binding}"
+                                    IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                                    Style="{StaticResource BackgroundButton}"
+                                    ToolTip="Delete exposure plan"
+                                    ToolTipService.ShowOnDisabled="True">
                                 <Grid>
-                                    <Path
-                                        Margin="5"
-                                        Data="{StaticResource SS_DeleteSVG}"
-                                        Fill="{StaticResource ButtonForegroundBrush}"
-                                        Stretch="Uniform" />
+                                    <Path Margin="5"
+                                          Data="{StaticResource SS_DeleteSVG}"
+                                          Fill="{StaticResource ButtonForegroundBrush}"
+                                          Stretch="Uniform" />
                                 </Grid>
                             </Button>
                         </DataTemplate>
@@ -758,143 +774,130 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <TextBlock
-            Margin="12,6,0,12"
-            VerticalAlignment="Center"
-            FontStyle="Italic"
-            Text="* There are two versions of percent complete, depending on the state of an exposure plan.  If grading is off, delayed grading is off, or delayed grading is on and has triggered, then normal percent complete applies and is Accepted/Desired or based on profile exposure throttle.  Otherwise, grading has not occurred so a provisional percent complete is used: Acquired/Desired."
-            TextWrapping="Wrap" />
+        <TextBlock Margin="12,6,0,12"
+                   VerticalAlignment="Center"
+                   FontStyle="Italic"
+                   Text="* There are two versions of percent complete, depending on the state of an exposure plan.  If grading is off, delayed grading is off, or delayed grading is on and has triggered, then normal percent complete applies and is Accepted/Desired or based on profile exposure throttle.  Otherwise, grading has not occurred so a provisional percent complete is used: Acquired/Desired."
+                   TextWrapping="Wrap" />
 
         <StackPanel Visibility="{Binding HaveFSFExposureOrder, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-            <StackPanel Name="ExposureOrderDefault" Orientation="Horizontal">
-                <TextBlock
-                    Margin="12,12,0,6"
-                    VerticalAlignment="Center"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Text="Exposure Order: Default" />
-                <Button
-                    Width="25"
-                    Height="25"
-                    Margin="6,0,3,6"
-                    VerticalAlignment="Bottom"
-                    Command="{Binding OverrideExposureOrderCommand}"
-                    IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                    Style="{StaticResource BackgroundButton}"
-                    ToolTip="Override default exposure order"
-                    ToolTipService.ShowOnDisabled="True">
+            <StackPanel Name="ExposureOrderDefault"
+                        Orientation="Horizontal">
+                <TextBlock Margin="12,12,0,6"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           Text="Exposure Order: Default" />
+                <Button Width="25"
+                        Height="25"
+                        Margin="6,0,3,6"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding OverrideExposureOrderCommand}"
+                        IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                        Style="{StaticResource BackgroundButton}"
+                        ToolTip="Override default exposure order"
+                        ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path
-                            Margin="5"
-                            Data="{StaticResource SS_SettingsSVG}"
-                            Fill="{StaticResource ButtonForegroundBrush}"
-                            Stretch="Uniform" />
+                        <Path Margin="5"
+                              Data="{StaticResource SS_SettingsSVG}"
+                              Fill="{StaticResource ButtonForegroundBrush}"
+                              Stretch="Uniform" />
                     </Grid>
                 </Button>
                 <uc:DocumentationLink URL="target-management/exposure-plans.html#exposure-order" />
             </StackPanel>
 
-            <TextBlock
-                Margin="12,0,12,12"
-                HorizontalAlignment="Left"
-                FontStyle="Italic"
-                Text="Exposure ordering based on the Filter Switch Frequency and Dither settings on the Project.  Complete exposure plans will be dropped from the rotation and the pattern will repeat until all are complete.  If Filter Switch Frequency is 0, then '...' implies repeat until done and dithers will not be shown.  This is only representative - the ultimate ordering of exposures by the planner depends on many factors."
-                TextWrapping="Wrap" />
+            <TextBlock Margin="12,0,12,12"
+                       HorizontalAlignment="Left"
+                       FontStyle="Italic"
+                       Text="Exposure ordering based on the Filter Switch Frequency and Dither settings on the Project.  Complete exposure plans will be dropped from the rotation and the pattern will repeat until all are complete.  If Filter Switch Frequency is 0, then '...' implies repeat until done and dithers will not be shown.  This is only representative - the ultimate ordering of exposures by the planner depends on many factors."
+                       TextWrapping="Wrap" />
 
-            <ScrollViewer
-                Margin="12,5,12,0"
-                HorizontalScrollBarVisibility="Auto"
-                VerticalScrollBarVisibility="Hidden">
+            <ScrollViewer Margin="12,5,12,0"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Hidden">
                 <TextBlock Text="{Binding ExposureOrderDisplay}" />
             </ScrollViewer>
         </StackPanel>
 
         <StackPanel Visibility="{Binding HaveOverrideExposureOrder, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-            <StackPanel Name="ExposureOrderOverride" Orientation="Horizontal">
-                <TextBlock
-                    Margin="12,12,0,6"
-                    VerticalAlignment="Center"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Text="Exposure Order: Override" />
-                <Button
-                    Width="25"
-                    Height="25"
-                    Margin="6,0,3,6"
-                    VerticalAlignment="Bottom"
-                    Command="{Binding OverrideExposureOrderCommand}"
-                    IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                    Style="{StaticResource BackgroundButton}"
-                    ToolTip="Edit override exposure order"
-                    ToolTipService.ShowOnDisabled="True">
+            <StackPanel Name="ExposureOrderOverride"
+                        Orientation="Horizontal">
+                <TextBlock Margin="12,12,0,6"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           Text="Exposure Order: Override" />
+                <Button Width="25"
+                        Height="25"
+                        Margin="6,0,3,6"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding OverrideExposureOrderCommand}"
+                        IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                        Style="{StaticResource BackgroundButton}"
+                        ToolTip="Edit override exposure order"
+                        ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path
-                            Margin="5"
-                            Data="{StaticResource SS_SettingsSVG}"
-                            Fill="{StaticResource ButtonForegroundBrush}"
-                            Stretch="Uniform" />
+                        <Path Margin="5"
+                              Data="{StaticResource SS_SettingsSVG}"
+                              Fill="{StaticResource ButtonForegroundBrush}"
+                              Stretch="Uniform" />
                     </Grid>
                 </Button>
-                <Button
-                    Width="25"
-                    Height="25"
-                    Margin="0,0,3,6"
-                    VerticalAlignment="Bottom"
-                    Command="{Binding CancelOverrideExposureOrderCommand}"
-                    IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                    Style="{StaticResource BackgroundButton}"
-                    ToolTip="Cancel override exposure order"
-                    ToolTipService.ShowOnDisabled="True">
+                <Button Width="25"
+                        Height="25"
+                        Margin="0,0,3,6"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding CancelOverrideExposureOrderCommand}"
+                        IsEnabled="{Binding ElementName=TargetViewPanel, Path=DataContext.ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                        Style="{StaticResource BackgroundButton}"
+                        ToolTip="Cancel override exposure order"
+                        ToolTipService.ShowOnDisabled="True">
                     <Grid>
-                        <Path
-                            Margin="5"
-                            Data="{StaticResource SS_CancelSVG}"
-                            Fill="{StaticResource ButtonForegroundBrush}"
-                            Stretch="Uniform" />
+                        <Path Margin="5"
+                              Data="{StaticResource SS_CancelSVG}"
+                              Fill="{StaticResource ButtonForegroundBrush}"
+                              Stretch="Uniform" />
                     </Grid>
                 </Button>
                 <uc:DocumentationLink URL="target-management/exposure-plans.html#exposure-order" />
             </StackPanel>
 
-            <TextBlock
-                Margin="12,0,12,12"
-                HorizontalAlignment="Left"
-                FontStyle="Italic"
-                Text="Exposure order based on manual override.  Complete exposure plans will be dropped from the rotation and the pattern will repeat until all are complete.  This is only representative - the ultimate ordering of exposures by the planner depends on many factors."
-                TextWrapping="Wrap" />
+            <TextBlock Margin="12,0,12,12"
+                       HorizontalAlignment="Left"
+                       FontStyle="Italic"
+                       Text="Exposure order based on manual override.  Complete exposure plans will be dropped from the rotation and the pattern will repeat until all are complete.  This is only representative - the ultimate ordering of exposures by the planner depends on many factors."
+                       TextWrapping="Wrap" />
 
-            <ScrollViewer
-                Margin="12,5,12,0"
-                HorizontalScrollBarVisibility="Auto"
-                VerticalScrollBarVisibility="Hidden">
+            <ScrollViewer Margin="12,5,12,0"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Hidden">
                 <TextBlock Text="{Binding ExposureOrderDisplay}" />
             </ScrollViewer>
         </StackPanel>
 
         <StackPanel Visibility="{Binding HaveSmartExposureOrder, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-            <StackPanel Name="ExposureOrderSmart" Orientation="Horizontal">
-                <TextBlock
-                    Margin="12,12,0,6"
-                    VerticalAlignment="Center"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Text="Exposure Order: Smart Selection" />
+            <StackPanel Name="ExposureOrderSmart"
+                        Orientation="Horizontal">
+                <TextBlock Margin="12,12,0,6"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           Text="Exposure Order: Smart Selection" />
                 <uc:DocumentationLink URL="target-management/exposure-plans.html#exposure-order" />
             </StackPanel>
 
-            <TextBlock
-                Margin="12,0,12,12"
-                HorizontalAlignment="Left"
-                FontStyle="Italic"
-                Text="Exposure selection and ordering will be based solely on moon avoidance: exposures using filters configured for higher aversion to moonlight will be prioritized until completed.  To disable this, switch Smart Exposure Selection off on the parent project."
-                TextWrapping="Wrap" />
+            <TextBlock Margin="12,0,12,12"
+                       HorizontalAlignment="Left"
+                       FontStyle="Italic"
+                       Text="Exposure selection and ordering will be based solely on moon avoidance: exposures using filters configured for higher aversion to moonlight will be prioritized until completed.  To disable this, switch Smart Exposure Selection off on the parent project."
+                       TextWrapping="Wrap" />
         </StackPanel>
 
-        <Popup
-            IsOpen="{Binding ShowOverrideExposureOrderPopup}"
-            Placement="Top"
-            PlacementTarget="{Binding ElementName=ExposureOrderDefault}"
-            VerticalOffset="-60">
+        <Popup IsOpen="{Binding ShowOverrideExposureOrderPopup}"
+               Placement="Top"
+               PlacementTarget="{Binding ElementName=ExposureOrderDefault}"
+               VerticalOffset="-60">
             <local:OverrideExposureOrderView DataContext="{Binding OverrideExposureOrderVM}" />
         </Popup>
     </StackPanel>

@@ -418,6 +418,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
     }
 
     internal class TestPlanExposure : IExposure {
+        public bool IsEnabled { get; set; }
         public int Desired { get; set; }
         public int Accepted { get; set; }
         public int Acquired { get; set; }

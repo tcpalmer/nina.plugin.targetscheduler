@@ -18,6 +18,8 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int acquired { get; set; }
         public int accepted { get; set; }
 
+        public bool enabled { get; set; }
+
         [ForeignKey("ExposureTemplate")]
         [JsonProperty]
         public int ExposureTemplateId {
@@ -87,6 +89,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         [NotMapped]
+        [JsonProperty]
+        public bool IsEnabled {
+            get { return enabled; }
+            set {
+                enabled = value;
+                RaisePropertyChanged(nameof(IsEnabled));
+            }
+        }
+
+        [NotMapped]
         public double PercentComplete { get; set; }
 
         public ExposurePlan() {
@@ -98,6 +110,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             Desired = 1;
             Acquired = 0;
             Accepted = 0;
+            IsEnabled = true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -115,6 +128,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             exposurePlan.desired = desired;
             exposurePlan.acquired = moveOp ? acquired : 0;
             exposurePlan.accepted = moveOp ? accepted : 0;
+            exposurePlan.enabled = enabled;
 
             return exposurePlan;
         }
@@ -128,6 +142,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             sb.AppendLine($"Desired: {Desired}");
             sb.AppendLine($"Acquired: {Acquired}");
             sb.AppendLine($"Accepted: {Accepted}");
+            sb.AppendLine($"Enabled: {IsEnabled}");
 
             return sb.ToString();
         }

@@ -850,6 +850,21 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
         }
 
+        public Target ToggleExposurePlan(Target target, ExposurePlan exposurePlan) {
+            using (var context = database.GetContext()) {
+                Target updatedTarget = context.ToggleExposurePlan(target, exposurePlan);
+                if (updatedTarget != null) {
+                    activeTreeDataItem.Data = updatedTarget;
+                    SetTreeColorizeMode(SelectedColorizeMode);
+                    DitherManagerCache.Remove(target);
+                } else {
+                    Notification.ShowError("Failed to toggle on/off Scheduler Exposure Plan (see log for details)");
+                }
+
+                return updatedTarget;
+            }
+        }
+
         public Target DeleteExposurePlan(Target target, ExposurePlan exposurePlan) {
             using (var context = database.GetContext()) {
                 Target updatedTarget = context.DeleteExposurePlan(target, exposurePlan);

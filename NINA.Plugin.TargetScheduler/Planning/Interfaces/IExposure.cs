@@ -7,6 +7,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Interfaces {
     public interface IExposure : IExposureCounts {
         string PlanId { get; set; }
         int DatabaseId { get; set; }
+        bool IsEnabled { get; set; }
         string FilterName { get; set; }
         double ExposureLength { get; set; }
         int? Gain { get; set; }

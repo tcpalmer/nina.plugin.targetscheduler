@@ -697,6 +697,26 @@ namespace NINA.Plugin.TargetScheduler.Database {
             }
         }
 
+        public Target ToggleExposurePlan(Target target, ExposurePlan exposurePlan) {
+            ClearExistingOverrideExposureOrders(target.Id);
+            ClearExistingFilterCadences(target.Id);
+
+            using (var transaction = Database.BeginTransaction()) {
+                try {
+                    TargetSet.AddOrUpdate(target);
+                    exposurePlan = GetExposurePlan(exposurePlan.Id);
+                    exposurePlan.IsEnabled = !exposurePlan.IsEnabled;
+                    SaveChanges();
+                    transaction.Commit();
+                    return GetTargetByProject(target.ProjectId, target.Id);
+                } catch (Exception e) {
+                    TSLogger.Error($"error flipping enabled on exposure plan: {e.Message} {e.StackTrace}");
+                    RollbackTransaction(transaction);
+                    return null;
+                }
+            }
+        }
+
         public Target DeleteExposurePlan(Target target, ExposurePlan exposurePlan) {
             ClearExistingOverrideExposureOrders(target.Id);
             ClearExistingFilterCadences(target.Id);
