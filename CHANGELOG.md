@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.7.2.0 - 2025-07-24
+* Fixed issue with Center After Drift and updating when same target.
+
 ## 5.7.1.0 - 2025-06-28
 * Fixed issue with target move and how associated acquired image rows are updated.
 

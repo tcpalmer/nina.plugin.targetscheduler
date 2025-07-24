@@ -347,7 +347,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         TSLogger.Info($"plan target: {target.Name}");
 
                         SetTarget(atTime, target);
-                        ResetCenterAfterDrift();
+                        ResetCenterAfterDrift(previousPlanTarget, target);
                         SetTargetForCustomEventContainers();
 
                         // Create a container for this exposure, add the instructions, and execute
@@ -602,7 +602,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             return inputTarget;
         }
 
-        private void ResetCenterAfterDrift() {
+        private void ResetCenterAfterDrift(ITarget previousPlanTarget, ITarget target) {
+            if (previousPlanTarget != null && target.Equals(previousPlanTarget)) {
+                TSLogger.Debug($"target is same as previous, skipping CaD update");
+                return;
+            }
+
             // If our parent container has a CenterAfterDrift trigger, reset it for latest plan target coordinates
             CenterAfterDriftTrigger centerAfterDriftTrigger = GetCenterAfterDriftTrigger();
             if (centerAfterDriftTrigger != null) {
