@@ -280,18 +280,16 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             // TODO: should do fixed formatting so they line up
 
             List<double> samples = GetSamples(acquiredImages, i => { return i.Metadata.DetectedStars; });
-            StarsRange = $"{samples.Min()} - {samples.Max()}";
+            StarsRange = GetRange(samples);
 
             samples = GetSamples(acquiredImages, i => { return i.Metadata.HFR; });
-            HFRRange = $"{Utils.FormatDbl(samples.Min())} - {Utils.FormatDbl(samples.Max())}";
+            HFRRange = GetRange(samples);
 
             samples = GetSamples(acquiredImages, i => { return i.Metadata.FWHM; });
-            double min = samples.Min(); double max = samples.Max();
-            FWHMRange = min > 0 && max > 0 ? $"{Utils.FormatDbl(min)} - {Utils.FormatDbl(max)}" : "n/a";
+            FWHMRange = GetRange(samples);
 
             samples = GetSamples(acquiredImages, i => { return i.Metadata.Eccentricity; });
-            min = samples.Min(); max = samples.Max();
-            EccentricityRange = min > 0 && max > 0 ? $"{Utils.FormatDbl(min)} - {Utils.FormatDbl(max)}" : "n/a";
+            EccentricityRange = GetRange(samples);
         }
 
         public ReportTableSummary() {
@@ -305,6 +303,14 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             });
 
             return samples;
+        }
+
+        private string GetRange(List<double> samples) {
+            if (samples.Count == 0) return "n/a";
+
+            double min = samples.Min();
+            double max = samples.Max();
+            return min == 0 && max == 0 ? "n/a" : $"{Utils.FormatDbl(min)} - {Utils.FormatDbl(max)}";
         }
     }
 

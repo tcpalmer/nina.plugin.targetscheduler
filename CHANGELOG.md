@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.7.3.0 - 2025-07-28
+* Fixed issue with reporting - was assuming that FWHM and Eccentricity are available via HocusFocus.
+
 ## 5.7.2.0 - 2025-07-24
 * Fixed issue with Center After Drift and updating when same target.
 
