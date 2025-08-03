@@ -1144,16 +1144,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
 
             foreach (Target target in project.Targets) {
-                if (target.Enabled && helper.PercentComplete(target, true) < 100) {
-                    return true;
-                }
+                if (TargetActive(helper, project, target)) return true;
             }
 
             return false;
         }
 
         private bool TargetActive(ExposureCompletionHelper helper, Project project, Target target) {
-            return project.ActiveNow && target.Enabled && target.ExposurePlans.Count > 0 && helper.PercentComplete(target) < 100;
+            return project.ActiveNow
+                && target.Enabled
+                && target.ExposurePlans.Count > 0
+                && helper.HasEnabledPlans(target)
+                && helper.PercentComplete(target) < 100;
         }
     }
 

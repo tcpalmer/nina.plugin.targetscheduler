@@ -49,6 +49,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             return list.Sum(PercentComplete) / list.Count;
         }
 
+        public bool HasEnabledPlans(Target target) {
+            return target.ExposurePlans.Find(ep => ep.IsEnabled) != null;
+        }
+
         public bool IsIncomplete(ITarget target) {
             return PercentComplete(target) < 100;
         }

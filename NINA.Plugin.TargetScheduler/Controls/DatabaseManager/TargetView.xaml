@@ -631,6 +631,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Width="Auto"
+                                       IsEnabled="{Binding IsEnabled}"
                                        Text="{Binding Desired}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -664,6 +665,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Width="Auto"
+                                       IsEnabled="{Binding IsEnabled}"
                                        Text="{Binding Accepted}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -697,6 +699,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Width="Auto"
+                                       IsEnabled="{Binding IsEnabled}"
                                        Text="{Binding Acquired}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -710,7 +713,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding PercentComplete}" />
+                            <TextBlock IsEnabled="{Binding IsEnabled}"
+                                       Text="{Binding PercentComplete}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -723,7 +727,8 @@
                     </DataGridTemplateColumn.Header>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding ProvisionalPercentComplete}" />
+                            <TextBlock IsEnabled="{Binding IsEnabled}"
+                                       Text="{Binding ProvisionalPercentComplete}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

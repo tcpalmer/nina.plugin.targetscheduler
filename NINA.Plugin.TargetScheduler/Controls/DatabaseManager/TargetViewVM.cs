@@ -93,7 +93,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         private bool ActiveWithActiveExposurePlans(Target target) {
-            return target.Project.ActiveNow && target.Enabled && target.ExposurePlans.Count > 0 && exposureCompletionHelper.PercentComplete(target) < 100;
+            return target.Project.ActiveNow
+                && target.Enabled
+                && target.ExposurePlans.Count > 0
+                && exposureCompletionHelper.HasEnabledPlans(target)
+                && exposureCompletionHelper.PercentComplete(target) < 100;
         }
 
         private TargetProxy targetProxy;
@@ -491,7 +495,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 Target updatedTarget = managerVM.ToggleExposurePlan(TargetProxy.Original, exposurePlan);
                 if (updatedTarget != null) {
                     TargetProxy = new TargetProxy(updatedTarget);
-                    // InitializeExposurePlans(TargetProxy.Proxy);
+                    InitializeExposurePlans(TargetProxy.Proxy);
                     TargetActive = ActiveWithActiveExposurePlans(TargetProxy.Target);
                     SetExposureOrderDisplay();
                 }

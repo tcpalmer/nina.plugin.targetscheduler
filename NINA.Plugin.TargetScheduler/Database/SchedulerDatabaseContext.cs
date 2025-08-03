@@ -141,6 +141,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                 .Where(p => p.Id == projectId)
             .FirstOrDefault();
 
+            project.Targets.ForEach(t => t.OrderExposurePlans());
             project.Targets.ForEach(t => t.OverrideExposureOrders = GetOverrideExposureOrders(t.Id));
             project.Targets.ForEach(t => t.FilterCadences = GetFilterCadences(t.Id));
             project.FilterCadenceBreakingChange = false;
@@ -162,6 +163,8 @@ namespace NINA.Plugin.TargetScheduler.Database {
                 .Include("exposureplans.exposuretemplate")
                 .Where(t => t.Project.Id == projectId && t.Id == targetId)
                 .FirstOrDefault();
+
+            target.OrderExposurePlans();
             target.OverrideExposureOrders = GetOverrideExposureOrders(targetId);
             target.FilterCadences = GetFilterCadences(targetId);
             return target;
@@ -706,6 +709,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                     TargetSet.AddOrUpdate(target);
                     exposurePlan = GetExposurePlan(exposurePlan.Id);
                     exposurePlan.IsEnabled = !exposurePlan.IsEnabled;
+                    ExposurePlanSet.AddOrUpdate(exposurePlan);
                     SaveChanges();
                     transaction.Commit();
                     return GetTargetByProject(target.ProjectId, target.Id);

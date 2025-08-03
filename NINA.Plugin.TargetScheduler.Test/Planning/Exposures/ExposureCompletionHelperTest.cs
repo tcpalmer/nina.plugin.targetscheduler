@@ -334,8 +334,22 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             sut.IsIncomplete(target).Should().BeFalse();
         }
 
-        private ExposurePlan GetExposurePlan(int desired, int accepted, int acquired) {
+        [Test]
+        public void TestHasEnabledPlans() {
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, 0, 100);
+            Target target = new Target();
+
+            sut.HasEnabledPlans(target).Should().BeFalse();
+
+            target.ExposurePlans.Add(GetExposurePlan(10, 0, 0, false));
+            sut.HasEnabledPlans(target).Should().BeFalse();
+            target.ExposurePlans.Add(GetExposurePlan(10, 0, 0));
+            sut.HasEnabledPlans(target).Should().BeTrue();
+        }
+
+        private ExposurePlan GetExposurePlan(int desired, int accepted, int acquired, bool IsEnabled = true) {
             ExposurePlan ep = new ExposurePlan();
+            ep.IsEnabled = IsEnabled;
             ep.Desired = desired;
             ep.Accepted = accepted;
             ep.Acquired = acquired;

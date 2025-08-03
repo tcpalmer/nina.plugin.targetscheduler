@@ -58,10 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                                 }
                             }
                         }
-                        if (haveActiveTargets) { break; }
                     }
-
-                    if (haveActiveTargets) { break; }
                 }
 
                 if (!haveActiveTargets) {
