@@ -1,6 +1,8 @@
 ﻿using Moq;
 using NINA.Astrometry;
 using NINA.Core.Model;
+using NINA.Equipment.Equipment.MyWeatherData;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Image.ImageData;
 using NINA.Image.Interfaces;
 using NINA.Plugin.TargetScheduler.Astrometry;
@@ -88,13 +90,16 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             Mock<IExposure> pe = new Mock<IExposure>();
             pe.SetupAllProperties();
             pe.SetupProperty(m => m.DatabaseId, databaseId);
+            pe.SetupProperty(m => m.IsEnabled, true);
             pe.SetupProperty(m => m.FilterName, filterName);
             pe.SetupProperty(m => m.ExposureLength, exposureLength);
             pe.SetupProperty(m => m.Desired, desired);
             pe.SetupProperty(m => m.Acquired, 0);
             pe.SetupProperty(m => m.Accepted, accepted);
             pe.SetupProperty(m => m.DitherEvery, -1);
+            pe.SetupProperty(m => m.Offset, 0);
             pe.SetupProperty(m => m.MoonRelaxScale, 0);
+            pe.SetupProperty(m => m.MaximumHumidity, 0);
 
             pe.Setup(m => m.NeededExposures()).Returns(accepted > desired ? 0 : desired - accepted);
             pe.Setup(m => m.IsIncomplete()).Returns(accepted < desired);
@@ -168,6 +173,19 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             msg.StarDetectionAnalysis = sdaMock.Object;
 
             return msg;
+        }
+
+        public static IWeatherDataMediator GetWeatherDataMediator(bool connected, double currentHumidity) {
+            Mock<IWeatherDataMediator> mock = new Mock<IWeatherDataMediator>();
+
+            WeatherDataInfo weatherData = new WeatherDataInfo();
+            weatherData.Connected = connected;
+            if (connected) {
+                weatherData.Humidity = currentHumidity;
+            }
+
+            mock.Setup(m => m.GetInfo()).Returns(weatherData);
+            return mock.Object;
         }
     }
 }

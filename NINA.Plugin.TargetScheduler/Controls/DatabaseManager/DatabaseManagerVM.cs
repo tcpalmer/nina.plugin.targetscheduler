@@ -850,6 +850,21 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
         }
 
+        public Target ToggleExposurePlan(Target target, ExposurePlan exposurePlan) {
+            using (var context = database.GetContext()) {
+                Target updatedTarget = context.ToggleExposurePlan(target, exposurePlan);
+                if (updatedTarget != null) {
+                    activeTreeDataItem.Data = updatedTarget;
+                    SetTreeColorizeMode(SelectedColorizeMode);
+                    DitherManagerCache.Remove(target);
+                } else {
+                    Notification.ShowError("Failed to toggle on/off Scheduler Exposure Plan (see log for details)");
+                }
+
+                return updatedTarget;
+            }
+        }
+
         public Target DeleteExposurePlan(Target target, ExposurePlan exposurePlan) {
             using (var context = database.GetContext()) {
                 Target updatedTarget = context.DeleteExposurePlan(target, exposurePlan);
@@ -1129,16 +1144,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
 
             foreach (Target target in project.Targets) {
-                if (target.Enabled && helper.PercentComplete(target, true) < 100) {
-                    return true;
-                }
+                if (TargetActive(helper, project, target)) return true;
             }
 
             return false;
         }
 
         private bool TargetActive(ExposureCompletionHelper helper, Project project, Target target) {
-            return project.ActiveNow && target.Enabled && target.ExposurePlans.Count > 0 && helper.PercentComplete(target) < 100;
+            return project.ActiveNow
+                && target.Enabled
+                && target.ExposurePlans.Count > 0
+                && helper.HasEnabledPlans(target)
+                && helper.PercentComplete(target) < 100;
         }
     }
 

@@ -37,21 +37,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             this.TimeInterval = new TimeInterval(StartTime, EndTime);
             this.WaitForNextTargetTime = null;
 
-            if (logPlan) {
-                if (TSLogger.IsEnabled(LogLevelEnum.TRACE)) {
-                    string log = LogPlanResultsTrace();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Trace(log);
-                } else if (TSLogger.IsEnabled(LogLevelEnum.DEBUG)) {
-                    string log = LogPlanResultsDebug();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Debug(log);
-                } else {
-                    string log = LogPlanResultsInfo();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Info(log);
-                }
-            }
+            LogPlan(logPlan);
         }
 
         public SchedulerPlan(DateTime planTime, List<IProject> projects, ITarget nextTarget, bool logPlan) {
@@ -63,21 +49,19 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             this.TimeInterval = new TimeInterval(StartTime, EndTime);
             this.WaitForNextTargetTime = nextTarget.StartTime;
 
-            if (logPlan) {
-                if (TSLogger.IsEnabled(LogLevelEnum.TRACE)) {
-                    string log = LogPlanResultsTrace();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Trace(log);
-                } else if (TSLogger.IsEnabled(LogLevelEnum.DEBUG)) {
-                    string log = LogPlanResultsDebug();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Debug(log);
-                } else {
-                    string log = LogPlanResultsInfo();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Info(log);
-                }
-            }
+            LogPlan(logPlan);
+        }
+
+        public SchedulerPlan(DateTime planTime, List<IProject> projects, ITarget nextTarget, int waitSeconds, bool logPlan) {
+            this.PlanId = Guid.NewGuid().ToString();
+            this.PlanTime = planTime;
+            this.PlanTarget = nextTarget;
+            this.EndTime = planTime.AddSeconds(waitSeconds);
+            this.Projects = projects;
+            this.TimeInterval = new TimeInterval(StartTime, EndTime);
+            this.WaitForNextTargetTime = EndTime;
+
+            LogPlan(logPlan);
         }
 
         // Stub version used on sync clients to support immediate flats
@@ -92,6 +76,24 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             PlanInstructions.Add(planInstruction);
         }
 
+        private void LogPlan(bool logPlan) {
+            if (logPlan) {
+                if (TSLogger.IsEnabled(LogLevelEnum.TRACE)) {
+                    string log = LogPlanResultsTrace();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Trace(log);
+                } else if (TSLogger.IsEnabled(LogLevelEnum.DEBUG)) {
+                    string log = LogPlanResultsDebug();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Debug(log);
+                } else {
+                    string log = LogPlanResultsInfo();
+                    DetailsLog = DetailsLog + log;
+                    TSLogger.Info(log);
+                }
+            }
+        }
+
         public string LogPlanResultsTrace() {
             StringBuilder sb = new StringBuilder(LogPlanResultsDebug());
 
@@ -103,7 +105,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
 
             bool haveScoringRuns = false;
-            bool hasAllEPsRejected = false;
 
             if (Projects != null) {
                 sb.AppendLine(String.Format("\n{0,-40} {1,-27} {2,6}   {3,19}", "TARGETS CONSIDERED", "REJECTED FOR", "SCORE", "POTENTIAL START"));
@@ -118,14 +119,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                         }
 
                         sb.AppendLine(String.Format("{0,-40} {1,-27} {2,6}   {3}", $"{project.Name}/{target.Name}", target.RejectedReason, score, startTime));
-                        if (target.RejectedReason == Reasons.TargetAllExposurePlans) {
-                            hasAllEPsRejected = true;
-                        }
                     }
-                }
-
-                if (hasAllEPsRejected) {
-                    sb.AppendLine("\n(Rejection for 'all exposure plans' is due to moon avoidance or all exposure plans complete.)");
                 }
 
                 if (haveScoringRuns) {

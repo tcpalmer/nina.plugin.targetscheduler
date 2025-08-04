@@ -191,6 +191,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
     internal class EmulatedExposure : IExposure {
         public string PlanId { get; set; }
+        public bool IsEnabled { get; set; }
         public string FilterName { get; set; }
         public double ExposureLength { get; set; }
         public int? Gain { get; set; }
@@ -208,6 +209,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public int PlannedExposures { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public TwilightLevel TwilightLevel { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int DitherEvery { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int MinutesOffset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool MoonAvoidanceEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public double MoonAvoidanceSeparation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int MoonAvoidanceWidth { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

@@ -10,6 +10,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
     public class PlanningExposure : IExposure {
         public string PlanId { get; set; }
         public int DatabaseId { get; set; }
+        public bool IsEnabled { get; set; }
         public string FilterName { get; set; }
         public double ExposureLength { get; set; }
         public int? Gain { get; set; }
@@ -22,6 +23,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public ITarget PlanTarget { get; set; }
 
         public TwilightLevel TwilightLevel { get; set; }
+        public int MinutesOffset { get; set; }
         public int DitherEvery { get; set; }
 
         public bool MoonAvoidanceEnabled { get; set; }
@@ -43,6 +45,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public PlanningExposure(ITarget planTarget, ExposurePlan exposurePlan, ExposureTemplate exposureTemplate) {
             this.PlanId = Guid.NewGuid().ToString();
             this.DatabaseId = exposurePlan.Id;
+            this.IsEnabled = exposurePlan.IsEnabled;
             this.FilterName = exposureTemplate.FilterName;
             this.ExposureLength = exposurePlan.Exposure != -1 ? exposurePlan.Exposure : exposureTemplate.DefaultExposure;
             this.Gain = GetNullableIntValue(exposureTemplate.Gain);
@@ -55,6 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             this.PlanTarget = planTarget;
 
             this.TwilightLevel = exposureTemplate.TwilightLevel;
+            this.MinutesOffset = exposureTemplate.MinutesOffset;
             this.DitherEvery = exposureTemplate.DitherEvery;
 
             this.MoonAvoidanceEnabled = exposureTemplate.MoonAvoidanceEnabled;
@@ -86,6 +90,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Id: {PlanId}");
+            sb.AppendLine($"Enabled: {IsEnabled}");
             sb.AppendLine($"FilterName: {FilterName}");
             sb.AppendLine($"ExposureLength: {ExposureLength}");
             sb.AppendLine($"Gain: {Gain}");

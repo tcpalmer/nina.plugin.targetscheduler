@@ -78,6 +78,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             PasteExposurePlansCommand = new RelayCommand(PasteExposurePlans);
             DeleteExposurePlansCommand = new RelayCommand(DeleteAllExposurePlans);
             DeleteExposurePlanCommand = new RelayCommandParam((obj) => DeleteExposurePlan(obj), (obj) => true);
+            ToggleExposurePlanCommand = new RelayCommandParam((obj) => ToggleExposurePlan(obj), (obj) => true);
             OverrideExposureOrderCommand = new RelayCommand(DisplayOverrideExposureOrder);
             CancelOverrideExposureOrderCommand = new RelayCommand(CancelOverrideExposureOrder);
             SendCoordinatesToFramingAssistantCommand = new AsyncRelayCommand(SendCoordinatesToFramingAssistant);
@@ -92,7 +93,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         private bool ActiveWithActiveExposurePlans(Target target) {
-            return target.Project.ActiveNow && target.Enabled && target.ExposurePlans.Count > 0 && exposureCompletionHelper.PercentComplete(target) < 100;
+            return target.Project.ActiveNow
+                && target.Enabled
+                && target.ExposurePlans.Count > 0
+                && exposureCompletionHelper.HasEnabledPlans(target)
+                && exposureCompletionHelper.PercentComplete(target) < 100;
         }
 
         private TargetProxy targetProxy;
@@ -278,6 +283,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public ICommand PasteExposurePlansCommand { get; private set; }
         public ICommand DeleteExposurePlansCommand { get; private set; }
         public ICommand DeleteExposurePlanCommand { get; private set; }
+        public ICommand ToggleExposurePlanCommand { get; private set; }
 
         public ICommand OverrideExposureOrderCommand { get; private set; }
         public ICommand CancelOverrideExposureOrderCommand { get; private set; }
@@ -482,6 +488,22 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
         }
 
+        private void ToggleExposurePlan(object obj) {
+            ExposurePlanVM item = obj as ExposurePlanVM;
+            ExposurePlan exposurePlan = TargetProxy.Original.ExposurePlans.Where(ep => ep.Id == item?.ExposurePlan.Id).FirstOrDefault();
+            if (exposurePlan != null) {
+                Target updatedTarget = managerVM.ToggleExposurePlan(TargetProxy.Original, exposurePlan);
+                if (updatedTarget != null) {
+                    TargetProxy = new TargetProxy(updatedTarget);
+                    InitializeExposurePlans(TargetProxy.Proxy);
+                    TargetActive = ActiveWithActiveExposurePlans(TargetProxy.Target);
+                    SetExposureOrderDisplay();
+                }
+            } else {
+                TSLogger.Error($"failed to find original exposure plan: {item?.ExposurePlan.Id}");
+            }
+        }
+
         private void DeleteExposurePlan(object obj) {
             ExposurePlanVM item = obj as ExposurePlanVM;
             ExposurePlan exposurePlan = TargetProxy.Original.ExposurePlans.Where(ep => ep.Id == item?.ExposurePlan.Id).FirstOrDefault();
@@ -557,7 +579,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             int filterSwitchFrequency = project.FilterSwitchFrequency;
             int ditherEvery = project.DitherEvery;
 
-            ExposurePlans.ForEach((plan) => {
+            foreach (ExposurePlan plan in ExposurePlans.Where(ep => ep.IsEnabled)) {
                 if (filterSwitchFrequency == 0) {
                     sb.Append(plan.ExposureTemplate.Name).Append("..., ");
                 } else {
@@ -566,7 +588,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                         exposureInstructions.Add(plan.ExposureTemplate.Name);
                     }
                 }
-            });
+            }
 
             if (filterSwitchFrequency == 0 || ditherEvery == 0) {
                 return sb.ToString().TrimEnd().TrimEnd(new Char[] { ',' });
@@ -628,7 +650,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
     }
 
-    public class ExposurePlanVM {
+    public class ExposurePlanVM : BaseINPC {
         public ExposurePlan ExposurePlan { get; private set; }
         public bool IsProvisional { get; private set; }
         public string PercentComplete { get; private set; }
@@ -645,6 +667,14 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 IsProvisional = false;
                 PercentComplete = pc;
                 ProvisionalPercentComplete = "-";
+            }
+        }
+
+        public bool IsEnabled {
+            get => ExposurePlan.IsEnabled;
+            set {
+                ExposurePlan.IsEnabled = value;
+                RaiseAllPropertiesChanged();
             }
         }
 

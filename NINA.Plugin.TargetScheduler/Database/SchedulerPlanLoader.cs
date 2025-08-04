@@ -50,6 +50,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                     ExposureCompletionHelper helper = new ExposureCompletionHelper(project.EnableGrader, profilePreference.DelayGrading, profilePreference.ExposureThrottle);
                     foreach (Target target in project.Targets) {
                         if (target.Enabled) {
+                            target.ExposurePlans.RemoveAll(ep => !ep.IsEnabled);
                             foreach (ExposurePlan plan in target.ExposurePlans) {
                                 if (helper.RemainingExposures(plan) > 0) {
                                     haveActiveTargets = true;
@@ -57,10 +58,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                                 }
                             }
                         }
-                        if (haveActiveTargets) { break; }
                     }
-
-                    if (haveActiveTargets) { break; }
                 }
 
                 if (!haveActiveTargets) {

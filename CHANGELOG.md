@@ -1,5 +1,10 @@
 # Target Scheduler
 
+## 5.8.0.0 (beta) - 2025-08-04
+* Added support for exposure rejection for humidity.
+* Added support for an offset in minutes from twilight acceptable times.
+* Added ability to disable an exposure plan.
+
 ## 5.7.3.0 - 2025-07-28
 * Fixed issue with reporting - was assuming that FWHM and Eccentricity are available via HocusFocus.
 

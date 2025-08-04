@@ -1,6 +1,8 @@
 ﻿using NINA.Astrometry;
 using NINA.Core.Model;
 using NINA.Core.Utility;
+using NINA.Core.Utility.Notification;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
@@ -12,6 +14,7 @@ using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NINA.Plugin.TargetScheduler.Planning {
 
@@ -21,18 +24,20 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private DateTime atTime;
         private IProfile activeProfile;
         private ProfilePreference profilePreferences;
+        private IWeatherDataMediator weatherDataMediator;
         private ObserverInfo observerInfo;
         private PreviousTargetExpert previousTargetExpert;
         private List<IProject> projects;
 
-        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, bool checkCondition, bool isPreview)
-            : this(atTime, profile, profilePreferences, checkCondition, isPreview, null) {
+        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, IWeatherDataMediator weatherDataMediator, bool checkCondition, bool isPreview)
+            : this(atTime, profile, profilePreferences, weatherDataMediator, checkCondition, isPreview, null) {
         }
 
-        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, bool checkCondition, bool isPreview, List<IProject> projects) {
+        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, IWeatherDataMediator weatherDataMediator, bool checkCondition, bool isPreview, List<IProject> projects) {
             this.atTime = atTime;
             this.activeProfile = profile;
             this.profilePreferences = profilePreferences;
+            this.weatherDataMediator = weatherDataMediator;
             this.checkCondition = checkCondition;
             this.isPreview = isPreview;
             this.projects = projects;
@@ -59,7 +64,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                     }
 
                     // If the previous target still has time in it's initial minimum time span and is still acceptable, then stick with it
-                    if (previousTargetExpert.CanContinue(atTime, previousTarget)) {
+                    if (previousTargetExpert.CanContinue(atTime, weatherDataMediator, previousTarget)) {
                         TSLogger.Info($"previous target still within permitted time span, continuing: {previousTarget.Project.Name}/{previousTarget.Name}: {previousTarget.BonusTimeSpanEnd} > {atTime} ");
                         List<IInstruction> instructions = new InstructionGenerator().Generate(previousTarget, previousTarget);
                         return new SchedulerPlan(atTime, projects, previousTarget, instructions, !checkCondition);
@@ -70,6 +75,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                     projects = FilterForVisibility(projects);
                     projects = FilterForMoonAvoidance(projects);
                     projects = FilterForTwilight(projects);
+                    projects = FilterForHumidity(projects, weatherDataMediator);
 
                     // See if one or more targets are ready to image now
                     List<ITarget> readyTargets = GetTargetsReadyNow(projects);
@@ -84,6 +90,21 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                         // Target ready now
                         return new SchedulerPlan(atTime, projects, selectedTarget, instructions, !checkCondition);
                     } else {
+                        // If everything was rejected due to humidity, see if we're done (since it's very unlikely to improve)
+                        if (!isPreview && projects?.Count > 0 && AllRejectedForHumidity(projects)) {
+                            if (profilePreferences.EnableStopOnHumidity) {
+                                TSLogger.Warning("all remaining targets were rejected for unacceptable humidity, ending for the night");
+                                Notification.ShowWarning("Target Scheduler: all remaining targets were rejected for unacceptable humidity, ending for the night");
+                                return null;
+                            } else {
+                                ITarget target = NextRejectedForHumidity(projects);
+                                if (target != null) {
+                                    TSLogger.Info("all remaining targets were rejected for unacceptable humidity, waiting 15 minutes and trying again");
+                                    return new SchedulerPlan(atTime, projects, target, 15 * 60, !checkCondition);
+                                }
+                            }
+                        }
+
                         ITarget nextTarget = GetNextPossibleTarget(projects);
                         if (nextTarget != null) {
                             // Wait for next possible target
@@ -99,7 +120,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                         throw;
                     }
 
-                    TSLogger.Error($"exception generating plan: {ex.StackTrace}");
+                    TSLogger.Error($"exception generating plan: {ex.Message}\n{ex.StackTrace}");
                     throw new SequenceEntityFailedException($"Scheduler: exception generating plan: {ex.Message}", ex);
                 } finally {
                     TSLogger.Info($"-- END {title} -----------------------------------------------------");
@@ -178,7 +199,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// </summary>
         /// <param name="projects"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public List<IProject> FilterForTwilight(List<IProject> projects) {
             if (NoProjects(projects)) { return null; }
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observerInfo, atTime);
@@ -189,11 +209,76 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 if (project.Rejected) { continue; }
 
                 foreach (ITarget target in project.Targets) {
-                    targetExpert.TwilightFilter(target, currentTwilightLevel);
+                    targetExpert.TwilightFilter(target, atTime, twilightCircumstances, currentTwilightLevel);
                 }
             }
 
             return PropagateRejections(projects);
+        }
+
+        /// <summary>
+        /// Reject target exposures that are not suitable for the current level of humidity.
+        /// </summary>
+        /// <param name="projects"></param>
+        /// <param name="weatherDataMediator"></param>
+        /// <returns></returns>
+        public List<IProject> FilterForHumidity(List<IProject> projects, IWeatherDataMediator weatherDataMediator) {
+            if (NoProjects(projects)) { return null; }
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
+
+            foreach (IProject project in projects) {
+                if (project.Rejected) { continue; }
+
+                foreach (ITarget target in project.Targets) {
+                    targetExpert.HumidityFilter(target, weatherDataMediator);
+                }
+            }
+
+            return PropagateRejections(projects);
+        }
+
+        /// <summary>
+        /// Determine if all projects/targets were rejected for humidity.
+        /// </summary>
+        /// <param name="projects"></param>
+        /// <returns></returns>
+        public bool AllRejectedForHumidity(List<IProject> projects) {
+            if (NoProjects(projects)) { throw new Exception("unexpected: no projects in AllRejectedForHumidity"); }
+
+            foreach (IProject project in projects) {
+                foreach (ITarget target in project.Targets) {
+                    if (!target.Rejected) { return false; }
+                    if (target.RejectedReason == Reasons.TargetComplete) { continue; }
+                    if (target.RejectedReason != Reasons.TargetHumidity) { return false; }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Assuming all targets were rejected for humidity, return the one that would be starting 'now', otherwise null if later.
+        /// </summary>
+        /// <param name="projects"></param>
+        /// <returns></returns>
+        public ITarget NextRejectedForHumidity(List<IProject> projects) {
+            if (NoProjects(projects)) { throw new Exception("unexpected: no projects in NextRejectedForHumidity"); }
+
+            List<ITarget> targets = new List<ITarget>();
+            foreach (IProject project in projects) {
+                foreach (ITarget target in project.Targets) {
+                    if (target.Rejected && target.RejectedReason == Reasons.TargetHumidity) { targets.Add(target); }
+                }
+            }
+
+            if (targets.Count == 0) {
+                TSLogger.Warning("unexpected: no targets found in NextRejectedForHumidity");
+                return null;
+            }
+
+            ITarget nextTarget = targets.OrderBy(t => t.StartTime).First();
+            TargetImagingExpert targetExpert = new TargetImagingExpert(activeProfile, profilePreferences, isPreview);
+            return targetExpert.ReadyNow(atTime, nextTarget, false) ? nextTarget : null;
         }
 
         /// <summary>
@@ -389,7 +474,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             exposure.RejectedReason = reason;
         }
 
-        private List<IProject> PropagateRejections(List<IProject> projects) {
+        public List<IProject> PropagateRejections(List<IProject> projects) {
             if (NoProjects(projects)) { return null; }
 
             foreach (IProject project in projects) {
@@ -398,27 +483,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
                 foreach (ITarget target in project.Targets) {
                     if (target.Rejected) { continue; }
-                    bool targetRejected = true;
-
-                    bool allExposurePlansComplete = true;
-                    foreach (IExposure exposure in target.ExposurePlans) {
-                        if (!exposure.Rejected) {
-                            targetRejected = false;
-                            break;
-                        }
-
-                        if (exposure.Rejected && exposure.RejectedReason != Reasons.FilterComplete) {
-                            allExposurePlansComplete = false;
-                        }
-                    }
-
-                    if (targetRejected) {
-                        SetRejected(target, allExposurePlansComplete ? Reasons.TargetComplete : Reasons.TargetAllExposurePlans);
-                    }
-
-                    if (!target.Rejected) {
-                        projectRejected = false;
-                    }
+                    if (target.ExposurePlans.All(ep => ep.Rejected)) { SetRejected(target, GetTargetExposureRejectReason(target)); }
+                    if (!target.Rejected) { projectRejected = false; }
                 }
 
                 if (projectRejected) {
@@ -427,6 +493,14 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
 
             return projects;
+        }
+
+        public string GetTargetExposureRejectReason(ITarget target) {
+            if (target.ExposurePlans.All(ep => ep.RejectedReason == Reasons.FilterComplete)) { return Reasons.TargetComplete; }
+            if (target.ExposurePlans.All(ep => ep.RejectedReason == Reasons.FilterTwilight)) { return Reasons.TargetTwilight; }
+            if (target.ExposurePlans.All(ep => ep.RejectedReason == Reasons.FilterMoonAvoidance)) { return Reasons.TargetMoonAvoidance; }
+            if (target.ExposurePlans.All(ep => ep.RejectedReason == Reasons.FilterHumidity)) { return Reasons.TargetHumidity; }
+            return Reasons.TargetAllExposurePlans; // implicit assumption that all are indeed rejected
         }
 
         private bool ProjectIsInComplete(IProject project) {
@@ -460,13 +534,16 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public const string TargetMeridianWindowClipped = "clipped by meridian window";
         public const string TargetBeforeMeridianWindow = "before meridian window";
         public const string TargetMeridianFlipClipped = "clipped by meridian flip safety";
-        public const string TargetMoonAvoidance = "moon avoidance";
+        public const string TargetTwilight = "all exposure plans rejected for twilight";
+        public const string TargetMoonAvoidance = "all exposure plans rejected for moon avoidance";
+        public const string TargetHumidity = "all exposure plans rejected for humidity";
         public const string TargetLowerScore = "lower score";
         public const string TargetAllExposurePlans = "all exposure plans rejected";
 
         public const string FilterComplete = "complete";
         public const string FilterMoonAvoidance = "moon avoidance";
         public const string FilterTwilight = "twilight";
+        public const string FilterHumidity = "humidity";
         public const string FilterNoExposuresPlanned = "no exposures planned";
 
         private Reasons() {

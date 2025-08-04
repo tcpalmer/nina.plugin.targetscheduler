@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Moq;
 using NINA.Astrometry;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
@@ -22,12 +23,13 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testCanContinue() {
             ObserverInfo observerInfo = TestData.Pittsboro_NC;
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(observerInfo);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             IProfile profile = profileMock.Object.ActiveProfile;
             DateTime atTime = new DateTime(2023, 12, 17, 20, 0, 0);
 
             PreviousTargetExpert sut = new PreviousTargetExpert(profile, GetPrefs(), false, observerInfo);
 
-            sut.CanContinue(atTime, null).Should().BeFalse();
+            sut.CanContinue(atTime, weatherData, null).Should().BeFalse();
 
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp.SetupProperty(p => p.EnableGrader, true);
@@ -51,19 +53,19 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             // Next exposure exceeds minimum time span
             ITarget target = pt.Object;
-            sut.CanContinue(atTime, target).Should().BeFalse();
+            sut.CanContinue(atTime, weatherData, target).Should().BeFalse();
             target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
 
             // Next exposure will now fit in minimum time span
             exposure.ExposureLength = 30;
             target.SelectedExposure.Should().Be(null);
-            sut.CanContinue(atTime, target).Should().BeTrue();
+            sut.CanContinue(atTime, weatherData, target).Should().BeTrue();
             target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             target.SelectedExposure.Should().Be(exposure);
 
             // Exposure plan is now complete
             exposure.Acquired = 20;
-            sut.CanContinue(atTime, target).Should().BeFalse();
+            sut.CanContinue(atTime, weatherData, target).Should().BeFalse();
             target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             target.ExposurePlans.Count.Should().Be(0);
             target.CompletedExposurePlans.Count.Should().Be(1);
@@ -73,6 +75,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testPreviousTargetCanContinueMoon() {
             ObserverInfo observerInfo = TestData.Pittsboro_NC;
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(observerInfo);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             IProfile profile = profileMock.Object.ActiveProfile;
             DateTime atTime = new DateTime(2025, 2, 16, 22, 30, 0);
 
@@ -103,20 +106,60 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             ITarget target = pt.Object;
 
             // At 22:30, the moon is below 5°
-            sut.CanContinue(atTime, target).Should().BeTrue();
+            sut.CanContinue(atTime, weatherData, target).Should().BeTrue();
             target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
 
             // But by 22:40, it's above 5°
-            sut.CanContinue(atTime.AddMinutes(10), target).Should().BeFalse();
+            sut.CanContinue(atTime.AddMinutes(10), weatherData, target).Should().BeFalse();
             target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             exposure.Rejected.Should().BeTrue();
             exposure.RejectedReason.Should().Be(Reasons.FilterMoonAvoidance);
         }
 
         [Test]
+        public void testPreviousTargetCanContinueHumidity() {
+            ObserverInfo observerInfo = TestData.Pittsboro_NC;
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(observerInfo);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(true, 10);
+            IProfile profile = profileMock.Object.ActiveProfile;
+            DateTime atTime = new DateTime(2025, 2, 16, 22, 30, 0);
+
+            Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            pp.SetupProperty(p => p.EnableGrader, true);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("M42", TestData.M42);
+            pt.SetupProperty(m => m.EndTime, atTime.AddHours(12));
+            var exposureSelector = new RepeatUntilDoneExposureSelector(pp.Object, pt.Object, new Target());
+            pt.SetupProperty(p => p.IsPreview, true);
+            pt.SetupProperty(p => p.MinimumTimeSpanEnd, atTime.AddHours(1));
+            pt.SetupProperty(p => p.BonusTimeSpanEnd, atTime.AddHours(1));
+            pt.SetupProperty(p => p.ExposureSelector, exposureSelector);
+
+            IExposure exposure = new PlanningExposure();
+            exposure.PlanTarget = pt.Object;
+            exposure.ExposureLength = 180;
+            exposure.Desired = 10;
+            exposure.Accepted = 0;
+            exposure.Acquired = 0;
+            exposure.MoonAvoidanceEnabled = false;
+            exposure.MaximumHumidity = 60;
+
+            pt.Object.AllExposurePlans.Add(exposure);
+            PlanMocks.AddMockPlanTarget(pp, pt);
+
+            PreviousTargetExpert sut = new PreviousTargetExpert(profile, GetPrefs(), true, observerInfo);
+            ITarget target = pt.Object;
+
+            sut.CanContinue(atTime, weatherData, target).Should().BeTrue();
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 70);
+            sut.CanContinue(atTime, weatherData, target).Should().BeFalse();
+        }
+
+        [Test]
         public void testPreviousTargetCanContinueOverrideExposureOrder() {
             ObserverInfo observerInfo = TestData.Pittsboro_NC;
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(observerInfo);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             IProfile profile = profileMock.Object.ActiveProfile;
             DateTime atTime = new DateTime(2025, 2, 16, 22, 30, 0);
 
@@ -156,7 +199,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             PreviousTargetExpert sut = new PreviousTargetExpert(profile, GetPrefs(), true, observerInfo);
             ITarget target = pt.Object;
 
-            sut.CanContinue(atTime, target).Should().BeTrue();
+            sut.CanContinue(atTime, weatherData, target).Should().BeTrue();
             target.BonusTimeSpanEnd.Should().BeSameDateAs(target.MinimumTimeSpanEnd);
             target.SelectedExposure.Should().Be(Lpf.Object);
         }
@@ -166,9 +209,10 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             ObserverInfo observerInfo = TestData.Pittsboro_NC;
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(observerInfo);
             IProfile profile = profileMock.Object.ActiveProfile;
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             DateTime atTime = new DateTime(2023, 12, 17, 20, 0, 0);
 
-            Planner sut = new Planner(atTime, profile, GetPrefs(), false, true, new List<IProject>());
+            Planner sut = new Planner(atTime, profile, GetPrefs(), weatherData, false, true, new List<IProject>());
 
             Mock<IProject> pp = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
             pp.SetupProperty(p => p.EnableGrader, true);
@@ -205,6 +249,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testPreviousTargetCanContinueBonusTime() {
             ObserverInfo observerInfo = TestData.Pittsboro_NC;
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(observerInfo);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             IProfile profile = profileMock.Object.ActiveProfile;
             DateTime atTime = new DateTime(2025, 3, 12, 0, 53, 0);
 
@@ -227,7 +272,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Should trigger the special case of allowing the target to continue past
             // regular minimum since it's nearing the end of visibility.
             ITarget target = projects[0].Targets[0];
-            sut.CanContinue(atTime, target).Should().BeTrue();
+            sut.CanContinue(atTime, weatherData, target).Should().BeTrue();
             target.BonusTimeSpanEnd.Should().BeSameDateAs(target.EndTime);
         }
 
@@ -235,6 +280,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         public void testPreviousTargetCanContinueTwilight() {
             ObserverInfo observerInfo = TestData.Pittsboro_NC;
             Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(observerInfo);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
             IProfile profile = profileMock.Object.ActiveProfile;
             DateTime atTime = new DateTime(2025, 2, 1, 19, 0, 0); // astro twilight
 
@@ -260,16 +306,18 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             ITarget target = pt.Object;
 
             // In astro twilight -> Ha is OK
-            sut.CanContinue(atTime, target).Should().BeTrue();
+            sut.CanContinue(atTime, weatherData, target).Should().BeTrue();
             target.SelectedExposure.FilterName.Should().Be("Ha");
 
             // Ha now done but still in astro twilight -> Lum not OK
             target.AllExposurePlans.RemoveAt(0);
             target.ExposurePlans.RemoveAt(0);
-            sut.CanContinue(atTime, target).Should().BeFalse();
+            sut.CanContinue(atTime, weatherData, target).Should().BeFalse();
 
             // Advance time to nighttime -> Lum now OK
-            sut.CanContinue(atTime.AddMinutes(20), target).Should().BeTrue();
+            LumExpMock.Object.Rejected = false;
+            LumExpMock.Object.RejectedReason = null;
+            sut.CanContinue(atTime.AddMinutes(20), weatherData, target).Should().BeTrue();
             target.SelectedExposure.FilterName.Should().Be("Lum");
         }
 

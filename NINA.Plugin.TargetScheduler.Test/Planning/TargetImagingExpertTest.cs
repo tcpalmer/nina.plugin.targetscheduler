@@ -2,6 +2,7 @@
 using FluentAssertions.Extensions;
 using Moq;
 using NINA.Astrometry;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
@@ -230,6 +231,40 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         }
 
         [Test]
+        public void testGetTwilightSpan() {
+            IProfile profile = GetProfileService();
+            DateTime atTime = new DateTime(2025, 7, 20, 18, 0, 0);
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 30;
+            ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M31).Object;
+            t1.Project = p1;
+            IExposure L = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            L.TwilightLevel = TwilightLevel.Nighttime;
+            t1.ExposurePlans.Add(L);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+            TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(TestData.North_Mid_Lat, atTime);
+
+            var span = sut.GetTwilightSpan(twilightCircumstances, t1);
+            span.StartTime.Should().Be(twilightCircumstances.NighttimeStart);
+            span.EndTime.Should().Be(twilightCircumstances.NighttimeEnd);
+
+            IExposure Ha = PlanMocks.GetMockPlanExposure("Ha", 10, 0).Object;
+            Ha.TwilightLevel = TwilightLevel.Astronomical;
+            t1.ExposurePlans.Add(Ha);
+            span = sut.GetTwilightSpan(twilightCircumstances, t1);
+            span.StartTime.Should().Be(twilightCircumstances.AstronomicalTwilightStart);
+            span.EndTime.Should().Be(twilightCircumstances.AstronomicalTwilightEnd);
+
+            L.MinutesOffset = -10;
+            Ha.Rejected = true;
+
+            span = sut.GetTwilightSpan(twilightCircumstances, t1);
+            span.StartTime.Should().Be(((DateTime)twilightCircumstances.NighttimeStart).AddMinutes(-10));
+            span.EndTime.Should().Be(((DateTime)twilightCircumstances.NighttimeEnd).AddMinutes(10));
+        }
+
+        [Test]
         public void testTwilightFilter() {
             IProfile profile = GetProfileService();
             DateTime atTime = new DateTime(2025, 1, 1, 20, 0, 0);
@@ -244,37 +279,83 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
 
-            sut.TwilightFilter(t1, TwilightLevel.Astronomical);
+            sut.TwilightFilter(t1, atTime, null, TwilightLevel.Astronomical);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be(Reasons.FilterTwilight);
             sut.ClearRejections(t1);
 
-            sut.TwilightFilter(t1, TwilightLevel.Nighttime);
+            sut.TwilightFilter(t1, atTime, null, TwilightLevel.Nighttime);
             e1.Rejected.Should().BeFalse();
             sut.ClearRejections(t1);
 
             e1.Rejected = true;
             e1.RejectedReason = "other";
-            sut.TwilightFilter(t1, TwilightLevel.Nighttime);
+            sut.TwilightFilter(t1, atTime, null, TwilightLevel.Nighttime);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be("other");
             sut.ClearRejections(t1);
 
-            sut.TwilightFilter(t1, null);
+            sut.TwilightFilter(t1, atTime, null, null);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be(Reasons.FilterTwilight);
             sut.ClearRejections(t1);
 
             e1.TwilightLevel = TwilightLevel.Nautical;
-            sut.TwilightFilter(t1, TwilightLevel.Nautical);
+            sut.TwilightFilter(t1, atTime, null, TwilightLevel.Nautical);
             e1.Rejected.Should().BeFalse();
-            sut.TwilightFilter(t1, TwilightLevel.Astronomical);
+            sut.TwilightFilter(t1, atTime, null, TwilightLevel.Astronomical);
             e1.Rejected.Should().BeFalse();
-            sut.TwilightFilter(t1, TwilightLevel.Nighttime);
+            sut.TwilightFilter(t1, atTime, null, TwilightLevel.Nighttime);
             e1.Rejected.Should().BeFalse();
-            sut.TwilightFilter(t1, TwilightLevel.Civil);
+            sut.TwilightFilter(t1, atTime, null, TwilightLevel.Civil);
             e1.Rejected.Should().BeTrue();
             e1.RejectedReason.Should().Be(Reasons.FilterTwilight);
+        }
+
+        [Test]
+        public void testHumidityFilter() {
+            IProfile profile = GetProfileService();
+            DateTime atTime = new DateTime(2025, 1, 1, 20, 0, 0);
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 30;
+            ITarget t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42).Object;
+            t1.StartTime = atTime.AddHours(1);
+            t1.Project = p1;
+            IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            IExposure e2 = PlanMocks.GetMockPlanExposure("R", 10, 0).Object;
+            e1.MaximumHumidity = 50;
+            e2.MaximumHumidity = 80;
+            t1.ExposurePlans.Add(e1);
+            t1.ExposurePlans.Add(e2);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+            IWeatherDataMediator weatherData = PlanMocks.GetWeatherDataMediator(false, 0);
+
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeFalse();
+            e2.Rejected.Should().BeFalse();
+            sut.ClearRejections(t1);
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 60);
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeTrue();
+            e1.RejectedReason.Should().Be(Reasons.FilterHumidity);
+            e2.Rejected.Should().BeFalse();
+            sut.ClearRejections(t1);
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 80);
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeTrue();
+            e1.RejectedReason.Should().Be(Reasons.FilterHumidity);
+            e2.Rejected.Should().BeFalse();
+            sut.ClearRejections(t1);
+
+            weatherData = PlanMocks.GetWeatherDataMediator(true, 81);
+            sut.HumidityFilter(t1, weatherData);
+            e1.Rejected.Should().BeTrue();
+            e1.RejectedReason.Should().Be(Reasons.FilterHumidity);
+            e2.Rejected.Should().BeTrue();
+            e2.RejectedReason.Should().Be(Reasons.FilterHumidity);
         }
 
         [Test]

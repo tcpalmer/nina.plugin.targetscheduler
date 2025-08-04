@@ -285,6 +285,11 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             return target;
         }
 
+        public void OrderExposurePlans() {
+            if (ExposurePlans == null || ExposurePlans.Count < 2) return;
+            ExposurePlans.Sort((ep1, ep2) => ep1.Id.CompareTo(ep2.Id));
+        }
+
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Name: {Name}");

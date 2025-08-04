@@ -334,8 +334,22 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
             sut.IsIncomplete(target).Should().BeFalse();
         }
 
-        private ExposurePlan GetExposurePlan(int desired, int accepted, int acquired) {
+        [Test]
+        public void TestHasEnabledPlans() {
+            ExposureCompletionHelper sut = new ExposureCompletionHelper(true, 0, 100);
+            Target target = new Target();
+
+            sut.HasEnabledPlans(target).Should().BeFalse();
+
+            target.ExposurePlans.Add(GetExposurePlan(10, 0, 0, false));
+            sut.HasEnabledPlans(target).Should().BeFalse();
+            target.ExposurePlans.Add(GetExposurePlan(10, 0, 0));
+            sut.HasEnabledPlans(target).Should().BeTrue();
+        }
+
+        private ExposurePlan GetExposurePlan(int desired, int accepted, int acquired, bool IsEnabled = true) {
             ExposurePlan ep = new ExposurePlan();
+            ep.IsEnabled = IsEnabled;
             ep.Desired = desired;
             ep.Accepted = accepted;
             ep.Acquired = acquired;
@@ -418,6 +432,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
     }
 
     internal class TestPlanExposure : IExposure {
+        public bool IsEnabled { get; set; }
         public int Desired { get; set; }
         public int Accepted { get; set; }
         public int Acquired { get; set; }
@@ -438,6 +453,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         public int? ReadoutMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public ITarget PlanTarget { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public TwilightLevel TwilightLevel { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int MinutesOffset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int DitherEvery { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool MoonAvoidanceEnabled { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public double MoonAvoidanceSeparation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
