@@ -208,7 +208,8 @@
                 </TextBox.Text>
             </TextBox>
             <StackPanel Margin="3,3,0,0"
-                        Orientation="Horizontal">
+                        Orientation="Horizontal"
+                        Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
                 <TextBlock MaxHeight="20"
                            Text="{Binding ExposureTemplateProxy.ExposureTemplate.MinutesOffset}"
                            Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />

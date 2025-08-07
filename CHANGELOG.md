@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.8.1.0 (beta) - 2025-08-07
+* Fixed issue with layout during exposure template editing.
+
 ## 5.8.0.0 (beta) - 2025-08-04
 * Added support for exposure rejection for humidity.
 * Added support for an offset in minutes from twilight acceptable times.
