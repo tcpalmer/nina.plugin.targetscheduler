@@ -287,6 +287,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             copy.ReadoutMode = ReadoutMode;
             copy.TwilightLevel = TwilightLevel;
             copy.MinutesOffset = MinutesOffset;
+            copy.DitherEvery = DitherEvery;
             copy.MoonAvoidanceEnabled = MoonAvoidanceEnabled;
             copy.MoonAvoidanceSeparation = MoonAvoidanceSeparation;
             copy.MoonAvoidanceWidth = MoonAvoidanceWidth;
@@ -311,6 +312,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             sb.AppendLine($"ReadoutMode: {ReadoutMode}");
             sb.AppendLine($"TwilightLevel: {TwilightLevel}");
             sb.AppendLine($"MinutesOffset: {MinutesOffset}");
+            sb.AppendLine($"DitherEvery: {DitherEvery}");
             sb.AppendLine($"MoonAvoidanceEnabled: {MoonAvoidanceEnabled}");
             sb.AppendLine($"MoonAvoidanceSeparation: {MoonAvoidanceSeparation}");
             sb.AppendLine($"MoonAvoidanceWidth: {MoonAvoidanceWidth}");

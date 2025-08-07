@@ -1,4 +1,5 @@
-﻿using NINA.Plugin.TargetScheduler.Database.Schema;
+﻿using NINA.Core.Model.Equipment;
+using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.WPF.Base.ViewModel;
@@ -14,7 +15,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         private DatabaseManagerVM managerVM;
         private ProfileMeta profile;
         private TreeDataItem parentItem;
-        private List<ExposureTemplate> exposureTemplates;
+        private List<ExposureTemplateRowView> exposureTemplates;
 
         public ProfileMeta Profile {
             get => profile;
@@ -24,7 +25,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
         }
 
-        public List<ExposureTemplate> ExposureTemplates {
+        public List<ExposureTemplateRowView> ExposureTemplates {
             get => exposureTemplates;
             set {
                 exposureTemplates = value;
@@ -48,10 +49,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             CopyExposureTemplateCommand = new RelayCommandParam(CopyExposureTemplate);
         }
 
-        private List<ExposureTemplate> InitExposureTemplates(TreeDataItem profileItem) {
-            List<ExposureTemplate> exposureTemplates = new List<ExposureTemplate>();
+        private List<ExposureTemplateRowView> InitExposureTemplates(TreeDataItem profileItem) {
+            List<ExposureTemplateRowView> exposureTemplates = new List<ExposureTemplateRowView>();
             foreach (TreeDataItem item in profileItem.Items) {
-                exposureTemplates.Add((ExposureTemplate)item.Data);
+                exposureTemplates.Add(new ExposureTemplateRowView((ExposureTemplate)item.Data));
             }
 
             return exposureTemplates;
@@ -71,7 +72,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         private void ViewExposureTemplate(object obj) {
-            ExposureTemplate exposureTemplate = obj as ExposureTemplate;
+            ExposureTemplate exposureTemplate = (obj as ExposureTemplateRowView).ExposureTemplate;
             if (exposureTemplate != null) {
                 TreeDataItem item = Find(exposureTemplate);
                 if (item != null) {
@@ -81,7 +82,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         private void CopyExposureTemplate(object obj) {
-            ExposureTemplate exposureTemplate = obj as ExposureTemplate;
+            ExposureTemplate exposureTemplate = (obj as ExposureTemplateRowView).ExposureTemplate;
             if (exposureTemplate != null) {
                 TreeDataItem item = Find(exposureTemplate);
                 if (item != null) {
@@ -99,6 +100,34 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             }
 
             return null;
+        }
+    }
+
+    public class ExposureTemplateRowView {
+        public ExposureTemplate ExposureTemplate;
+
+        public ExposureTemplateRowView(ExposureTemplate exposureTemplate) {
+            this.ExposureTemplate = exposureTemplate;
+        }
+
+        public string Name => ExposureTemplate.Name;
+        public string FilterName => ExposureTemplate.FilterName;
+        public double DefaultExposure => ExposureTemplate.DefaultExposure;
+        public int Gain => ExposureTemplate.Gain;
+        public int Offset => ExposureTemplate.Offset;
+        public BinningMode BinningMode => ExposureTemplate.BinningMode;
+        public string MinutesOffset => ExposureTemplate.MinutesOffset > 0 ? ExposureTemplate.MinutesOffset.ToString() : "";
+        public string DitherEvery => ExposureTemplate.DitherEvery != -1 ? ExposureTemplate.DitherEvery.ToString() : "";
+        public bool MoonAvoidanceEnabled => ExposureTemplate.MoonAvoidanceEnabled;
+
+        public string TwilightLevel {
+            get {
+                switch (ExposureTemplate.TwilightLevel) {
+                    case Astrometry.TwilightLevel.Nighttime: return "Night";
+                    case Astrometry.TwilightLevel.Astronomical: return "Astro";
+                    default: return ExposureTemplate.TwilightLevel.ToString();
+                }
+            }
         }
     }
 }
