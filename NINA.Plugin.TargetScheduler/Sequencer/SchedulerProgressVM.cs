@@ -72,9 +72,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 EndCurrent();
                 CurrentRow = new SchedulerProgressRow(CurrentGroup, name, filter);
                 ProgressItemList.Add(CurrentRow);
-            });
 
-            RaisePropertyChanged(nameof(ItemsView));
+                RaisePropertyChanged(nameof(ItemsView));
+            });
         }
 
         private bool SameSwitchFilter(string name, string filter) {
