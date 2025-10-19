@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NINA.Core.Model.Equipment;
+using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
@@ -27,6 +28,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Database {
 
         [OneTimeSetUp]
         public void OneTimeSetUp() {
+            DllLoader.LoadDll(Path.Combine("SQLite", "SQLite.Interop.dll"));
+
             testDatabasePath = Path.Combine(Path.GetTempPath(), $"scheduler-unittest.sqlite");
             if (File.Exists(testDatabasePath)) {
                 File.Delete(testDatabasePath);

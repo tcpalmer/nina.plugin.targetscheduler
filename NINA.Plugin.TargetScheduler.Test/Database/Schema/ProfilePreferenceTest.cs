@@ -16,6 +16,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
             sut.EnableSmartPlanWindow.Should().BeTrue();
             sut.EnableDeleteAcquiredImagesWithTarget.Should().BeTrue();
             sut.EnableSlewCenter.Should().BeTrue();
+            sut.EnableStopOnHumidity.Should().BeTrue();
+            sut.EnableProfileTargetCompletionReset.Should().BeFalse();
 
             sut.EnableGradeRMS.Should().BeTrue();
             sut.EnableGradeStars.Should().BeTrue();

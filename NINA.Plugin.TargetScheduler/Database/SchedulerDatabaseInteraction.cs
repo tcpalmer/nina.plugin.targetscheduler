@@ -1,5 +1,4 @@
-﻿using NINA.Core.Utility;
-using NINA.Core.Utility.Notification;
+﻿using NINA.Core.Utility.Notification;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using System;
 using System.Collections.Generic;
@@ -14,11 +13,12 @@ namespace NINA.Plugin.TargetScheduler.Database {
         public static readonly string DATABASE_FILENAME = $"{DATABASE_BASENAME}.{DATABASE_SUFFIX}";
         private static readonly int DATABASE_BACKUPS = 3;
 
+        /*
         static SchedulerDatabaseInteraction() {
             // TODO: Can we determine if already loaded and then skip?  Or if the problem is just that
             // it's not loaded for test cases, can we explicitly load just for those?
-            DllLoader.LoadDll(Path.Combine("SQLite", "SQLite.Interop.dll"));
-        }
+            //DllLoader.LoadDll(Path.Combine("SQLite", "SQLite.Interop.dll"));
+        }*/
 
         private string connectionString;
 
