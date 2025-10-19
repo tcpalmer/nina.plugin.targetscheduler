@@ -100,11 +100,11 @@
                                FontSize="16"
                                FontWeight="Bold" />
                         <UniformGrid Width="320"
-                                     Height="132"
+                                     Height="154"
                                      Margin="12,0,0,6"
                                      HorizontalAlignment="Left"
                                      Columns="2"
-                                     Rows="6">
+                                     Rows="7">
 
                             <TextBlock VerticalAlignment="Center"
                                        FontWeight="Bold"
@@ -196,6 +196,19 @@
                             <TextBlock MaxHeight="20"
                                        Margin="3,3,0,0"
                                        Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableStopOnHumidity}"
+                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+                            <TextBlock VerticalAlignment="Center"
+                                       FontWeight="Bold"
+                                       Text="Enable completion reset"
+                                       ToolTip="If true, enable target completion reset at the profile level." />
+                            <CheckBox HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableProfileTargetCompletionReset, Mode=TwoWay}"
+                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock MaxHeight="20"
+                                       Margin="3,3,0,0"
+                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableProfileTargetCompletionReset}"
                                        Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
                         </UniformGrid>
 

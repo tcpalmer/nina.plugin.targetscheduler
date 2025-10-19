@@ -20,6 +20,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int enableDeleteAcquiredImagesWithTarget { get; set; }
         public int enableSlewCenter { get; set; }
         public int enableStopOnHumidity { get; set; }
+        public int enableProfileTargetCompletionReset { get; set; }
 
         public int enableSynchronization { get; set; }
         public int syncWaitTimeout { get; set; }
@@ -62,6 +63,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             EnableDeleteAcquiredImagesWithTarget = true;
             EnableSlewCenter = true;
             EnableStopOnHumidity = true;
+            EnableProfileTargetCompletionReset = false;
 
             EnableGradeRMS = true;
             EnableGradeStars = true;
@@ -158,6 +160,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             set {
                 enableStopOnHumidity = value ? 1 : 0;
                 RaisePropertyChanged(nameof(EnableStopOnHumidity));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public bool EnableProfileTargetCompletionReset {
+            get { return enableProfileTargetCompletionReset == 1; }
+            set {
+                enableProfileTargetCompletionReset = value ? 1 : 0;
+                RaisePropertyChanged(nameof(EnableProfileTargetCompletionReset));
             }
         }
 

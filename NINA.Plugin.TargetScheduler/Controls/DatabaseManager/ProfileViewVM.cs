@@ -1,5 +1,7 @@
 ﻿using NINA.Core.MyMessageBox;
+using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.WPF.Base.ViewModel;
@@ -16,6 +18,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         private ProfileMeta profile;
         private TreeDataItem parentItem;
         private List<Project> projects;
+        private SchedulerDatabaseInteraction database = null;
 
         public ProfileMeta Profile {
             get => profile;
@@ -35,6 +38,20 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         public bool PasteEnabled {
             get => Clipboard.HasType(TreeDataType.Project);
+        }
+
+        public bool TargetCompletionResetEnabled {
+            get {
+                if (database == null) {
+                    database = new SchedulerDatabaseInteraction();
+                }
+
+                TSLogger.Debug($"TargetCompletionResetEnabled CHECKED, {Profile.Id.ToString()}");
+                using (var context = database.GetContext()) {
+                    ProfilePreference profilePreference = context.GetProfilePreference(Profile.Id.ToString(), true);
+                    return profilePreference.EnableProfileTargetCompletionReset;
+                }
+            }
         }
 
         public ProfileViewVM(DatabaseManagerVM managerVM, IProfileService profileService, TreeDataItem profileItem) : base(profileService) {
