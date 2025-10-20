@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NINA.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Test.Util;
 using NUnit.Framework;
 
 namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
@@ -11,6 +12,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
         [Test]
         public void TestDefaults() {
             Target sut = new Target();
+            TestUtils.ValidGuid(sut.Guid).Should().BeTrue();
             sut.active.Should().BeTrue();
             sut.RA.Should().Be(0);
             sut.Dec.Should().Be(0);
@@ -26,6 +28,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
             Target target = new Target();
             target.Name = "MyTarget";
             Target sut = target.GetPasteCopy("abc123");
+            TestUtils.ValidGuid(sut.Guid).Should().BeTrue();
+            target.Guid.Equals(sut.Guid).Should().BeFalse();
             sut.Name.Should().Be("MyTarget (1)");
             sut.active.Should().BeTrue();
             sut.RA.Should().Be(0);

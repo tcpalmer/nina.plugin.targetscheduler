@@ -74,6 +74,10 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return profilePreference;
         }
 
+        public ProfilePreference GetProfilePreferenceByGuid(string guid) {
+            return ProfilePreferenceSet.Where(p => p.guid == guid).FirstOrDefault();
+        }
+
         public List<Project> GetAllProjects() {
             return ProjectSet
                 .Include("targets.exposureplans.exposuretemplate")
@@ -87,6 +91,14 @@ namespace NINA.Plugin.TargetScheduler.Database {
                 .Include("ruleweights")
                 .Where(p => p.ProfileId.Equals(profileId))
                 .ToList();
+        }
+
+        public Project GetProjectByGuid(string guid) {
+            return ProjectSet
+                .Include("targets.exposureplans.exposuretemplate")
+                .Include("ruleweights")
+                .Where(p => p.guid.Equals(guid))
+                .FirstOrDefault();
         }
 
         public List<Project> GetOrphanedProjects(List<string> currentProfileIdList) {
@@ -178,10 +190,24 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return target;
         }
 
+        public Target GetTargetByGuid(string guid) {
+            return TargetSet
+                .Include("exposureplans.exposuretemplate")
+                .Where(t => t.guid == guid)
+                .FirstOrDefault();
+        }
+
         public ExposurePlan GetExposurePlan(int id) {
             return ExposurePlanSet
                 .Include("exposuretemplate")
                 .Where(p => p.Id == id)
+                .FirstOrDefault();
+        }
+
+        public ExposurePlan GetExposurePlanByGuid(string guid) {
+            return ExposurePlanSet
+                .Include("exposuretemplate")
+                .Where(p => p.guid == guid)
                 .FirstOrDefault();
         }
 
@@ -194,6 +220,10 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         public ExposureTemplate GetExposureTemplate(int id) {
             return ExposureTemplateSet.Where(e => e.Id == id).FirstOrDefault();
+        }
+
+        public ExposureTemplate GetExposureTemplateByGuid(string guid) {
+            return ExposureTemplateSet.Where(e => e.guid == guid).FirstOrDefault();
         }
 
         public List<OverrideExposureOrderItem> GetOverrideExposureOrders(int targetId) {
@@ -271,6 +301,10 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         public AcquiredImage GetAcquiredImage(int id) {
             return AcquiredImageSet.Where(p => p.Id == id).FirstOrDefault();
+        }
+
+        public AcquiredImage GetAcquiredImageByGuid(string guid) {
+            return AcquiredImageSet.Where(p => p.guid == guid).FirstOrDefault();
         }
 
         public List<AcquiredImage> GetAcquiredImages(int targetId) {
@@ -1134,6 +1168,47 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
                     context.SaveChanges();
                     Notification.ShowSuccess("Target Scheduler database migration complete");
+                }
+
+                // Add GUIDs to existing rows
+                if (oldVersion < 22 && newVersion == 22) {
+                    List<AcquiredImage> acquiredImages = context.AcquiredImageSet.Where(ai => ai != null).ToList();
+                    acquiredImages.ForEach(ai => {
+                        ai.Guid = Guid.NewGuid().ToString();
+                        context.AcquiredImageSet.AddOrUpdate(ai);
+                    });
+
+                    List<ExposurePlan> exposurePlans = context.ExposurePlanSet.Where(ep => ep != null).ToList();
+                    exposurePlans.ForEach(ep => {
+                        ep.Guid = Guid.NewGuid().ToString();
+                        context.ExposurePlanSet.AddOrUpdate(ep);
+                    });
+
+                    List<ExposureTemplate> exposureTemplates = context.ExposureTemplateSet.Where(et => et != null).ToList();
+                    exposureTemplates.ForEach(et => {
+                        et.Guid = Guid.NewGuid().ToString();
+                        context.ExposureTemplateSet.AddOrUpdate(et);
+                    });
+
+                    List<ProfilePreference> profilePreferences = context.ProfilePreferenceSet.Where(pp => pp != null).ToList();
+                    profilePreferences.ForEach(pp => {
+                        pp.Guid = Guid.NewGuid().ToString();
+                        context.ProfilePreferenceSet.AddOrUpdate(pp);
+                    });
+
+                    projects = context.ProjectSet.Where(p => p != null).ToList();
+                    projects.ForEach(p => {
+                        p.Guid = Guid.NewGuid().ToString();
+                        context.ProjectSet.AddOrUpdate(p);
+                    });
+
+                    List<Target> targets = context.TargetSet.Where(t => t != null).ToList();
+                    targets.ForEach(t => {
+                        t.Guid = Guid.NewGuid().ToString();
+                        context.TargetSet.AddOrUpdate(t);
+                    });
+
+                    context.SaveChanges();
                 }
             }
 

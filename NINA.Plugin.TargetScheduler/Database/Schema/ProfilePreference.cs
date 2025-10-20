@@ -11,6 +11,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
     [JsonObject(MemberSerialization.OptIn)]
     public class ProfilePreference : INotifyPropertyChanged {
         [JsonProperty][Key] public int Id { get; set; }
+        public string guid { get; set; }
         [JsonProperty][Required] public string ProfileId { get; set; }
 
         [JsonProperty] public int logLevel { get; set; }
@@ -55,6 +56,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         public ProfilePreference(string profileId) {
+            Guid = System.Guid.NewGuid().ToString();
             LogLevel = LogLevelEnum.DEBUG;
             ProfileId = profileId;
             ParkOnWait = false;
@@ -93,6 +95,10 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             SkipSimulatedWaits = true;
             SkipSimulatedUpdates = false;
         }
+
+        [NotMapped]
+        [JsonProperty]
+        public string Guid { get => guid; set { guid = value; } }
 
         [NotMapped]
         public LogLevelEnum LogLevel {

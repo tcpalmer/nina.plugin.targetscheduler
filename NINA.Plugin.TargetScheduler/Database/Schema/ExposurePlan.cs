@@ -10,6 +10,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
     [JsonObject(MemberSerialization.OptIn)]
     public class ExposurePlan : IExposureCounts, INotifyPropertyChanged {
         [JsonProperty][Key] public int Id { get; set; }
+        public string guid { get; set; }
         [Required] public string profileId { get; set; }
         [NotMapped] private int exposureTemplateId;
         [Required] public double exposure { get; set; }
@@ -37,6 +38,10 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int TargetId { get; set; }
 
         public virtual Target Target { get; set; }
+
+        [NotMapped]
+        [JsonProperty]
+        public string Guid { get => guid; set { guid = value; } }
 
         [NotMapped]
         [JsonProperty]
@@ -105,6 +110,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         public ExposurePlan(string profileId) {
+            Guid = System.Guid.NewGuid().ToString();
             ProfileId = profileId;
             Exposure = -1;
             Desired = 1;
@@ -122,6 +128,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public ExposurePlan GetPasteCopy(string newProfileId, bool moveOp = false) {
             ExposurePlan exposurePlan = new ExposurePlan();
 
+            exposurePlan.Guid = System.Guid.NewGuid().ToString();
             exposurePlan.profileId = newProfileId;
             exposurePlan.ExposureTemplateId = this.ExposureTemplateId;
             exposurePlan.exposure = exposure;

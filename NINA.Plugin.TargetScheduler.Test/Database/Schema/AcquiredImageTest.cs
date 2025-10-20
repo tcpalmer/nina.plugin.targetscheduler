@@ -2,6 +2,7 @@
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Plugin.TargetScheduler.Test.Util;
 using NUnit.Framework;
 using System;
 
@@ -14,6 +15,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
         public void TestAcquiredImage() {
             DateTime now = new DateTime(2024, 11, 11, 1, 2, 3);
             AcquiredImage sut = new AcquiredImage("abc123", 1, 2, 3, now, "Ha", GradingStatus.Accepted, "foo", GetIM());
+            TestUtils.ValidGuid(sut.Guid).Should().BeTrue();
             sut.ProfileId.Should().Be("abc123");
             sut.ProjectId.Should().Be(1);
             sut.TargetId.Should().Be(2);

@@ -31,6 +31,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public const int FLATS_HANDLING_IMMEDIATE = 200;
 
         [JsonProperty][Key] public int Id { get; set; }
+        public string guid { get; set; }
         [JsonProperty][Required] public string ProfileId { get; set; }
 
         [Required] public string name { get; set; }
@@ -61,6 +62,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         public Project(string profileId) {
+            Guid = System.Guid.NewGuid().ToString();
             ProfileId = profileId;
             State = ProjectState.Draft;
             Priority = ProjectPriority.Normal;
@@ -84,6 +86,10 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             ruleWeights = ScoringRule.GetDefaultRuleWeights();
             Targets = new List<Target>();
         }
+
+        [NotMapped]
+        [JsonProperty]
+        public string Guid { get => guid; set { guid = value; } }
 
         [NotMapped]
         [JsonProperty]
@@ -328,6 +334,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public Project GetPasteCopy(string newProfileId) {
             Project project = new Project();
 
+            project.Guid = System.Guid.NewGuid().ToString();
             project.ProfileId = newProfileId;
             project.name = Utils.CopiedItemName(name);
             project.description = description;

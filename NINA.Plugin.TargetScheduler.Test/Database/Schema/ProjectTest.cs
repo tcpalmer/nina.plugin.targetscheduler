@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Test.Util;
 using NINA.Plugin.TargetScheduler.Util;
 using NUnit.Framework;
 using System;
@@ -13,6 +14,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
         [Test]
         public void TestDefaults() {
             var sut = new Project("123");
+            TestUtils.ValidGuid(sut.Guid).Should().BeTrue();
             sut.MinimumTime.Should().Be(30);
             sut.MinimumAltitude.Should().BeApproximately(0, 0.0001);
             sut.MaximumAltitude.Should().BeApproximately(0, 0.0001);
@@ -48,6 +50,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
                     };
 
             Project p2 = p1.GetPasteCopy("profileId2");
+
+            TestUtils.ValidGuid(p2.Guid).Should().BeTrue();
+            p1.Guid.Equals(p2.Guid).Should().BeFalse();
 
             p1.RuleWeights.Clear();
             p1.RuleWeights.Add(new RuleWeight("c", .3));

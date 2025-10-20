@@ -570,6 +570,32 @@ namespace NINA.Plugin.TargetScheduler.Test.Database {
             }
         }
 
+        [Test, Order(13)]
+        [NonParallelizable]
+        public void TestGetByGuid() {
+            using (var context = db.GetContext()) {
+                context.GetAcquiredImageByGuid("foo").Should().BeNull();
+                context.GetExposurePlanByGuid("foo").Should().BeNull();
+                context.GetExposureTemplateByGuid("foo").Should().BeNull();
+                context.GetProjectByGuid("foo").Should().BeNull();
+                context.GetTargetByGuid("foo").Should().BeNull();
+
+                List<Project> projects = context.GetAllProjects(profileId);
+                projects.Count.Should().Be(3);
+                Project p2 = projects[1];
+
+                Project p2Reload = context.GetProjectByGuid(p2.Guid);
+                p2Reload.Should().NotBeNull();
+                p2Reload.Name.Should().Be(p2.Name);
+
+                Target p2t1 = p2.Targets.First();
+
+                Target tReload = context.GetTargetByGuid(p2t1.Guid);
+                tReload.Should().NotBeNull();
+                tReload.Name.Should().Be(p2t1.Name);
+            }
+        }
+
         private void LoadTestDatabase() {
             using (var context = db.GetContext()) {
                 try {

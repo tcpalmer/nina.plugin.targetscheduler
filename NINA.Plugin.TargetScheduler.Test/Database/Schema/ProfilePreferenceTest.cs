@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Test.Util;
 using NUnit.Framework;
 
 namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
@@ -10,6 +11,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
         [Test]
         public void TestProfilePreference() {
             ProfilePreference sut = new ProfilePreference("pid");
+            TestUtils.ValidGuid(sut.Guid).Should().BeTrue();
             sut.ProfileId.Should().Be("pid");
             sut.ParkOnWait.Should().BeFalse();
             sut.ExposureThrottle.Should().BeApproximately(125, 0.001);

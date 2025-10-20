@@ -17,6 +17,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         [JsonProperty]
         [Key] public int Id { get; set; }
 
+        public string guid { get; set; }
         [Required] public string profileId { get; set; }
         [Required] public string name { get; set; }
         [Required] public string filterName { get; set; }
@@ -40,6 +41,10 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
         public int ditherEvery { get; set; }
         public double maximumHumidity { get; set; }
+
+        [NotMapped]
+        [JsonProperty]
+        public string Guid { get => guid; set { guid = value; } }
 
         [NotMapped]
         [JsonProperty]
@@ -237,6 +242,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         public ExposureTemplate(string profileId, string name, string filterName) {
+            Guid = System.Guid.NewGuid().ToString();
             ProfileId = profileId;
             Name = name;
             FilterName = filterName;
@@ -280,6 +286,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public ExposureTemplate GetPasteCopy(string newProfileId) {
             ExposureTemplate copy = new ExposureTemplate(newProfileId, Utils.CopiedItemName(name), filterName);
 
+            copy.Guid = System.Guid.NewGuid().ToString();
             copy.DefaultExposure = DefaultExposure;
             copy.Gain = Gain;
             copy.Offset = Offset;

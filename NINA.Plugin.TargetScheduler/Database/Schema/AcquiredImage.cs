@@ -12,6 +12,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
     public class AcquiredImage {
         [Key] public int Id { get; set; }
+        public string guid { get; set; }
         public string profileId { get; set; }
         [Required] public int ProjectId { get; set; }
         [Required] public int TargetId { get; set; }
@@ -21,6 +22,9 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int gradingStatus { get; set; }
         public string rejectreason { get; set; }
         internal string _metadata { get; set; }
+
+        [NotMapped]
+        public string Guid { get => guid; set { guid = value; } }
 
         [NotMapped]
         public string ProfileId {
@@ -75,6 +79,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         }
 
         public AcquiredImage(string profileId, int projectId, int targetId, int exposureId, DateTime acquiredDate, string filterName, GradingStatus gradingStatus, string rejectReason, ImageMetadata imageMetadata) {
+            this.Guid = System.Guid.NewGuid().ToString();
             this.ProfileId = profileId;
             this.ProjectId = projectId;
             this.TargetId = targetId;

@@ -16,6 +16,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
     public class Target : INotifyPropertyChanged {
         [JsonProperty][Key] public int Id { get; set; }
 
+        public string guid { get; set; }
         [Required] public string name { get; set; }
         [Required] public bool active { get; set; }
 
@@ -34,6 +35,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public virtual List<FilterCadenceItem> FilterCadences { get; set; }
 
         public Target() {
+            Guid = System.Guid.NewGuid().ToString();
             active = true;
             ra = 0;
             dec = 0;
@@ -44,6 +46,10 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             OverrideExposureOrders = new List<OverrideExposureOrderItem>();
             FilterCadences = new List<FilterCadenceItem>();
         }
+
+        [NotMapped]
+        [JsonProperty]
+        public string Guid { get => guid; set { guid = value; } }
 
         [NotMapped]
         [JsonProperty]

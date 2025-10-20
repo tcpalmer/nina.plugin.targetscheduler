@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Test.Util;
 using NUnit.Framework;
 
 namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
@@ -11,6 +12,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
         [Test]
         public void TestDefaults() {
             var sut = new ExposureTemplate("123", "Lum", "L");
+            TestUtils.ValidGuid(sut.Guid).Should().BeTrue();
             sut.Name.Should().Be("Lum");
             sut.FilterName.Should().Be("L");
 

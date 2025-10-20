@@ -3,6 +3,7 @@
 ## 5.8.2.0 - 2025-XX-XX
 * New profile preference to disable target completion reset at the profile level.
 * Fixed SQLite dll load error on startup.
+* Added guids to most tables to support future api.
 * Fix for threading problem in scheduler progress vm add.
 
 ## 5.8.1.0 (beta) - 2025-08-07
