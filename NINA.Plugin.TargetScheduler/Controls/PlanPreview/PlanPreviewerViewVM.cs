@@ -21,11 +21,87 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
 using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
 namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
+
+    class PreviewTopLevelItem {
+        public DateTime StartTime { get; private set; }
+
+        public DateTime? EndTime { get; private set; }
+
+        public string Description { get; private set; }
+
+        public IDictionary<string,TimeSpan> FilterTimes { get; private set; } 
+
+        public IList<TreeViewItem> Instructions { get; private set; }         
+            
+        public PreviewTopLevelItem(string description, DateTime startTime) {
+            Instructions = new List<TreeViewItem>();
+            FilterTimes = new Dictionary<string, TimeSpan>();
+
+            Description = description;
+            StartTime = startTime;
+        }
+
+        public void SetEndTime(DateTime endTime) {
+            EndTime = endTime;
+        }
+
+        public string Header() {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Description);
+            sb.Append(" ");
+
+            if (null != EndTime) {
+                sb.Append($" Duration: [{Utils.FormatTimespanHoursMinutes(EndTime.Value - StartTime)}]");
+            }
+
+            if(FilterTimes.Count>0) {
+                sb.Append("  [");
+                bool first = true;
+                foreach(var entry in FilterTimes) {
+                    if(!first) {
+                        sb.Append(", ");
+                    }
+                    first = false;
+                    sb.Append($"{entry.Key}: {Utils.FormatTimespanHoursMinutes(entry.Value)}");
+                }
+                sb.Append("]");
+            }
+
+            sb.Append($" start: {Utils.FormatDateTimeFull(StartTime)}  end: {Utils.FormatDateTimeFull(EndTime)}");
+
+            return sb.ToString();
+        }
+
+        public TreeViewItem GetTreeview() {
+            TreeViewItem item = new TreeViewItem();
+            item.IsExpanded = false;
+            item.Header = Header();
+            foreach(var instruction in Instructions) {
+                item.Items.Add(instruction);
+            }
+            return item;
+        }
+
+        public void AddInstruction(TreeViewItem instruction) {
+            Instructions.Add(instruction);
+        }
+
+        public void AddFilterTime(string filterName, TimeSpan time) {
+
+            if (FilterTimes.ContainsKey(filterName)) {
+                FilterTimes[filterName] = FilterTimes[filterName] + time;
+            } else {
+                FilterTimes[filterName] = time;
+            }
+        }
+
+    }
 
     public class PlanPreviewerViewVM : BaseVM {
         private SchedulerDatabaseInteraction database;
@@ -276,93 +352,64 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                     ObservableCollection<TreeViewItem> list = new ObservableCollection<TreeViewItem>();
 
                     try {
-                        int lastTargetId = -1;
-                        string lastFilterName = null;
-                        TreeViewItem planItem = null;
-                        TreeViewItem lastItem = null;
-                        SchedulerPlan lastTargetPlan = null;
+                        int previousTargetId = -1;
+                        PreviewTopLevelItem planItem = null;
+                        PreviewTopLevelItem previousItem = null;
+                        IList<PreviewTopLevelItem> previewList = new List<PreviewTopLevelItem>();
+
+                        SchedulerPlan previousTargetPlan = null;
                         ProfilePreference profilePreference = GetProfilePreference(SelectedProfileId);
+
+                        string previousFilterName = null;
 
                         foreach (SchedulerPlan plan in SchedulerPlans) {
                             if (plan.IsWait) {
-                                AddLastItemEndTime(lastItem, plan.StartTime);
-                                planItem = new TreeViewItem();
-                                planItem.Header = $"Wait until {Utils.FormatDateTimeFull(plan.WaitForNextTargetTime)}";
-                                list.Add(planItem);
-                                lastTargetId = -1;
-                                lastItem = planItem;
+                                planItem = new PreviewTopLevelItem("Wait", plan.StartTime);
+                                planItem.SetEndTime(plan.WaitForNextTargetTime.Value);
+                                previewList.Add(planItem);
+                                previousTargetId = -1;
+                                previousItem = planItem;
                                 continue;
                             }
 
-                            if (plan.PlanTarget.DatabaseId != lastTargetId) {
-                                AddLastItemEndTime(lastItem, plan.StartTime);
-                                lastTargetId = plan.PlanTarget.DatabaseId;
-                                planItem = new TreeViewItem();
-                                planItem.Header = GetTargetLabel(plan);
-                                planItem.IsExpanded = false;
-                                list.Add(planItem);
-                                lastItem = planItem;
+                            // Switching Target
+                            if (plan.PlanTarget.DatabaseId != previousTargetId) {
+
+                                if (null != previousItem) {
+                                    previousItem.SetEndTime(plan.StartTime);
+                                }
+
+                                planItem = new PreviewTopLevelItem($"{plan.PlanTarget.Project.Name} / {plan.PlanTarget.Name}", plan.StartTime);
+                                previousTargetId = plan.PlanTarget.DatabaseId;
+                                
+                                previewList.Add(planItem);
+                                previousItem = planItem;
                             }
 
-                            lastTargetPlan = plan;
-                            foreach (IInstruction instruction in plan.PlanInstructions) {
-                                TreeViewItem instructionItem = new TreeViewItem();
-
-                                if (instruction is PlanMessage
-                                    || instruction is PlanBeforeNewTargetContainer
-                                    || instruction is PlanPostExposure) {
-                                    continue;
-                                }
-
-                                if (instruction is PlanSlew) {
-                                    if (profilePreference.EnableSlewCenter) {
-                                        instructionItem.Header = GetSlewLabel(plan.PlanTarget, (PlanSlew)instruction);
-                                        planItem.Items.Add(instructionItem);
-                                    }
-                                    continue;
-                                }
-
-                                if (instruction is PlanSwitchFilter) {
-                                    string filterName = ((PlanSwitchFilter)instruction).exposure.FilterName;
-                                    if (filterName != lastFilterName) {
-                                        lastFilterName = filterName;
-                                        instructionItem.Header = $"Switch Filter: {filterName}";
-                                        planItem.Items.Add(instructionItem);
-                                    }
-                                    continue;
-                                }
-
-                                if (instruction is PlanSetReadoutMode) {
-                                    int? readoutMode = ((PlanSetReadoutMode)instruction).exposure.ReadoutMode;
-                                    if (readoutMode != null && readoutMode > 0) {
-                                        instructionItem.Header = $"Set readout mode: {readoutMode}";
-                                        planItem.Items.Add(instructionItem);
-                                    }
-                                    continue;
-                                }
-
-                                if (instruction is PlanTakeExposure) {
-                                    instructionItem.Header = GetTakeExposureLabel((PlanTakeExposure)instruction);
-                                    planItem.Items.Add(instructionItem);
-                                    continue;
-                                }
-
-                                if (instruction is PlanDither) {
-                                    instructionItem.Header = "Dither";
-                                    planItem.Items.Add(instructionItem);
-                                    continue;
-                                }
-
-                                TSLogger.Error($"unknown instruction type in plan preview: {instruction.GetType().FullName}");
-                                throw new Exception($"unknown instruction type in plan preview: {instruction.GetType().FullName}");
+                            // We did not change target so add the instructions to the existing top level item
+                            AddInstructions(profilePreference, plan, planItem,ref previousFilterName);
+                            if (null != previousItem) {
+                                previousItem.SetEndTime(plan.StartTime);
                             }
+
+                            previousTargetPlan = plan;
+
+                           
                         }
 
-                        AddLastItemEndTime(lastItem, lastTargetPlan?.EndTime);
-                        if (lastTargetPlan != null) {
-                            planItem = new TreeViewItem();
-                            planItem.Header = $"End at {Utils.FormatDateTimeFull(lastTargetPlan.EndTime)}";
-                            list.Add(planItem);
+                        
+
+                        // Add TopLevel items
+                        foreach (PreviewTopLevelItem item in previewList) {
+                            list.Add(item.GetTreeview());
+                        }
+
+
+                        // Add the final end item
+                        if (previousTargetPlan != null) {
+                            TreeViewItem finalplanItem = new TreeViewItem();
+                            finalplanItem.Header = $"End at {Utils.FormatDateTimeFull(previousTargetPlan.EndTime)}";
+                            list.Add(finalplanItem);
                         }
 
                         InstructionList = list;
@@ -379,7 +426,75 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
             });
         }
 
-        private void AddLastItemEndTime(TreeViewItem lastItem, DateTime? endTime) {
+
+        private void AddInstructions(ProfilePreference profilePreference,SchedulerPlan plan, PreviewTopLevelItem planItem, ref string previousFilterName) {
+
+            foreach (IInstruction instruction in plan.PlanInstructions) {
+            
+                TreeViewItem instructionItem = new TreeViewItem();
+                instructionItem.IsExpanded = false;
+
+
+                // Instructions to skip
+                if (instruction is PlanMessage                  || 
+                    instruction is PlanBeforeNewTargetContainer ||
+                    instruction is PlanPostExposure) {
+                    continue;                
+                }
+
+               
+                if (instruction is PlanSlew) {
+                    if (profilePreference.EnableSlewCenter) {               
+                        instructionItem.Header = GetSlewLabel(plan.PlanTarget, (PlanSlew)instruction);             
+                        planItem.AddInstruction(instructionItem);                
+                    } 
+                    continue;
+                                
+                }
+
+                               
+                if (instruction is PlanSwitchFilter) {               
+                    string filterName = ((PlanSwitchFilter)instruction).exposure.FilterName;                
+                    if (filterName != previousFilterName) {                
+                        previousFilterName = filterName;
+                        instructionItem.Header = $"Switch Filter: {filterName}";
+                        planItem.AddInstruction(instructionItem);    
+                    }                
+                    continue;                
+                }
+
+                if (instruction is PlanSetReadoutMode) {
+                    int? readoutMode = ((PlanSetReadoutMode)instruction).exposure.ReadoutMode;
+                    if (readoutMode != null && readoutMode > 0) {
+                        instructionItem.Header = $"Set readout mode: {readoutMode}";
+                        planItem.AddInstruction(instructionItem);
+                    }
+                    continue;
+                }
+
+                if (instruction is PlanTakeExposure) {
+                    PlanTakeExposure exposureInstruction = (PlanTakeExposure)instruction;
+                    instructionItem.Header = GetTakeExposureLabel(exposureInstruction);
+                    planItem.AddInstruction(instructionItem);
+
+                    /* Add to the top level item */
+                    IExposure planExposure = exposureInstruction.exposure;
+                    planItem.AddFilterTime(planExposure.FilterName, TimeSpan.FromSeconds(planExposure.ExposureLength));
+
+                    continue;
+                }
+
+                if (instruction is PlanDither) {
+                    instructionItem.Header = "Dither";
+                    planItem.AddInstruction(instructionItem);
+                    continue;
+                }
+
+                TSLogger.Error($"unknown instruction type in plan preview: {instruction.GetType().FullName}");
+                throw new Exception($"unknown instruction type in plan preview: {instruction.GetType().FullName}");
+            }
+        }
+        private void AddPreviousItemEndTime(TreeViewItem lastItem, DateTime? endTime) {
             if (lastItem != null && endTime != null) {
                 string header = lastItem.Header.ToString();
                 if (!header.StartsWith("Wait")) {
@@ -479,7 +594,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
 
         private string GetTargetLabel(SchedulerPlan plan) {
             string label = $"{plan.PlanTarget.Project.Name} / {plan.PlanTarget.Name}";
-            return $"{label} - start: {Utils.FormatDateTimeFull(plan.StartTime)}";
+
+            return $"start: {Utils.FormatDateTimeFull(plan.StartTime)}";
         }
 
         private string GetSlewLabel(ITarget planTarget, PlanSlew planSlew) {
