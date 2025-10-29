@@ -45,6 +45,12 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public bool CanContinue(DateTime atTime, IWeatherDataMediator weatherDataMediator, ITarget previousTarget) {
             if (previousTarget == null) { return false; }
 
+            // If we detect that the active target has been edited since it started, we have to abort
+            if (TargetEditGuard.Instance.IsEdited(previousTarget.DatabaseId)) {
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: detected impacting edit to target");
+                return false;
+            }
+
             UpdateTargetExposurePlans(previousTarget);
 
             // Recheck exposure completion
@@ -82,6 +88,15 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
 
             IExposure nextExposure = previousTarget.ExposureSelector.Select(atTime, previousTarget.Project, previousTarget);
+
+            // In some cases, we will have picked a target but at some point during the minimum time
+            // span, we run out of suitable exposures.  Or, we detect that the user made an edit to
+            // this target (which we can't recover/continue from).  If so, bail out and perform a full
+            // planning run - even if it means we won't run for the minimum time.
+            if (nextExposure == null) {
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: exposure selector did not return a suitable exposure)");
+                return false;
+            }
 
             // Special case: be sure that the next exposure is suitable for the current level of twilight.
             // It could be the case that we selected this target when the first exposure was suitable for
@@ -162,6 +177,54 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private void SetRejected(IExposure exposure, string reason) {
             exposure.Rejected = true;
             exposure.RejectedReason = reason;
+        }
+    }
+
+    /// <summary>
+    /// If the active target is edited while running for the minimum time span, we need to detect it and
+    /// abort the target.
+    ///
+    /// Note this applies to edits that alter the set of exposure plans or the ordering of exposures.  Just
+    /// changing the name of the target wouldn't trigger this behavior.  But changing the Filter Switch Frequency
+    /// on the associated project would.
+    /// </summary>
+    public class TargetEditGuard {
+        private static readonly Lazy<TargetEditGuard> lazy = new Lazy<TargetEditGuard>(() => new TargetEditGuard());
+        public static TargetEditGuard Instance { get => lazy.Value; }
+        private static object lockObj = new object();
+
+        private int targetId;
+        private bool edited;
+
+        private TargetEditGuard() {
+            Clear();
+        }
+
+        public void Clear() {
+            lock (lockObj) {
+                targetId = -1;
+                edited = false;
+                TSLogger.Trace("TargetEditGuard cleared");
+            }
+        }
+
+        public void MarkEdited(int targetId) {
+            lock (lockObj) {
+                this.targetId = targetId;
+                edited = true;
+                TSLogger.Trace($"TargetEditGuard mark edited: {targetId}");
+            }
+        }
+
+        public bool IsEdited(int targetId) {
+            lock (lockObj) {
+                TSLogger.Trace($"TargetEditGuard edit check: {targetId}");
+                if (!edited) { return false; }
+                if (targetId == this.targetId) { return true; }
+            }
+
+            TSLogger.Warning($"mismatched targetId in TargetEditGuard: expected {targetId}, was {this.targetId} !?");
+            return false;
         }
     }
 }

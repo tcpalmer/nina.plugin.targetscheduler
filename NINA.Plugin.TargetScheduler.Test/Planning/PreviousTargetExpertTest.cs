@@ -19,6 +19,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
     [TestFixture]
     public class PreviousTargetExpertTest {
 
+        [SetUp]
+        public void Setup() {
+            TargetEditGuard.Instance.Clear();
+        }
+
         [Test]
         public void testCanContinue() {
             ObserverInfo observerInfo = TestData.Pittsboro_NC;

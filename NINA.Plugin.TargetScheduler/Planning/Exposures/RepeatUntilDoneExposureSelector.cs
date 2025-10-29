@@ -18,7 +18,8 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
         public IExposure Select(DateTime atTime, IProject project, ITarget target) {
             if (AllExposurePlansRejected(target)) {
-                throw new Exception($"unexpected: all exposure plans were rejected at exposure selection time for target '{target.Name}' at time {atTime}");
+                TSLogger.Warning($"unexpected: all exposure plans were rejected at exposure selection time for target '{target.Name}' at time {atTime}");
+                return null;
             }
 
             IExposure exposure = target.ExposurePlans.FirstOrDefault(e => !e.Rejected);
@@ -27,10 +28,8 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
                 return exposure;
             }
 
-            // Fail safe ... should not happen
-            string msg = $"unexpected: no acceptable exposure plan in repeat until done exposure selector for target '{target.Name}' at time {atTime}";
-            TSLogger.Error(msg);
-            throw new Exception(msg);
+            TSLogger.Warning($"no acceptable exposure plan in repeat until done exposure selector for target '{target.Name}' at time {atTime}");
+            return null;
         }
 
         public void ExposureTaken(IExposure exposure) {

@@ -12,7 +12,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
         protected DitherManager DitherManager;
 
         public BaseExposureSelector(ITarget target) {
-            this.Target = target;
+            Target = target;
         }
 
         /// <summary>
@@ -45,6 +45,11 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             return !atLeastOneAccepted;
         }
 
+        /// <summary>
+        /// Update the target's filter cadence list, typically after an exposure is taken
+        /// and the cadence is advanced.
+        /// </summary>
+        /// <param name="filterCadence"></param>
         public void UpdateFilterCadences(FilterCadence filterCadence) {
             List<FilterCadenceItem> items = new List<FilterCadenceItem>(filterCadence.Count);
             filterCadence.List.ForEach(fci => {
@@ -58,7 +63,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             });
 
             using (var context = GetSchedulerDatabaseContext()) {
-                context.ReplaceFilterCadences(Target.DatabaseId, items);
+                context.ReplaceFilterCadences(Target.DatabaseId, items, false);
             }
         }
 

@@ -5,6 +5,7 @@ using NINA.Core.Utility.Notification;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
+using NINA.Plugin.TargetScheduler.Planning;
 using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Planning.Scoring.Rules;
@@ -242,6 +243,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                     OverrideExposureOrderSet.RemoveRange(OverrideExposureOrderSet.Where(predicate));
                     SaveChanges();
                     transaction.Commit();
+                    TargetEditGuard.Instance.MarkEdited(targetId);
                 } catch (Exception e) {
                     TSLogger.Error($"error clearing override exposure order for target ID {targetId}: {e.Message} {e.StackTrace}");
                     RollbackTransaction(transaction);
@@ -249,8 +251,8 @@ namespace NINA.Plugin.TargetScheduler.Database {
             }
         }
 
-        public void ReplaceFilterCadences(int targetId, List<FilterCadenceItem> items) {
-            ClearExistingFilterCadences(targetId);
+        public void ReplaceFilterCadences(int targetId, List<FilterCadenceItem> items, bool impactingChange = true) {
+            ClearExistingFilterCadences(targetId, impactingChange);
 
             if (Common.IsEmpty(items)) {
                 return;
@@ -274,7 +276,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                 .OrderBy(o => o.order).ToList();
         }
 
-        public void ClearExistingFilterCadences(int targetId) {
+        public void ClearExistingFilterCadences(int targetId, bool impactingChange = true) {
             if (GetFilterCadences(targetId).Count == 0) { return; }
 
             using (var transaction = Database.BeginTransaction()) {
@@ -284,6 +286,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
                     FilterCadenceSet.RemoveRange(FilterCadenceSet.Where(predicate));
                     SaveChanges();
                     transaction.Commit();
+                    if (impactingChange) { TargetEditGuard.Instance.MarkEdited(targetId); }
                 } catch (Exception e) {
                     TSLogger.Error($"error clearing filter cadence for target ID {targetId}: {e.Message} {e.StackTrace}");
                     RollbackTransaction(transaction);

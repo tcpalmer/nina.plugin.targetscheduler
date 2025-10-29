@@ -167,8 +167,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
 
             BasicExposureSelector sut = new BasicExposureSelector(pp.Object, pt.Object, new Target());
             pt.SetupProperty(t => t.ExposureSelector, sut);
-            Action select = () => sut.Select(new DateTime(2024, 12, 1), pp.Object, pt.Object);
-            select.Should().Throw<Exception>().WithMessage("unexpected: all exposure plans were rejected at exposure selection time for target 'T1' at time 12/1/2024 12:00:00 AM");
+            sut.Select(new DateTime(2024, 12, 1), pp.Object, pt.Object).Should().BeNull();
         }
 
         private void SetEPs(Mock<ITarget> pt) {

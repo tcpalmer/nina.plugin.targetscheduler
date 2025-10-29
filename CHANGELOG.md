@@ -2,6 +2,7 @@
 
 ## 5.8.2.0 - 2025-XX-XX
 * New profile preference to disable target completion reset at the profile level.
+* Fixes for TS failure when it can't find a suitable exposure.
 * Fixed SQLite dll load error on startup.
 * Added guids to most tables to support future api.
 * Fix for threading problem in scheduler progress vm add.

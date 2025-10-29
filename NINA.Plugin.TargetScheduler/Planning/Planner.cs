@@ -85,7 +85,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                             ? readyTargets[0]
                             : SelectTargetByScore(readyTargets, new ScoringEngine(activeProfile, profilePreferences, atTime, previousTarget));
                         List<IInstruction> instructions = new InstructionGenerator().Generate(selectedTarget, previousTarget);
+
                         HandleTargetSwitch(previousTarget, selectedTarget);
+                        TargetEditGuard.Instance.Clear();
 
                         // Target ready now
                         return new SchedulerPlan(atTime, projects, selectedTarget, instructions, !checkCondition);

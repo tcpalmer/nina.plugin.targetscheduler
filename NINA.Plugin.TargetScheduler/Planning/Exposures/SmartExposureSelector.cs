@@ -22,7 +22,8 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
 
         public IExposure Select(DateTime atTime, IProject project, ITarget target) {
             if (AllExposurePlansRejected(target)) {
-                throw new Exception($"unexpected: all exposure plans were rejected at exposure selection time for target '{target.Name}' at time {atTime}");
+                TSLogger.Warning($"unexpected: all exposure plans were rejected at exposure selection time for target '{target.Name}' at time {atTime}");
+                return null;
             }
 
             // Find the accepted exposure with the highest score
@@ -46,10 +47,8 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
             }
 
             if (selected == null) {
-                // Fail safe ... should not happen
-                string msg = $"unexpected: no acceptable exposure plan in smart exposure selector for target '{target.Name}' at time {atTime}";
-                TSLogger.Error(msg);
-                throw new Exception(msg);
+                TSLogger.Warning($"no acceptable exposure plan in smart exposure selector for target '{target.Name}' at time {atTime}");
+                return null;
             }
 
             selected.PreDither = DitherManager.DitherRequired(selected);
