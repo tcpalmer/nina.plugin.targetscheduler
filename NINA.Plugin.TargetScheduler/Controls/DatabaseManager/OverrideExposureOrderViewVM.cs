@@ -145,8 +145,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 // The default is just exposures in order
                 int idx = 0;
                 foreach (var ep in target.ExposurePlans) {
-                    string name = ep.ExposureTemplate.Name;
-                    items.Add(new OverrideItem(name, idx++));
+                    if (ep.IsEnabled) {
+                        string name = ep.ExposureTemplate.Name;
+                        items.Add(new OverrideItem(name, idx++));
+                    }
                 }
             }
 
