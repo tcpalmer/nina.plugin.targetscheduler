@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using NINA.Astrometry;
+using NINA.Astrometry.RiseAndSet;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Test.Planning;
 using NUnit.Framework;
@@ -94,8 +96,12 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
         [Test]
         public void testAbovePolarCircleWinter() {
-            DateTime dateTime = new DateTime(2024, 12, 21, 12, 0, 0);
+            DateTime dateTime = new DateTime(2025, 12, 21, 12, 0, 0);
             DateTime date = dateTime.Date;
+
+            RiseAndSetEvent civil = AstroUtil.GetCivilNightTimes(date, TestData.North_Artic.Latitude, TestData.North_Artic.Longitude, 0);
+            RiseAndSetEvent naut = AstroUtil.GetNauticalNightTimes(date, TestData.North_Artic.Latitude, TestData.North_Artic.Longitude, 0);
+            RiseAndSetEvent astro = AstroUtil.GetNightTimes(date, TestData.North_Artic.Latitude, TestData.North_Artic.Longitude, 0);
 
             var sut = new TwilightCircumstances(TestData.North_Artic, dateTime);
 

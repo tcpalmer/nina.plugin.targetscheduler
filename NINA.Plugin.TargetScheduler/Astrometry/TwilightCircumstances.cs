@@ -148,19 +148,19 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         }
 
         private void Calculate() {
-            var civil = new Daytime(OnDate, observerInfo.Latitude, observerInfo.Longitude);
+            var civil = new Daytime(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
             CivilTwilightStart = civil.Start;
             CivilTwilightEnd = civil.End;
 
-            var nautical = new CivilTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude);
+            var nautical = new CivilTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
             NauticalTwilightStart = nautical.Start;
             NauticalTwilightEnd = nautical.End;
 
-            var astro = new NauticalTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude);
+            var astro = new NauticalTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
             AstronomicalTwilightStart = astro.Start;
             AstronomicalTwilightEnd = astro.End;
 
-            var night = new AstronomicalTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude);
+            var night = new AstronomicalTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
             NighttimeStart = night.Start;
             NighttimeEnd = night.End;
         }
@@ -199,8 +199,8 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         public DateTime? Start { get; private set; }
         public DateTime? End { get; private set; }
 
-        public SunAltitudeEvent(DateTime date, double latitude, double longitude, double sunAltitude)
-            : base(date, latitude, longitude, sunAltitude) {
+        public SunAltitudeEvent(DateTime date, double latitude, double longitude, double elevation, double sunAltitude)
+            : base(date, latitude, longitude, elevation, sunAltitude) {
             _ = Calculate().Result;
             Start = Set;
             End = Rise;
@@ -209,29 +209,29 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
 
     internal class Daytime : SunAltitudeEvent {
 
-        public Daytime(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.DayEndAltitude) {
+        public Daytime(DateTime date, double latitude, double longitude, double elevation)
+            : base(date, latitude, longitude, elevation, TwilightCircumstances.DayEndAltitude) {
         }
     }
 
     internal class CivilTwilight : SunAltitudeEvent {
 
-        public CivilTwilight(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.CivilEndSunAltitude) {
+        public CivilTwilight(DateTime date, double latitude, double longitude, double elevation)
+            : base(date, latitude, longitude, elevation, TwilightCircumstances.CivilEndSunAltitude) {
         }
     }
 
     internal class NauticalTwilight : SunAltitudeEvent {
 
-        public NauticalTwilight(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.NauticalEndSunAltitude) {
+        public NauticalTwilight(DateTime date, double latitude, double longitude, double elevation)
+            : base(date, latitude, longitude, elevation, TwilightCircumstances.NauticalEndSunAltitude) {
         }
     }
 
     internal class AstronomicalTwilight : SunAltitudeEvent {
 
-        public AstronomicalTwilight(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.AstronomicalEndSunAltitude) {
+        public AstronomicalTwilight(DateTime date, double latitude, double longitude, double elevation)
+            : base(date, latitude, longitude, elevation, TwilightCircumstances.AstronomicalEndSunAltitude) {
         }
     }
 

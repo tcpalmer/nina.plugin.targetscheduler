@@ -41,14 +41,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="FluentAssertions" Version="6.12.1" />
-		<PackageReference Include="LinqKit" Version="1.2.4" />
-		<PackageReference Include="LinqKit.Core" Version="1.2.4" />
+		<PackageReference Include="LinqKit" Version="1.3.8" />
+		<PackageReference Include="LinqKit.Core" Version="1.2.8" />
 		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 		<PackageReference Include="Moq" Version="4.20.72" />
-		<PackageReference Include="NINA.Plugin" Version="3.1.2.9001" />
-		<PackageReference Include="NUnit" Version="4.2.2" />
-		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+		<PackageReference Include="NINA.Plugin" Version="3.2.0.3001-rc" />
+		<PackageReference Include="NUnit" Version="4.4.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>

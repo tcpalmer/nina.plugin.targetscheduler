@@ -1,5 +1,9 @@
 # Target Scheduler
 
+## 5.9.0.0 - 2025-XX-XX (beta)
+* EXCLUSIVELY FOR NINA 3.2
+* API ...
+
 ## 5.8.2.0 - 2025-10-29
 * New profile preference to disable target completion reset at the profile level.
 * Fixes for TS failure when it can't find a suitable exposure.
