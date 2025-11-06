@@ -8,6 +8,7 @@ using NINA.Plugin.TargetScheduler.Planning.Entities;
 using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -109,6 +110,23 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             targetExpert.ExposureTwilightFilter(nextExposure, atTime, twilightCircumstances, (TwilightLevel)twilightLevel);
             if (nextExposure.Rejected) {
                 TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: next exposure ({nextExposure.FilterName}) not suitable for current twilight level ({twilightLevel})");
+                return false;
+            }
+
+            // Recheck Maximum Horizon constraint at current time
+            // The target may have started below the max altitude but could now exceed it as it rises,
+            // or it may have started above but now be below. We need to check at each time increment.
+            IMaximumHorizonService maximumHorizonService = MaximumHorizonClient.Resolve();
+            HorizontalCoordinate hc = AstrometryUtils.GetHorizontalCoordinates(observerInfo, previousTarget.Coordinates, atTime);
+            double? maxAllowed = maximumHorizonService?.GetMaxAllowedAltitude(atTime, hc.Azimuth, previousTarget.Name, previousTarget.DatabaseId);
+            
+            // Log altitude check at each planner tick
+            if (maxAllowed.HasValue) {
+                TSLogger.Debug($"Maximum Horizon check: Target '{previousTarget.Name}' at {Utils.FormatDateTimeFull(atTime)} - Alt={hc.Altitude:F2}°, Max={maxAllowed.Value:F2}°, Az={hc.Azimuth:F1}°");
+            }
+            
+            if (maxAllowed.HasValue && hc.Altitude >= maxAllowed.Value) {
+                TSLogger.Info($"not continuing previous target at {atTime}, {previousTarget.Name}: target altitude ({hc.Altitude:F2}°) now exceeds Maximum Horizon constraint ({maxAllowed.Value:F2}°) at azimuth {hc.Azimuth:F1}°");
                 return false;
             }
 

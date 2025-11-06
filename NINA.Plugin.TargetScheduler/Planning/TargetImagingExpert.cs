@@ -23,6 +23,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private ObserverInfo observerInfo;
         private int targetVisibilitySampleInterval = TARGET_VISIBILITY_SAMPLE_INTERVAL;
         private int targetFutureTestSampleInterval = TARGET_FUTURE_TEST_SAMPLE_INTERVAL;
+        private readonly IMaximumHorizonService maximumHorizonService;
 
         public TargetImagingExpert(IProfile activeProfile, ProfilePreference profilePreferences, bool isPreview) {
             this.profile = activeProfile;
@@ -31,6 +32,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 Longitude = activeProfile.AstrometrySettings.Longitude,
                 Elevation = activeProfile.AstrometrySettings.Elevation,
             };
+
+            this.maximumHorizonService = MaximumHorizonClient.Resolve();
 
             if (isPreview) {
                 targetVisibilitySampleInterval *= 3;
@@ -41,10 +44,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public bool Visibility(DateTime atTime, ITarget target) {
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observerInfo, atTime);
             TargetVisibility targetVisibility = new(target, observerInfo,
-                twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, targetVisibilitySampleInterval);
+                twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, targetVisibilitySampleInterval, maximumHorizonService);
 
-            if (!Visibility(atTime, target, twilightCircumstances, targetVisibility)) { return false; }
-            return CheckMaximumAltitude(atTime, target, targetVisibility);
+            return Visibility(atTime, target, twilightCircumstances, targetVisibility);
         }
 
         /// <summary>
@@ -314,12 +316,10 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             DateTime atTime = target.StartTime;
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observerInfo, atTime);
             TargetVisibility targetVisibility = new(target, observerInfo,
-                twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, targetVisibilitySampleInterval);
+                twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, targetVisibilitySampleInterval, maximumHorizonService);
 
             while (true) {
-                // Check target for maximum altitude, moon avoidance, and twilight at this time
-
-                CheckMaximumAltitude(atTime, target, targetVisibility);
+                // Check target for moon avoidance and twilight at this time
 
                 if (!target.Rejected) {
                     MoonAvoidanceFilter(atTime, target, moonExpert);
@@ -358,8 +358,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             return target.Rejected &&
                   (target.RejectedReason == Reasons.TargetNotYetVisible
                 || target.RejectedReason == Reasons.TargetBeforeMeridianWindow
-                || target.RejectedReason == Reasons.TargetMeridianFlipClipped
-                || target.RejectedReason == Reasons.TargetMaxAltitude);
+                || target.RejectedReason == Reasons.TargetMeridianFlipClipped);
         }
 
         public bool AllExposurePlansRejected(ITarget target) {

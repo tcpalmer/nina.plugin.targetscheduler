@@ -2,6 +2,7 @@
 using NINA.Plugin.TargetScheduler.Planning;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Util;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -37,11 +38,19 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         public DateTime TransitTime { get; private set; }
         public bool ImagingPossible { get; private set; }
         public IList<PositionAtTime> TargetPositions { get; private set; }
+        private readonly IMaximumHorizonService maximumHorizonService;
+        private int maxHorizonBlockCount = 0;
 
         public TargetVisibility(ITarget target, ObserverInfo observerInfo, DateTime imagingDate, DateTime? sunset, DateTime? sunrise, int sampleInterval = 10) :
-            this(target.Name, target.DatabaseId, observerInfo, target.Coordinates, imagingDate, sunset, sunrise, sampleInterval) { }
+            this(target.Name, target.DatabaseId, observerInfo, target.Coordinates, imagingDate, sunset, sunrise, sampleInterval, MaximumHorizonNoOp.Instance) { }
 
-        public TargetVisibility(string targetName, int targetId, ObserverInfo observerInfo, Coordinates coordinates, DateTime imagingDate, DateTime? sunset, DateTime? sunrise, int sampleInterval = 10) {
+        public TargetVisibility(ITarget target, ObserverInfo observerInfo, DateTime imagingDate, DateTime? sunset, DateTime? sunrise, int sampleInterval, IMaximumHorizonService maximumHorizonService) :
+            this(target.Name, target.DatabaseId, observerInfo, target.Coordinates, imagingDate, sunset, sunrise, sampleInterval, maximumHorizonService) { }
+
+        public TargetVisibility(string targetName, int targetId, ObserverInfo observerInfo, Coordinates coordinates, DateTime imagingDate, DateTime? sunset, DateTime? sunrise, int sampleInterval = 10) :
+            this(targetName, targetId, observerInfo, coordinates, imagingDate, sunset, sunrise, sampleInterval, MaximumHorizonNoOp.Instance) { }
+
+        public TargetVisibility(string targetName, int targetId, ObserverInfo observerInfo, Coordinates coordinates, DateTime imagingDate, DateTime? sunset, DateTime? sunrise, int sampleInterval, IMaximumHorizonService maximumHorizonService) {
             if (sunset >= sunrise) {
                 throw new ArgumentException("sunset is after sunrise");
             }
@@ -49,6 +58,8 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             if (sunset == null || sunrise == null) {
                 throw new ArgumentException("no sunset/sunrise for this date/location");
             }
+
+            this.maximumHorizonService = maximumHorizonService ?? MaximumHorizonNoOp.Instance;
 
             string cacheKey = GetCacheKey(targetId, observerInfo, coordinates, imagingDate, sampleInterval);
             TargetVisibility cached = TargetVisibilityCache.Get(cacheKey);
@@ -63,6 +74,9 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
                 this.ImagingPossible = cached.ImagingPossible;
                 this.TargetPositions = cached.TargetPositions;
                 this.TransitTime = cached.TransitTime;
+                // Ensure maximumHorizonService is set even when using cached data
+                // This is critical because the service instance may need to reload settings
+                this.maximumHorizonService = maximumHorizonService ?? MaximumHorizonNoOp.Instance;
             } else {
                 //Stopwatch stopWatch = new Stopwatch();
                 //stopWatch.Start();
@@ -125,7 +139,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
                 PositionAtTime pat = TargetPositions[i];
                 if (pat.AtTime >= imagingInterval.EndTime) { break; }
 
-                if (!IsBelowHorizon(pat, horizon)) {
+                if (!IsOutsideAllowedAltitude(pat, horizon)) {
                     return new VisibilityDetermination(true, pat.AtTime, FindStopTime(i, horizon, imagingInterval.EndTime));
                 }
             }
@@ -236,15 +250,27 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             return TransitTime != DateTime.MinValue;
         }
 
-        private bool IsBelowHorizon(PositionAtTime pat, HorizonDefinition horizon) {
-            return pat.Altitude - horizon.GetTargetAltitude(pat.Azimuth) <= 0;
+        private bool IsOutsideAllowedAltitude(PositionAtTime pat, HorizonDefinition horizon) {
+            double minAllowed = horizon.GetTargetAltitude(pat.Azimuth);
+            if (pat.Altitude - minAllowed <= 0) { return true; }
+
+            double? maxAllowed = maximumHorizonService?.GetMaxAllowedAltitude(pat.AtTime, pat.Azimuth, TargetName, TargetId);
+            if (maxAllowed.HasValue && pat.Altitude >= maxAllowed.Value) {
+                // Log when Maximum Horizon blocks a target (first few times only for performance)
+                if (++maxHorizonBlockCount <= 10) {
+                    TSLogger.Debug($"Target '{TargetName}' blocked by Maximum Horizon at {Utils.FormatDateTimeFull(pat.AtTime)}: Alt={pat.Altitude:F2}° >= Max={maxAllowed.Value:F2}° at Az={pat.Azimuth:F1}°");
+                }
+                return true;
+            }
+
+            return false;
         }
 
         private DateTime? FindStopTime(int pos, HorizonDefinition horizon, DateTime imagingStop) {
             while (true) {
                 if (++pos == TargetPositions.Count) { return imagingStop; }
                 PositionAtTime pat = TargetPositions[pos];
-                if (IsBelowHorizon(pat, horizon)) { return pat.AtTime; }
+                if (IsOutsideAllowedAltitude(pat, horizon)) { return pat.AtTime; }
                 if (pat.AtTime >= imagingStop) { return imagingStop; }
             }
         }
@@ -303,6 +329,24 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             sb.Append($"{coordinates.RADegrees.ToString("0.000000", CultureInfo.InvariantCulture)}_");
             sb.Append($"{coordinates.Dec.ToString("0.000000", CultureInfo.InvariantCulture)}_");
             sb.Append(sampleInterval);
+            
+            // Include Maximum Horizon profile in cache key if Maximum Horizon is active
+            // This ensures cache is invalidated when profile changes
+            if (maximumHorizonService != null && maximumHorizonService != MaximumHorizonNoOp.Instance) {
+                try {
+                    string profileName = maximumHorizonService.GetCurrentProfileName();
+                    if (!string.IsNullOrEmpty(profileName)) {
+                        sb.Append($"_MH_{profileName}");
+                    } else {
+                        sb.Append("_MH");
+                    }
+                }
+                catch {
+                    // ignore errors getting profile name
+                    sb.Append("_MH");
+                }
+            }
+            
             return sb.ToString();
         }
     }

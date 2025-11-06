@@ -5,6 +5,7 @@ using NINA.Plugin.TargetScheduler.Planning;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
 
 namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
@@ -125,6 +126,31 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
             // Below horizon from atTime to end
             viz = sut.NextVisibleInterval(belowStartTime, imagingInterval, hd);
             viz.IsVisible.Should().BeFalse();
+        }
+
+        private class FakeMaxHorizonService : IMaximumHorizonService {
+            private readonly double maxAlt;
+            public FakeMaxHorizonService(double maxAlt) { this.maxAlt = maxAlt; }
+            public double? GetMaxAllowedAltitude(DateTime atTime, double azimuth, string targetName, long targetId) => maxAlt;
+        }
+
+        [Test]
+        public void testMaximumHorizonBlocksAboveCeiling() {
+            DateTime dateTime = new DateTime(2024, 12, 1, 13, 0, 0);
+            DateTime sunset = new DateTime(2024, 12, 1, 18, 0, 0);
+            DateTime sunrise = new DateTime(2024, 12, 2, 6, 0, 0);
+
+            HorizonDefinition hd = new HorizonDefinition(0);
+            TimeInterval imagingInterval = new TimeInterval(sunset, sunrise);
+
+            var maxSvc = new FakeMaxHorizonService(25);
+
+            TargetVisibility sut = new TargetVisibility("T1", 1, TestData.North_Mid_Lat, TestData.M42, dateTime, sunset, sunrise, 60, maxSvc);
+            sut.ImagingPossible.Should().BeTrue();
+
+            var viz = sut.NextVisibleInterval(sunset, imagingInterval, hd);
+            viz.IsVisible.Should().BeTrue();
+            viz.StopTime.Should().BeBefore(sunrise);
         }
 
         [Test]
