@@ -102,6 +102,11 @@ namespace NINA.Plugin.TargetScheduler.Util {
             return dateTime.HasValue ? String.Format("{0:yyyy-MM-dd HH:mm:ss}", dateTime) : "n/a";
         }
 
+        public static string FormatTimespanHoursMinutes(TimeSpan timeSpan) {
+            return timeSpan.ToString(@"hh\:mm");
+            
+
+        }
         public static string FormatDateTimeFull(DateTime? dateTime) {
             return dateTime.HasValue ? String.Format("{0:yyyy-MM-dd HH:mm:ss zzzz}", dateTime) : "n/a";
         }
