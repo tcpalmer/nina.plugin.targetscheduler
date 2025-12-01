@@ -215,7 +215,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
         public List<ExposurePlan> GetExposurePlans(int targetId) {
             return ExposurePlanSet
                 .Include("exposuretemplate")
-                .Where(p => p.TargetId == targetId)
+                .Where(p => p.TargetId == targetId && p.IsEnabled)
                 .ToList();
         }
 

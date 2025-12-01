@@ -379,6 +379,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             foreach (ITarget target in readyTargets) {
                 target.SelectedExposure = target.ExposureSelector.Select(atTime, target.Project, target);
             }
+
+            // Remove any target where we couldn't determine the selected exposure
+            readyTargets.RemoveAll(t => t.SelectedExposure == null);
         }
 
         /// <summary>

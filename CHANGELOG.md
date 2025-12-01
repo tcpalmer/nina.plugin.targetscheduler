@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.8.3.0 - 2025-12-01
+* Fixed issue where targets could have no selectable exposure plan (related to exposure plan disable).
+
 ## 5.8.2.0 - 2025-10-29
 * New profile preference to disable target completion reset at the profile level.
 * Fixes for TS failure when it can't find a suitable exposure.
