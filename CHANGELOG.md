@@ -1,6 +1,7 @@
 # Target Scheduler
 
 ## 5.8.3.0 - 2025-12-01
+* The first 'Switch filter' is now shown in the TS sequence progress display even if same filter was used by last exposure of previous target.
 * Fixed issue where targets could have no selectable exposure plan (related to exposure plan disable).
 
 ## 5.8.2.0 - 2025-10-29
