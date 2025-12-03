@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## Unreleased
+* Integrate optional Maximum Horizon ceiling into visibility checks. When present, targets above the ceiling are treated as not visible during planning. No change when plugin is absent.
+
 ## 5.8.2.0 - 2025-10-29
 * New profile preference to disable target completion reset at the profile level.
 * Fixes for TS failure when it can't find a suitable exposure.
