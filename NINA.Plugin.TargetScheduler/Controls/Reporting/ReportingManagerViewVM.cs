@@ -23,6 +23,7 @@ using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
     public class ReportingManagerViewVM : BaseVM {
+        private const string PROFILE_ANY = "XANY";
         private SchedulerDatabaseInteraction database;
 
         public ReportingManagerViewVM(IProfileService profileService) : base(profileService) {
@@ -38,9 +39,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
 
         private void InitializeCriteria() {
             SearchCriteraKey = null;
+            selectedProfileId = PROFILE_ANY;
+            selectedProjectId = 0;
             selectedTargetId = 0;
 
-            ProjectChoices = GetProjectChoices();
+            ProfileChoices = GetProfileChoices();
+            ProjectChoices = GetProjectChoices(SelectedProfileId);
             TargetChoices = GetTargetChoices(SelectedProjectId);
         }
 
@@ -57,6 +61,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         private ICollectionView itemsView;
         public ICollectionView ItemsView { get => itemsView; set { itemsView = value; } }
 
+        private AsyncObservableCollection<KeyValuePair<string, string>> profileChoices;
+
+        public AsyncObservableCollection<KeyValuePair<string, string>> ProfileChoices {
+            get {
+                return profileChoices;
+            }
+            set {
+                profileChoices = value;
+                RaisePropertyChanged(nameof(ProfileChoices));
+            }
+        }
+
         private AsyncObservableCollection<KeyValuePair<int, string>> projectChoices;
 
         public AsyncObservableCollection<KeyValuePair<int, string>> ProjectChoices {
@@ -69,20 +85,52 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             }
         }
 
+        private string selectedProfileId = PROFILE_ANY;
+
+        public string SelectedProfileId {
+            get => selectedProfileId;
+            set {
+                selectedProfileId = value;
+                selectedProjectId = 0;
+                selectedTargetId = 0;
+
+                ProjectChoices = GetProjectChoices(selectedProfileId);
+                TargetChoices = GetTargetChoices(selectedProjectId);
+
+                RaisePropertyChanged(nameof(SelectedProfileId));
+                RaisePropertyChanged(nameof(SelectedProjectId));
+                RaisePropertyChanged(nameof(SelectedTargetId));
+            }
+        }
+
         private int selectedProjectId = 0;
 
         public int SelectedProjectId {
             get => selectedProjectId;
             set {
                 selectedProjectId = value;
+                selectedTargetId = 0;
 
-                SelectedTargetId = 0;
                 TargetChoices = GetTargetChoices(selectedProjectId);
+
                 RaisePropertyChanged(nameof(SelectedProjectId));
+                RaisePropertyChanged(nameof(SelectedTargetId));
             }
         }
 
-        private AsyncObservableCollection<KeyValuePair<int, string>> GetProjectChoices() {
+        private AsyncObservableCollection<KeyValuePair<string, string>> GetProfileChoices() {
+            AsyncObservableCollection<KeyValuePair<string, string>> choices = new AsyncObservableCollection<KeyValuePair<string, string>> {
+                new KeyValuePair<string, string>(PROFILE_ANY, "Select")
+            };
+
+            profileService.Profiles.OrderBy(p => p.Name).ForEach(p => {
+                choices.Add(new KeyValuePair<string, string>(p.Id.ToString(), p.Name));
+            });
+
+            return choices;
+        }
+
+        private AsyncObservableCollection<KeyValuePair<int, string>> GetProjectChoices(string profileId) {
             AsyncObservableCollection<KeyValuePair<int, string>> projectChoices = new AsyncObservableCollection<KeyValuePair<int, string>> {
                 new KeyValuePair<int, string>(0, "Select")
             };
@@ -90,6 +138,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             List<Project> projects;
             using (var context = database.GetContext()) {
                 projects = context.ProjectSet.AsNoTracking().OrderBy(p => p.name).ToList();
+            }
+
+            if (profileId != PROFILE_ANY) {
+                projects.RemoveAll(p => p.ProfileId != profileId);
             }
 
             Dictionary<Project, string> dict = new Dictionary<Project, string>();

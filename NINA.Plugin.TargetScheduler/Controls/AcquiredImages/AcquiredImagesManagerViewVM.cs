@@ -55,6 +55,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             _ = LoadRecords();
         }
 
+        private const string PROFILE_ANY = "XANY";
         private static readonly int FIXED_DATE_RANGE_OFF = 0;
         private static readonly int FIXED_DATE_RANGE_DEFAULT = 2;
 
@@ -75,16 +76,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             SelectedFixedDateRange = FIXED_DATE_RANGE_DEFAULT;
             selectedFixedDateRange = FIXED_DATE_RANGE_DEFAULT;
 
-            AsyncObservableCollection<KeyValuePair<int, string>> projectChoices = new AsyncObservableCollection<KeyValuePair<int, string>> {
-                new KeyValuePair<int, string>(0, Loc.Instance["LblAny"])
-            };
-
-            Dictionary<Project, string> dict = GetProjectsDictionary();
-            foreach (KeyValuePair<Project, string> entry in dict) {
-                projectChoices.Add(new KeyValuePair<int, string>(entry.Key.Id, entry.Value));
-            }
-
-            ProjectChoices = projectChoices;
+            ProfileChoices = GetProfileChoices();
+            ProjectChoices = GetProjectChoices();
             TargetChoices = GetTargetChoices(SelectedProjectId);
             FilterChoices = GetFilterChoices(SelectedTargetId);
         }
@@ -162,6 +155,41 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             }
         }
 
+        private AsyncObservableCollection<KeyValuePair<string, string>> profileChoices;
+
+        public AsyncObservableCollection<KeyValuePair<string, string>> ProfileChoices {
+            get {
+                return profileChoices;
+            }
+            set {
+                profileChoices = value;
+                RaisePropertyChanged(nameof(ProfileChoices));
+            }
+        }
+
+        private string selectedProfileId = PROFILE_ANY;
+
+        public string SelectedProfileId {
+            get => selectedProfileId;
+            set {
+                selectedProfileId = value;
+                selectedProjectId = 0;
+                selectedTargetId = 0;
+                selectedFilterId = 0;
+
+                ProjectChoices = GetProjectChoices(selectedProfileId);
+                TargetChoices = GetTargetChoices(selectedProjectId);
+                FilterChoices = GetFilterChoices(selectedTargetId);
+
+                RaisePropertyChanged(nameof(SelectedProfileId));
+                RaisePropertyChanged(nameof(SelectedProjectId));
+                RaisePropertyChanged(nameof(SelectedTargetId));
+                RaisePropertyChanged(nameof(SelectedFilterId));
+
+                _ = LoadRecords();
+            }
+        }
+
         private AsyncObservableCollection<KeyValuePair<int, string>> projectChoices;
 
         public AsyncObservableCollection<KeyValuePair<int, string>> ProjectChoices {
@@ -180,8 +208,9 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             get => selectedProjectId;
             set {
                 selectedProjectId = value;
+                selectedTargetId = 0;
+                selectedFilterId = 0;
 
-                SelectedTargetId = 0;
                 TargetChoices = GetTargetChoices(selectedProjectId);
                 RaisePropertyChanged(nameof(SelectedProjectId));
 
@@ -190,7 +219,6 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
         }
 
         private AsyncObservableCollection<KeyValuePair<int, string>> GetTargetChoices(int selectedProjectId) {
-            List<Target> targets;
             AsyncObservableCollection<KeyValuePair<int, string>> choices = new AsyncObservableCollection<KeyValuePair<int, string>> {
                 new KeyValuePair<int, string>(0, Loc.Instance["LblAny"])
             };
@@ -199,6 +227,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
                 return choices;
             }
 
+            List<Target> targets;
             using (var context = database.GetContext()) {
                 targets = context.TargetSet.AsNoTracking().Where(t => t.ProjectId == selectedProjectId).ToList();
             }
@@ -228,8 +257,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             get => selectedTargetId;
             set {
                 selectedTargetId = value;
+                selectedFilterId = 0;
 
-                SelectedFilterId = 0;
                 FilterChoices = GetFilterChoices(selectedTargetId);
                 RaisePropertyChanged(nameof(SelectedTargetId));
                 _ = LoadRecords();
@@ -453,6 +482,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
                     predicate = predicate.And(a => a.acquiredDate >= from);
                     predicate = predicate.And(a => a.acquiredDate <= to);
 
+                    if (!SelectedProfileId.Equals(PROFILE_ANY)) {
+                        predicate = predicate.And(a => a.profileId.Equals(SelectedProfileId));
+                    }
+
                     if (SelectedProjectId != 0) {
                         predicate = predicate.And(a => a.ProjectId == SelectedProjectId);
                     }
@@ -497,19 +530,43 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
         private string GetSearchCriteraKey() {
             StringBuilder sb = new StringBuilder();
             sb.Append($"{FromDate:yyyy-MM-dd}_{ToDate:yyyy-MM-dd}_");
-            sb.Append($"{SelectedProjectId}_{SelectedTargetId}_{SelectedFilterId}");
+            sb.Append($"{SelectedProfileId}_{SelectedProjectId}_{SelectedTargetId}_{SelectedFilterId}");
             return sb.ToString();
         }
 
-        private Dictionary<Project, string> GetProjectsDictionary() {
+        private AsyncObservableCollection<KeyValuePair<string, string>> GetProfileChoices() {
+            AsyncObservableCollection<KeyValuePair<string, string>> choices = new AsyncObservableCollection<KeyValuePair<string, string>> {
+                new KeyValuePair<string, string>(PROFILE_ANY, Loc.Instance["LblAny"])
+            };
+
+            profileService.Profiles.OrderBy(p => p.Name).ForEach(p => {
+                choices.Add(new KeyValuePair<string, string>(p.Id.ToString(), p.Name));
+            });
+
+            return choices;
+        }
+
+        private AsyncObservableCollection<KeyValuePair<int, string>> GetProjectChoices(string profileId = PROFILE_ANY) {
             List<Project> projects;
             using (var context = database.GetContext()) {
-                projects = context.ProjectSet.AsNoTracking().OrderBy(p => p.name).ToList();
+                projects = context.ProjectSet
+                    .AsNoTracking()
+                    .OrderBy(p => p.name).ToList();
             }
 
-            Dictionary<Project, string> dict = new Dictionary<Project, string>();
-            projects.ForEach(p => { dict.Add(p, p.Name); });
-            return dict;
+            if (profileId != PROFILE_ANY) {
+                projects.RemoveAll(p => p.ProfileId != profileId);
+            }
+
+            AsyncObservableCollection<KeyValuePair<int, string>> choices = new AsyncObservableCollection<KeyValuePair<int, string>> {
+                new KeyValuePair<int, string>(0, Loc.Instance["LblAny"])
+            };
+
+            projects.ForEach(p => {
+                choices.Add(new KeyValuePair<int, string>(p.Id, p.Name));
+            });
+
+            return choices;
         }
 
         private List<ExposureTemplate> GetExposureTemplates() {

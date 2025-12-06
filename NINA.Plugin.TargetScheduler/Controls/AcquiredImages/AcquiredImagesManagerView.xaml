@@ -40,6 +40,7 @@
                             <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
                             <RowDefinition MinHeight="25" />
+                            <RowDefinition MinHeight="25" />
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
@@ -87,8 +88,25 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
                                    FontWeight="Bold"
-                                   Text="Project" />
+                                   Text="Profile" />
                         <ComboBox Grid.Row="2"
+                                  Grid.Column="1"
+                                  MinWidth="233"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"
+                                  DisplayMemberPath="Value"
+                                  ItemsSource="{Binding ProfileChoices}"
+                                  SelectedValue="{Binding SelectedProfileId}"
+                                  SelectedValuePath="Key" />
+
+                        <TextBlock Grid.Row="3"
+                                   Grid.Column="0"
+                                   MaxWidth="80"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="Project" />
+                        <ComboBox Grid.Row="3"
                                   Grid.Column="1"
                                   MinWidth="233"
                                   HorizontalAlignment="Left"
@@ -98,14 +116,14 @@
                                   SelectedValue="{Binding SelectedProjectId}"
                                   SelectedValuePath="Key" />
 
-                        <TextBlock Grid.Row="3"
+                        <TextBlock Grid.Row="4"
                                    Grid.Column="0"
                                    MaxWidth="80"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
                                    FontWeight="Bold"
                                    Text="Target" />
-                        <ComboBox Grid.Row="3"
+                        <ComboBox Grid.Row="4"
                                   Grid.Column="1"
                                   MinWidth="233"
                                   HorizontalAlignment="Left"
@@ -115,14 +133,14 @@
                                   SelectedValue="{Binding SelectedTargetId}"
                                   SelectedValuePath="Key" />
 
-                        <TextBlock Grid.Row="4"
+                        <TextBlock Grid.Row="5"
                                    Grid.Column="0"
                                    MaxWidth="80"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
                                    FontWeight="Bold"
                                    Text="Filter" />
-                        <ComboBox Grid.Row="4"
+                        <ComboBox Grid.Row="5"
                                   Grid.Column="1"
                                   MinWidth="233"
                                   HorizontalAlignment="Left"
@@ -132,7 +150,7 @@
                                   SelectedValue="{Binding SelectedFilterId}"
                                   SelectedValuePath="Key" />
 
-                        <StackPanel Grid.Row="5"
+                        <StackPanel Grid.Row="6"
                                     Grid.Column="0"
                                     Orientation="Horizontal">
                             <Button Width="18"

@@ -81,6 +81,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             if (name != SwitchFilterLabel) { return false; }
 
             foreach (var item in ProgressItemList.Reverse()) {
+                if (!item.Group.Equals(CurrentGroup)) return false;
                 if (item.ItemName == SwitchFilterLabel) {
                     return item.FilterName == filter;
                 }
