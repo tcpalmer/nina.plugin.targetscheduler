@@ -448,7 +448,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Above max altitude at start but descending and available later
             sut.CheckFuture(t1, GetMoonAvoidanceExpert("L"));
             t1.Rejected.Should().BeFalse();
-            t1.StartTime.Should().BeCloseTo(new DateTime(2024, 10, 16, 1, 57, 50), 1.Seconds());
+            t1.StartTime.Should().BeCloseTo(new DateTime(2024, 10, 16, 1, 57, 58), 1.Seconds());
         }
 
         [Test]

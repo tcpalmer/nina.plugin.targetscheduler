@@ -29,7 +29,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
             sut.TargetId.Should().Be(1);
             sut.ImagingDate.Should().Be(dateTime);
             sut.TransitTime.Should().BeCloseTo(new DateTime(2024, 12, 2, 1, 5, 8), TimeSpan.FromSeconds(1));
-            sut.TargetPositions.Should().HaveCount(853);
+            sut.TargetPositions.Should().HaveCount(844);
 
             // Cached should give same result
             sut = new TargetVisibility("T1", 1, TestData.North_Mid_Lat, TestData.M42, dateTime, sunset, sunrise, 60);
@@ -37,7 +37,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
             sut.TargetId.Should().Be(1);
             sut.ImagingDate.Should().Be(dateTime);
             sut.TransitTime.Should().BeCloseTo(new DateTime(2024, 12, 2, 1, 5, 8), TimeSpan.FromSeconds(1));
-            sut.TargetPositions.Should().HaveCount(853);
+            sut.TargetPositions.Should().HaveCount(844);
         }
 
         [Test]

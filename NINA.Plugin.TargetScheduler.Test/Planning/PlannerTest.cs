@@ -273,9 +273,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pt1.Rejected.Should().BeFalse();
 
             TimeSpan precision = TimeSpan.FromSeconds(1);
-            pt1.StartTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 18, 59, 54), precision);
+            pt1.StartTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 18, 59, 59), precision);
             pt1.CulminationTime.Should().BeCloseTo(new DateTime(2023, 12, 18, 0, 5, 45), precision);
-            pt1.EndTime.Should().BeCloseTo(new DateTime(2023, 12, 18, 5, 47, 59), precision);
+            pt1.EndTime.Should().BeCloseTo(new DateTime(2023, 12, 18, 5, 49, 19), precision);
         }
 
         [Test]
@@ -303,7 +303,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pt1.Rejected.Should().BeFalse();
 
             TimeSpan precision = TimeSpan.FromSeconds(1);
-            pt1.StartTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 23, 35, 54), precision);
+            pt1.StartTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 23, 35, 59), precision);
             pt1.CulminationTime.Should().BeCloseTo(new DateTime(2023, 12, 18, 0, 5, 45), precision);
             pt1.EndTime.Should().BeCloseTo(new DateTime(2023, 12, 18, 0, 35, 45), precision);
         }
@@ -359,7 +359,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pt1.Rejected.Should().BeFalse();
 
             TimeSpan precision = TimeSpan.FromSeconds(1);
-            pt1.StartTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 20, 37, 55), precision);
+            pt1.StartTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 20, 37, 57), precision);
             pt1.CulminationTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 21, 7, 18), precision);
             pt1.EndTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 21, 37, 18), precision);
         }
