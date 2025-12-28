@@ -167,6 +167,16 @@ namespace NINA.Plugin.TargetScheduler.Test.Util {
         }
 
         [Test]
+        [TestCase(-1, 1)]
+        [TestCase(0, 1)]
+        [TestCase(100, 1)]
+        [TestCase(200, 1)]
+        [TestCase(30, 0.3)]
+        public void TestConcertROI(double val, double expected) {
+            Utils.ConvertROI(val).Should().Be(expected);
+        }
+
+        [Test]
         [TestCase(0, "0h 0m 0s")]
         [TestCase(75, "5h 0m 0s")]
         [TestCase(90.25, "6h 1m 0s")]

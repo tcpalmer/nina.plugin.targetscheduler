@@ -141,6 +141,13 @@ namespace NINA.Plugin.TargetScheduler.Util {
             return startTime.AddSeconds(span / 2);
         }
 
+        public static double ConvertROI(double percentageROI) {
+            // ROI is stored as a percentage in the database
+            if (percentageROI <= 0) { percentageROI = 100; }
+            if (percentageROI > 100) { percentageROI = 100; }
+            return percentageROI / 100;
+        }
+
         // Cobbled from NINA (NINA private)
         public static string DegreesToDMS(double value, string pattern) {
             bool negative = false;

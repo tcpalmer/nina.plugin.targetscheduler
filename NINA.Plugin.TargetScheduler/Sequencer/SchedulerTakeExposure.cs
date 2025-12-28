@@ -2,6 +2,7 @@
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Equipment.Model;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile.Interfaces;
 using NINA.Sequencer.SequenceItem.Imaging;
 using NINA.WPF.Base.Interfaces.Mediator;
@@ -21,10 +22,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public double ROI {
             get => roi;
             set {
-                // ROI is stored as a percentage in the database
-                if (value <= 0) { value = 100; }
-                if (value > 100) { value = 100; }
-                roi = value / 100;
+                roi = Utils.ConvertROI(value);
                 RaisePropertyChanged();
             }
         }

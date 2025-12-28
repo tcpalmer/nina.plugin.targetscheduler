@@ -231,7 +231,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     Offset = setting.Offset != -1 ? setting.Offset : flatSpec.Offset,
                     Binning = flatSpec.BinningMode,
                     ExposureTime = setting.Time,
-                    ROI = flatSpec.ROI,
+                    ROI = Utils.ConvertROI(flatSpec.ROI)
                 };
 
                 TSLogger.Info($"TS Flats: {target?.Name} sid: {neededFlat.SessionId}, taking {flatCount} flats: exp:{setting.Time}, brightness: {setting.Brightness}, for {flatSpec}");

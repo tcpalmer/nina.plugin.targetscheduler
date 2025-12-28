@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.8.3.1 - 2025-12-28
+* Fixed issue with flats mishandling ROI.
+
 ## 5.8.3.0 - 2025-12-01
 * The first 'Switch filter' is now shown in the TS sequence progress display even if same filter was used by last exposure of previous target.
 * Added selection of profile to constrain queries for Acquired Image and Reporting results.
