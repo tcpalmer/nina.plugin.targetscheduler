@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.8.3.2 - 2026-01-06
+* 
+
 ## 5.8.3.1 - 2025-12-28
 * Fixed issue with flats mishandling ROI.
 
