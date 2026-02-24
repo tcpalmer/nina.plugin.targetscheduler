@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using NINA.Astrometry;
+using NINA.Astrometry.RiseAndSet;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Test.Planning;
 using NUnit.Framework;
@@ -16,15 +18,15 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
             var sut = new TwilightCircumstances(TestData.North_Mid_Lat, dateTime);
 
-            Assertions.AssertTime(sut.CivilTwilightStart, date, 17, 4, 19);
-            Assertions.AssertTime(sut.NauticalTwilightStart, date, 17, 33, 31);
-            Assertions.AssertTime(sut.AstronomicalTwilightStart, date, 18, 4, 39);
-            Assertions.AssertTime(sut.NighttimeStart, date, 18, 35, 10);
+            Assertions.AssertTime(sut.CivilTwilightStart, date, 17, 4, 15);
+            Assertions.AssertTime(sut.NauticalTwilightStart, date, 17, 32, 5);
+            Assertions.AssertTime(sut.AstronomicalTwilightStart, date, 18, 3, 16);
+            Assertions.AssertTime(sut.NighttimeStart, date, 18, 33, 48);
             date = date.AddDays(1);
-            Assertions.AssertTime(sut.NighttimeEnd, date, 5, 35, 55);
-            Assertions.AssertTime(sut.AstronomicalTwilightEnd, date, 6, 6, 23);
-            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 6, 37, 39);
-            Assertions.AssertTime(sut.CivilTwilightEnd, date, 7, 6, 57);
+            Assertions.AssertTime(sut.NighttimeEnd, date, 5, 37, 17);
+            Assertions.AssertTime(sut.AstronomicalTwilightEnd, date, 6, 7, 46);
+            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 6, 39, 5);
+            Assertions.AssertTime(sut.CivilTwilightEnd, date, 7, 7, 0);
 
             sut.HasCivilTwilight().Should().BeTrue();
             sut.HasNauticalTwilight().Should().BeTrue();
@@ -44,15 +46,15 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
             var sut = new TwilightCircumstances(TestData.South_Mid_Lat, dateTime);
 
-            Assertions.AssertTime(sut.CivilTwilightStart, date, 18, 16, 1);
-            Assertions.AssertTime(sut.NauticalTwilightStart, date, 18, 45, 14);
-            Assertions.AssertTime(sut.AstronomicalTwilightStart, date, 19, 16, 40);
-            Assertions.AssertTime(sut.NighttimeStart, date, 19, 47, 16);
+            Assertions.AssertTime(sut.CivilTwilightStart, date, 18, 15, 59);
+            Assertions.AssertTime(sut.NauticalTwilightStart, date, 18, 43, 50);
+            Assertions.AssertTime(sut.AstronomicalTwilightStart, date, 19, 15, 19);
+            Assertions.AssertTime(sut.NighttimeStart, date, 19, 45, 57);
             date = date.AddDays(1);
-            Assertions.AssertTime(sut.NighttimeEnd, date, 6, 48, 58);
-            Assertions.AssertTime(sut.AstronomicalTwilightEnd, date, 7, 19, 41);
-            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 7, 51, 2);
-            Assertions.AssertTime(sut.CivilTwilightEnd, date, 8, 20, 4);
+            Assertions.AssertTime(sut.NighttimeEnd, date, 6, 50, 18);
+            Assertions.AssertTime(sut.AstronomicalTwilightEnd, date, 7, 21, 2);
+            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 7, 52, 25);
+            Assertions.AssertTime(sut.CivilTwilightEnd, date, 8, 20, 5);
 
             sut.HasCivilTwilight().Should().BeTrue();
             sut.HasNauticalTwilight().Should().BeTrue();
@@ -94,20 +96,24 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
         [Test]
         public void testAbovePolarCircleWinter() {
-            DateTime dateTime = new DateTime(2024, 12, 21, 12, 0, 0);
+            DateTime dateTime = new DateTime(2025, 12, 21, 12, 0, 0);
             DateTime date = dateTime.Date;
+
+            RiseAndSetEvent civil = AstroUtil.GetCivilNightTimes(date, TestData.North_Artic.Latitude, TestData.North_Artic.Longitude, 0);
+            RiseAndSetEvent naut = AstroUtil.GetNauticalNightTimes(date, TestData.North_Artic.Latitude, TestData.North_Artic.Longitude, 0);
+            RiseAndSetEvent astro = AstroUtil.GetNightTimes(date, TestData.North_Artic.Latitude, TestData.North_Artic.Longitude, 0);
 
             var sut = new TwilightCircumstances(TestData.North_Artic, dateTime);
 
-            Assertions.AssertTime(sut.CivilTwilightStart, date, 13, 4, 2);
-            Assertions.AssertTime(sut.NauticalTwilightStart, date, 15, 15, 27);
-            Assertions.AssertTime(sut.AstronomicalTwilightStart, date, 16, 36, 48);
-            Assertions.AssertTime(sut.NighttimeStart, date, 17, 44, 53);
+            Assertions.AssertTime(sut.CivilTwilightStart, date, 13, 3, 12);
+            Assertions.AssertTime(sut.NauticalTwilightStart, date, 15, 10, 56);
+            Assertions.AssertTime(sut.AstronomicalTwilightStart, date, 16, 33, 23);
+            Assertions.AssertTime(sut.NighttimeStart, date, 17, 41, 53);
             date = date.AddDays(1);
-            Assertions.AssertTime(sut.NighttimeEnd, date, 6, 52, 28);
-            Assertions.AssertTime(sut.AstronomicalTwilightEnd, date, 8, 0, 15);
-            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 9, 22, 5);
-            Assertions.AssertTime(sut.CivilTwilightEnd, date, 11, 33, 20);
+            Assertions.AssertTime(sut.NighttimeEnd, date, 6, 55, 18);
+            Assertions.AssertTime(sut.AstronomicalTwilightEnd, date, 8, 3, 24);
+            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 9, 26, 23);
+            Assertions.AssertTime(sut.CivilTwilightEnd, date, 11, 34, 2);
 
             sut.HasCivilTwilight().Should().BeTrue();
             sut.HasNauticalTwilight().Should().BeTrue();
@@ -127,11 +133,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
             var sut = new TwilightCircumstances(TestData.North_Mid_Lat, dateTime);
 
-            sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 1, 17, 4, 19)).Should().BeNull();
-            sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 2, 7, 6, 58)).Should().BeNull();
+            sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 1, 17, 4, 10)).Should().BeNull();
+            sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 2, 7, 7, 2)).Should().BeNull();
 
             sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 1, 17, 4, 20)).Should().Be(TwilightLevel.Civil);
-            sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 1, 17, 33, 31)).Should().Be(TwilightLevel.Civil);
+            sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 1, 17, 32, 0)).Should().Be(TwilightLevel.Civil);
             sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 2, 7, 6, 57)).Should().Be(TwilightLevel.Civil);
 
             sut.GetCurrentTwilightLevel(new DateTime(2024, 12, 1, 17, 33, 32)).Should().Be(TwilightLevel.Nautical);
@@ -159,17 +165,6 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
 
             var sut = new TwilightCircumstances(TestData.North_Mid_Lat, dateTime);
 
-            /*
-Civil start:        7/9/2025 8:32:20 PM
-Nautical start:     7/9/2025 9:03:13 PM
-Astronomical start: 7/9/2025 9:39:27 PM
-Night start:        7/9/2025 10:18:30 PM
-Night end:          7/10/2025 4:23:55 AM
-Astronomical end:   7/10/2025 5:03:45 AM
-Nautical end:       7/10/2025 5:39:58 AM
-Civil end:          7/10/2025 6:10:26 AM
-             */
-
             DateTime now = new DateTime(2025, 7, 9, 22, 0, 0);
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nighttime, -10).Should().BeFalse(); // at 10:00
             sut.CheckTwilightWithOffset(now.AddMinutes(10), TwilightLevel.Nighttime, -10).Should().BeTrue(); // at 10:10
@@ -190,7 +185,7 @@ Civil end:          7/10/2025 6:10:26 AM
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nautical, -10).Should().BeFalse(); // at 8:50
             sut.CheckTwilightWithOffset(now.AddMinutes(10), TwilightLevel.Nautical, -10).Should().BeTrue(); // at 9:00
 
-            now = new DateTime(2025, 7, 10, 5, 50, 0);
+            now = new DateTime(2025, 7, 10, 5, 52, 0);
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nautical, -10).Should().BeFalse(); // at 5:50
             sut.CheckTwilightWithOffset(now.AddMinutes(-10), TwilightLevel.Nautical, -10).Should().BeTrue(); // at 5:40
 
@@ -206,31 +201,31 @@ Civil end:          7/10/2025 6:10:26 AM
             sut.CheckTwilightWithOffset(now, TwilightLevel.Civil, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Civil, -1).Should().BeTrue();
 
-            now = new DateTime(2025, 7, 9, 21, 3, 13); // nautical start
+            now = new DateTime(2025, 7, 9, 21, 1, 50); // nautical start
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nautical, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nautical, -1).Should().BeTrue();
 
-            now = new DateTime(2025, 7, 9, 21, 39, 27); // astro start
+            now = new DateTime(2025, 7, 9, 21, 37, 50); // astro start
             sut.CheckTwilightWithOffset(now, TwilightLevel.Astronomical, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Astronomical, -1).Should().BeTrue();
 
-            now = new DateTime(2025, 7, 9, 22, 18, 30); // night start
+            now = new DateTime(2025, 7, 9, 22, 16, 50); // night start
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nighttime, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nighttime, -1).Should().BeTrue();
 
-            now = new DateTime(2025, 7, 10, 4, 23, 55); // night end
+            now = new DateTime(2025, 7, 10, 4, 26, 0); // night end
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nighttime, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nighttime, -1).Should().BeTrue();
 
-            now = new DateTime(2025, 7, 10, 5, 3, 45); // astro end
+            now = new DateTime(2025, 7, 10, 5, 5, 50); // astro end
             sut.CheckTwilightWithOffset(now, TwilightLevel.Astronomical, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Astronomical, -1).Should().BeTrue();
 
-            now = new DateTime(2025, 7, 10, 5, 39, 58); // nautical end
+            now = new DateTime(2025, 7, 10, 5, 42, 0); // nautical end
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nautical, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Nautical, -1).Should().BeTrue();
 
-            now = new DateTime(2025, 7, 10, 6, 10, 26); // civil end
+            now = new DateTime(2025, 7, 10, 6, 10, 30); // civil end
             sut.CheckTwilightWithOffset(now, TwilightLevel.Civil, 1).Should().BeFalse();
             sut.CheckTwilightWithOffset(now, TwilightLevel.Civil, -1).Should().BeTrue();
         }

@@ -9,5 +9,4 @@
   <ItemGroup>
     <PackageReference Include="NINA.Plugin" Version="3.2.0.9001" />
   </ItemGroup>
-
 </Project>

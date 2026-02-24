@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NINA.Astrometry;
-using NINA.Astrometry.RiseAndSet;
 using NINA.Plugin.TargetScheduler.Planning;
 using System;
 using System.Globalization;
@@ -148,21 +147,19 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         }
 
         private void Calculate() {
-            var civil = new Daytime(OnDate, observerInfo.Latitude, observerInfo.Longitude);
-            CivilTwilightStart = civil.Start;
-            CivilTwilightEnd = civil.End;
+            var sun = AstroUtil.GetSunRiseAndSet(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
+            var civil = AstroUtil.GetCivilNightTimes(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
+            var nautical = AstroUtil.GetNauticalNightTimes(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
+            var astro = AstroUtil.GetNightTimes(OnDate, observerInfo.Latitude, observerInfo.Longitude, observerInfo.Elevation);
 
-            var nautical = new CivilTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude);
-            NauticalTwilightStart = nautical.Start;
-            NauticalTwilightEnd = nautical.End;
-
-            var astro = new NauticalTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude);
-            AstronomicalTwilightStart = astro.Start;
-            AstronomicalTwilightEnd = astro.End;
-
-            var night = new AstronomicalTwilight(OnDate, observerInfo.Latitude, observerInfo.Longitude);
-            NighttimeStart = night.Start;
-            NighttimeEnd = night.End;
+            CivilTwilightStart = sun.Set;
+            CivilTwilightEnd = sun.Rise;
+            NauticalTwilightStart = civil.Set;
+            NauticalTwilightEnd = civil.Rise;
+            AstronomicalTwilightStart = nautical.Set;
+            AstronomicalTwilightEnd = nautical.Rise;
+            NighttimeStart = astro.Set;
+            NighttimeEnd = astro.Rise;
         }
 
         public override string ToString() {
@@ -192,46 +189,6 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             }
 
             return new TimeInterval((DateTime)t1, (DateTime)t2);
-        }
-    }
-
-    internal abstract class SunAltitudeEvent : SunCustomRiseAndSet {
-        public DateTime? Start { get; private set; }
-        public DateTime? End { get; private set; }
-
-        public SunAltitudeEvent(DateTime date, double latitude, double longitude, double sunAltitude)
-            : base(date, latitude, longitude, sunAltitude) {
-            _ = Calculate().Result;
-            Start = Set;
-            End = Rise;
-        }
-    }
-
-    internal class Daytime : SunAltitudeEvent {
-
-        public Daytime(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.DayEndAltitude) {
-        }
-    }
-
-    internal class CivilTwilight : SunAltitudeEvent {
-
-        public CivilTwilight(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.CivilEndSunAltitude) {
-        }
-    }
-
-    internal class NauticalTwilight : SunAltitudeEvent {
-
-        public NauticalTwilight(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.NauticalEndSunAltitude) {
-        }
-    }
-
-    internal class AstronomicalTwilight : SunAltitudeEvent {
-
-        public AstronomicalTwilight(DateTime date, double latitude, double longitude)
-            : base(date, latitude, longitude, TwilightCircumstances.AstronomicalEndSunAltitude) {
         }
     }
 
