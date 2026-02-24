@@ -46,7 +46,7 @@
 		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 		<PackageReference Include="Moq" Version="4.20.72" />
-		<PackageReference Include="NINA.Plugin" Version="3.1.2.9001" />
+		<PackageReference Include="NINA.Plugin" Version="3.2.0.9001" />
 		<PackageReference Include="NUnit" Version="4.2.2" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 	</ItemGroup>

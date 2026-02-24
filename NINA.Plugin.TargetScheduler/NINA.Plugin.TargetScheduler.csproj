@@ -33,7 +33,7 @@
         <PackageReference Include="LinqKit" Version="1.2.4" />
         <PackageReference Include="LinqKit.Core" Version="1.2.4" />
         <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-        <PackageReference Include="NINA.Plugin" Version="3.1.2.9001" />
+        <PackageReference Include="NINA.Plugin" Version="3.2.0.9001" />
 	</ItemGroup>
 
   <ItemGroup>

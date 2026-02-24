@@ -11,14 +11,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Grpc.AspNetCore" Version="2.62.0" />
-		<PackageReference Include="Grpc.Core.Api" Version="2.62.0" />
-		<PackageReference Include="Grpc.Tools" Version="2.62.0">
+		<PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+		<PackageReference Include="Grpc.Core.Api" Version="2.71.0" />
+		<PackageReference Include="Grpc.Tools" Version="2.71.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="GrpcDotNetNamedPipes" Version="3.0.0" />
-		<PackageReference Include="NINA.Plugin" Version="3.1.2.9001" />
+		<PackageReference Include="GrpcDotNetNamedPipes" Version="3.1.0" />
+		<PackageReference Include="NINA.Plugin" Version="3.2.0.9001" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 	</ItemGroup>
 

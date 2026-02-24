@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NINA.Plugin" Version="3.1.2.9001" />
+    <PackageReference Include="NINA.Plugin" Version="3.2.0.9001" />
   </ItemGroup>
 
 </Project>

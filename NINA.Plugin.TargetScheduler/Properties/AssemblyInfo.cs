@@ -6,16 +6,16 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("An automated target scheduler for NINA")]
 [assembly: AssemblyCompany("Tom Palmer @tcpalmer")]
 [assembly: AssemblyProduct("Target Scheduler")]
-[assembly: AssemblyCopyright("Copyright © 2025")]
+[assembly: AssemblyCopyright("Copyright © 2026")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("windows")]
-[assembly: AssemblyVersion("5.8.3.2")]
-[assembly: AssemblyFileVersion("5.8.3.2")]
+[assembly: AssemblyVersion("5.9.0.0")]
+[assembly: AssemblyFileVersion("5.9.0.0")]
 
 // The minimum Version of N.I.N.A. that this plugin is compatible with
-[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.1.2.9001")]
+[assembly: AssemblyMetadata("MinimumApplicationVersion", "3.2.0.9001")]
 [assembly: AssemblyMetadata("License", "MPL-2.0")]
 [assembly: AssemblyMetadata("LicenseURL", "https://www.mozilla.org/en-US/MPL/2.0/")]
 [assembly: AssemblyMetadata("Repository", "https://github.com/tcpalmer/nina.plugin.targetscheduler/")]
@@ -37,6 +37,7 @@ using System.Runtime.InteropServices;
 * Automated flats support
 * Synchronization across multiple instances of NINA
 * Support for 24x7 sequences for long term unattended operation
+* API (read-only access for now)
 
 If you like this plugin and it saves you time, please consider [Buying Me a Beer](https://www.buymeacoffee.com/tcpalmer).
 
