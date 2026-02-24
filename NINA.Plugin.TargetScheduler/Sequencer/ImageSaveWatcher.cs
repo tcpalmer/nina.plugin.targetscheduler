@@ -161,7 +161,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             return new SchedulerPlanLoader(profile).GetProfilePreferences();
         }
 
-        public virtual SchedulerDatabaseContext GetSchedulerDatabaseContext() {
+        public virtual ISchedulerDatabaseContext GetSchedulerDatabaseContext() {
             return new SchedulerDatabaseInteraction().GetContext();
         }
 

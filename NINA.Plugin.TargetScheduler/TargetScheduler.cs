@@ -3,6 +3,7 @@ using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Equipment.Interfaces;
 using NINA.Plugin.Interfaces;
+using NINA.Plugin.TargetScheduler.API;
 using NINA.Plugin.TargetScheduler.Controls.AcquiredImages;
 using NINA.Plugin.TargetScheduler.Controls.DatabaseManager;
 using NINA.Plugin.TargetScheduler.Controls.PlanPreview;
@@ -38,6 +39,8 @@ namespace NINA.Plugin.TargetScheduler {
 
         public static readonly ImagePattern ProjectNameImagePattern = new ImagePattern("$$TSPROJECTNAME$$", "TS project name (if available)", "Target Scheduler");
 
+        private static Server APIServer;
+
         private IProfileService profileService;
         private IApplicationMediator applicationMediator;
         private IFramingAssistantVM framingAssistantVM;
@@ -62,6 +65,9 @@ namespace NINA.Plugin.TargetScheduler {
             this.framingAssistantVM = framingAssistantVM;
             this.deepSkyObjectSearchVM = deepSkyObjectSearchVM;
             this.planetariumFactory = planetariumFactory;
+
+            APIServer = new Server(8188, profileService, new SchedulerDatabaseInteraction());
+            APIServer.Start();
 
             profileService.ProfileChanged += ProfileService_ProfileChanged;
 

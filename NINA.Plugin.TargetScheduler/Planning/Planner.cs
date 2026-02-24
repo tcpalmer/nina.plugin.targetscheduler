@@ -442,6 +442,23 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             }
         }
 
+        private List<IExposure> GetExposurePlans(ITarget target) {
+            try {
+                SchedulerDatabaseInteraction database = new SchedulerDatabaseInteraction();
+                using (ISchedulerDatabaseContext context = database.GetContext()) {
+                    var eps = context.GetExposurePlans(target.DatabaseId);
+                    List<IExposure> exposures = new List<IExposure>(eps.Count);
+                    eps.ForEach(ep => {
+                        exposures.Add(new PlanningExposure(target, ep, ep.ExposureTemplate));
+                    });
+                    return exposures;
+                }
+            } catch (Exception ex) {
+                TSLogger.Error($"exception reloading target exposure plans {target.Name}: {ex.StackTrace}");
+                throw new SequenceEntityFailedException($"Scheduler: exception reloading target exposure plans: {ex.Message}", ex);
+            }
+        }
+
         public bool HasActiveProjects(List<IProject> projects) {
             if (projects == null) {
                 projects = GetProjects();

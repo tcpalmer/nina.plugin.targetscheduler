@@ -6,8 +6,12 @@ using System.IO;
 using System.Linq;
 
 namespace NINA.Plugin.TargetScheduler.Database {
+    public interface ISchedulerDatabaseInteraction
+    {
+        ISchedulerDatabaseContext GetContext();
+    }
 
-    public class SchedulerDatabaseInteraction {
+    public class SchedulerDatabaseInteraction : ISchedulerDatabaseInteraction {
         private static readonly string DATABASE_BASENAME = "schedulerdb";
         public static readonly string DATABASE_SUFFIX = "sqlite";
         public static readonly string DATABASE_FILENAME = $"{DATABASE_BASENAME}.{DATABASE_SUFFIX}";
@@ -23,7 +27,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
             this.connectionString = connectionString;
         }
 
-        public SchedulerDatabaseContext GetContext() {
+        public ISchedulerDatabaseContext GetContext() {
             return new SchedulerDatabaseContext(connectionString);
         }
 

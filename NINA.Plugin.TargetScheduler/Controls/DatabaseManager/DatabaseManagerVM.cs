@@ -452,7 +452,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             return rootList;
         }
 
-        private List<Project> GetOrphanedProjects(IProfileService profileService, SchedulerDatabaseContext context) {
+        private List<Project> GetOrphanedProjects(IProfileService profileService, ISchedulerDatabaseContext context) {
             List<string> currentProfileIds = new List<string>();
             profileService.Profiles.ForEach(p => currentProfileIds.Add(p.Id.ToString()));
             return context.GetOrphanedProjects(currentProfileIds);
@@ -491,7 +491,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             return rootList;
         }
 
-        private List<ExposureTemplate> GetOrphanedExposureTemplates(IProfileService profileService, SchedulerDatabaseContext context) {
+        private List<ExposureTemplate> GetOrphanedExposureTemplates(IProfileService profileService, ISchedulerDatabaseContext context) {
             List<string> currentProfileIds = new List<string>();
             profileService.Profiles.ForEach(p => currentProfileIds.Add(p.Id.ToString()));
             return context.GetOrphanedExposureTemplates(currentProfileIds);
