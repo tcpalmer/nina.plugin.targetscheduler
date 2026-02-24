@@ -1,14 +1,14 @@
 ﻿using EmbedIO;
-using EmbedIO.WebApi;
+using NINA.Core.Utility.Notification;
 using NINA.Plugin.TargetScheduler.Database;
-using NINA.Profile.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Profile.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NINA.Core.Utility.Notification;
 
 namespace NINA.Plugin.TargetScheduler.API {
+
     public class Server {
         public WebServer WebServer;
 
@@ -85,7 +85,9 @@ namespace NINA.Plugin.TargetScheduler.API {
     }
 
     public class PreprocessRequestModule : WebModuleBase {
-        public PreprocessRequestModule() : base("/") { }
+
+        public PreprocessRequestModule() : base("/") {
+        }
 
         protected override Task OnRequestAsync(IHttpContext context) {
             TSLogger.Trace($"Request: {context.Request.Url.OriginalString}");

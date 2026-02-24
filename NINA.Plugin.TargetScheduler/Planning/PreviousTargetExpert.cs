@@ -160,7 +160,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private List<IExposure> GetExposurePlans(ITarget target) {
             try {
                 SchedulerDatabaseInteraction database = new SchedulerDatabaseInteraction();
-                using (SchedulerDatabaseContext context = database.GetContext()) {
+                using (ISchedulerDatabaseContext context = database.GetContext()) {
                     var eps = context.GetExposurePlans(target.DatabaseId);
                     List<IExposure> exposures = new List<IExposure>(eps.Count);
                     eps.ForEach(ep => {

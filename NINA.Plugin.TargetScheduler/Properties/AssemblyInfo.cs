@@ -48,6 +48,7 @@ The [plugin documentation](https://tcpalmer.github.io/nina-scheduler/) provides 
 * Chris Woodhouse has been involved since the beginning and was instrumental in hashing out the initial design and requirements.
 * Matt Nudi also provided design feedback and critical early beta testing.
 * Linda Thomas-Fowler and Chris Kagy continue to provide invaluable testing and feedback on features.
+* @Reluthan contributed the initial version of the API.
 * The concept for the plugin was originally inspired by the AIC video [Tim Hutchison: Automating a Backyard Observatory](https://www.youtube.com/watch?v=a4IkAUZkXH0).
 * Any automated scheduler is going to owe a debt of gratitude to [ACP](https://acpx.dc3.com/) for pioneering in this area.
 * Finally, it's a tribute to the elegant design of NINA and the Advanced Sequencer that a plugin of this type is not only possible, but can also interact correctly with other elements in a sequence.

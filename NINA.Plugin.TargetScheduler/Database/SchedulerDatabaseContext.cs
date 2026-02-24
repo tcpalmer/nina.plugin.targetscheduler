@@ -29,8 +29,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace NINA.Plugin.TargetScheduler.Database {
-    public interface ISchedulerDatabaseContext : IDisposable
-    {
+
+    public interface ISchedulerDatabaseContext : IDisposable {
         DbSet<ProfilePreference> ProfilePreferenceSet { get; set; }
         DbSet<AcquiredImage> AcquiredImageSet { get; set; }
         DbSet<Project> ProjectSet { get; set; }
@@ -45,72 +45,167 @@ namespace NINA.Plugin.TargetScheduler.Database {
         System.Data.Entity.Database Database { get; }
         DbChangeTracker ChangeTracker { get; }
         DbContextConfiguration Configuration { get; }
+
         ProfilePreference GetProfilePreference(string profileId, bool createDefault = false);
+
+        ProfilePreference GetProfilePreferenceByGuid(string guid);
+
         List<Project> GetAllProjects();
+
         List<Project> GetAllProjects(string profileId);
+
+        Project GetProjectByGuid(string guid);
+
         List<Project> GetAllProjectsReadOnly(string profileId);
+
         List<Project> GetOrphanedProjects(List<string> currentProfileIdList);
+
         List<Project> GetActiveProjects(string profileId);
+
         bool HasActiveTargets(string profileId);
+
         List<ExposureTemplate> GetExposureTemplates(string profileId);
+
         Project GetProject(int projectId);
+
         Project GetProjectReadOnly(int projectId);
+
+        Project GetProjectOnly(int projectId);
+
         Target GetTargetOnly(int targetId);
+
         Target GetTarget(int projectId, int targetId);
+
         Target GetTargetReadOnly(int targetId);
+
         Target GetTargetByProject(int projectId, int targetId);
+
+        Target GetTargetByGuid(string guid);
+
         ExposurePlan GetExposurePlan(int id);
+
+        ExposurePlan GetExposurePlanByGuid(string guid);
+
         List<ExposurePlan> GetExposurePlans(int targetId);
+
         ExposureTemplate GetExposureTemplate(int id);
+
+        ExposureTemplate GetExposureTemplateByGuid(string guid);
+
         List<OverrideExposureOrderItem> GetOverrideExposureOrders(int targetId);
+
         void ClearExistingOverrideExposureOrders(int targetId);
-        void ReplaceFilterCadences(int targetId, List<FilterCadenceItem> items);
+
+        void ReplaceFilterCadences(int targetId, List<FilterCadenceItem> items, bool impactingChange = true);
+
         List<FilterCadenceItem> GetFilterCadences(int targetId);
-        void ClearExistingFilterCadences(int targetId);
+
+        void ClearExistingFilterCadences(int targetId, bool impactingChange = true);
+
         List<AcquiredImage> GetAcquiredImages(int targetId, string filterName);
+
         List<AcquiredImage> GetAcquiredImages(int targetId);
+
         List<AcquiredImage> GetAcquiredImages(string profileId, DateTime newerThan);
+
         AcquiredImage GetAcquiredImage(int id);
+
+        AcquiredImage GetAcquiredImageByGuid(string guid);
+
         List<AcquiredImage> GetAcquiredImagesForGrading(ExposurePlan exposurePlan);
+
+        List<AcquiredImage> GetPendingAcquiredImagesForGrading(ExposurePlan exposurePlan);
+
         int GetAcquiredImagesCount(DateTime olderThan, int targetId);
+
+        AcquiredImage ManualUpdateGrading(AcquiredImage acquiredImage, GradingStatus oldStatus, GradingStatus newStatus);
+
         void DeleteOverrideExposureOrders(int targetId);
+
         void DeleteAcquiredImages(DateTime olderThan, int targetId);
+
         void DeleteAcquiredImages(int targetId);
+
         List<FlatHistory> GetFlatsHistory(DateTime lightSessionDate, string profileId);
+
         List<FlatHistory> GetFlatsHistory(int targetId, string profileId);
+
         List<FlatHistory> GetFlatsHistory(List<Target> targets, string profileId);
+
         ImageData GetImageData(int acquiredImageId);
+
         ImageData GetImageData(int acquiredImageId, string tag);
+
         ProfilePreference SaveProfilePreference(ProfilePreference profilePreference);
+
         Project AddNewProject(Project project);
+
         Project SaveProject(Project project);
+
         Project PasteProject(string profileId, Project source);
+
         Project MoveProject(Project project, string profileId);
+
         bool DeleteProject(Project project, bool deleteAcquiredImagesWithTarget);
+
         Target AddNewTarget(Project project, Target target);
+
         Target SaveTarget(Target target, bool clearFilterCadenceItems = false);
+
         Target PasteTarget(Project project, Target source);
+
+        Target MoveTarget(Project project, Target source);
+
         bool DeleteTarget(Target target);
+
+        Target ToggleExposurePlan(Target target, ExposurePlan exposurePlan);
+
         Target DeleteExposurePlan(Target target, ExposurePlan exposurePlan);
+
         Target ResetExposurePlans(Target target);
+
         Target DeleteAllExposurePlans(Target target);
+
         ExposureTemplate SaveExposureTemplate(ExposureTemplate exposureTemplate);
+
         ExposureTemplate PasteExposureTemplate(string profileId, ExposureTemplate source);
+
         bool DeleteExposureTemplate(ExposureTemplate exposureTemplate);
+
         void AddExposureTemplates(List<ExposureTemplate> exposureTemplates);
+
         ExposureTemplate MoveExposureTemplate(ExposureTemplate exposureTemplate, string profileId);
+
         List<ExposureTemplate> GetOrphanedExposureTemplates(List<string> currentProfileIdList);
+
+        ProfilePreference GetProfilePreferenceForExport(string profileId);
+
+        List<Project> GetProjectsForExport(string profileId);
+
+        List<ExposureTemplate> GetExposureTemplatesForExport(string profileId);
+
+        List<AcquiredImage> GetAcquiredImagesForExport(string profileId);
+
+        List<ImageData> GetImageDataForExport(string profileId);
+
         bool Equals(object obj);
+
         int GetHashCode();
+
         Type GetType();
+
         string ToString();
+
         int SaveChanges();
+
         Task<int> SaveChangesAsync();
+
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
         IEnumerable<DbEntityValidationResult> GetValidationErrors();
     }
 
-    public class SchedulerDatabaseContext : DbContext {
+    public class SchedulerDatabaseContext : DbContext, ISchedulerDatabaseContext {
         private const int DEFAULT_BUSYLOCK_SECS = 5;
 
         public DbSet<ProfilePreference> ProfilePreferenceSet { get; set; }

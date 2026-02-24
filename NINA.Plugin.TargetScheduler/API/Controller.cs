@@ -1,5 +1,4 @@
-﻿using ASCOM.Com;
-using EmbedIO;
+﻿using EmbedIO;
 using EmbedIO.Routing;
 using EmbedIO.WebApi;
 using NINA.Astrometry;
@@ -11,21 +10,15 @@ using NINA.Plugin.TargetScheduler.Planning.Entities;
 using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
-using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using static EDSDKLib.EDSDK;
 
 namespace NINA.Plugin.TargetScheduler.API {
+
     public class Controller : WebApiController {
         private ISchedulerDatabaseContext database;
         private ISchedulerDatabaseInteraction databaseInteraction;
@@ -188,7 +181,7 @@ namespace NINA.Plugin.TargetScheduler.API {
                     if (instruction is PlanMessage or PlanBeforeNewTargetContainer or PlanPostExposure or PlanSlew or PlanSetReadoutMode or PlanDither) {
                         continue;
                     }
-                    
+
                     if (instruction is PlanSwitchFilter filter) {
                         string filterName = filter.exposure.FilterName;
                         if (filterName != exposurePlanItem.FilterName) {
@@ -214,6 +207,7 @@ namespace NINA.Plugin.TargetScheduler.API {
     }
 
     public class ProfileResponse {
+
         public ProfileResponse(ProfileMeta m) {
             ProfileId = m.Id.ToString();
             Name = m.Name;
@@ -226,12 +220,13 @@ namespace NINA.Plugin.TargetScheduler.API {
     }
 
     public class ProjectResponse {
+
         public ProjectResponse(Project p) {
             ProfileId = p.ProfileId;
             ProjectId = p.Id;
             Name = p.Name;
             State = Enum.GetName(typeof(ProjectState), p.State);
-            Priority = (int) p.Priority;
+            Priority = (int)p.Priority;
             Description = p.Description;
             CreateDate = p.CreateDate;
             ActiveDate = p.ActiveDate;
@@ -274,6 +269,7 @@ namespace NINA.Plugin.TargetScheduler.API {
     }
 
     public class TargetResponse {
+
         public TargetResponse(Target t, ExposureCompletionHelper ech) {
             ProjectId = t.ProjectId;
             TargetId = t.Id;
@@ -300,6 +296,7 @@ namespace NINA.Plugin.TargetScheduler.API {
     }
 
     public class ExposurePlanResponse {
+
         public ExposurePlanResponse(ExposurePlan p, bool provisional) {
             TemplateName = p.ExposureTemplate.Name;
             Exposure = p.Exposure != -1 ? p.Exposure : p.ExposureTemplate.DefaultExposure;
@@ -320,6 +317,7 @@ namespace NINA.Plugin.TargetScheduler.API {
     }
 
     public class TargetStatisticsResponse {
+
         private static double StdDev(IEnumerable<double> values) {
             double avg = values.Average();
             return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
@@ -377,9 +375,10 @@ namespace NINA.Plugin.TargetScheduler.API {
         public int EccentricityBelowAutoAcceptLevel { get; private set; }
     }
 
-
     public class PreviewExposurePlanResponse {
-        public PreviewExposurePlanResponse() { }
+
+        public PreviewExposurePlanResponse() {
+        }
 
         public string FilterName { get; set; }
         public double Exposure { get; set; }
@@ -387,6 +386,7 @@ namespace NINA.Plugin.TargetScheduler.API {
     }
 
     public class PreviewResponse {
+
         public PreviewResponse() {
             ExposurePlan = new List<PreviewExposurePlanResponse>();
         }
