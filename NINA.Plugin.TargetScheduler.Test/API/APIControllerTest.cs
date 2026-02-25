@@ -1,27 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using EmbedIO;
 using FluentAssertions;
 using Moq;
-using NUnit.Framework;
+using NINA.Astrometry;
 using NINA.Plugin.TargetScheduler.API;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
-using NINA.Plugin.TargetScheduler.Planning.Exposures;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
-using EmbedIO;
-using NINA.Astrometry;
-using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NINA.Plugin.TargetScheduler.Test.API {
 
     [TestFixture]
-    public class ControllerTests {
+    public class APIControllerTests {
         private Mock<ISchedulerDatabaseInteraction> _dbInteractionMock;
         private Mock<ISchedulerDatabaseContext> _dbContextMock;
         private Mock<IProfileService> _profileServiceMock;
-        private Controller _controller;
+        private APIController _controller;
 
         [SetUp]
         public void Setup() {
@@ -32,7 +31,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
             // When GetContext() is called, return our mocked ISchedulerDatabaseContext.
             _dbInteractionMock.Setup(d => d.GetContext()).Returns(_dbContextMock.Object);
 
-            _controller = new Controller(_dbInteractionMock.Object, _profileServiceMock.Object);
+            _controller = new APIController(_dbInteractionMock.Object, _profileServiceMock.Object);
         }
 
         [Test]
@@ -479,6 +478,5 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
             // Assert: Expect a NullReferenceException because ExposurePlans is null.
             act.Should().Throw<ArgumentNullException>();
         }
-
     }
 }

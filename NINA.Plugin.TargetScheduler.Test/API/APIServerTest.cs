@@ -1,24 +1,22 @@
-﻿using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using EmbedIO;
 using FluentAssertions;
 using Moq;
-using NUnit.Framework;
 using NINA.Plugin.TargetScheduler.API;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Profile.Interfaces;
-using EmbedIO;
-using EmbedIO.WebApi;
-using NINA.Core.Utility.Notification;
+using NUnit.Framework;
+using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NINA.Plugin.TargetScheduler.Test.API {
 
     [TestFixture]
-    public class ServerTests {
+    public class APIServerTests {
         private Mock<IProfileService> _profileServiceMock;
         private Mock<ISchedulerDatabaseInteraction> _dbInteractionMock;
-        private Server _server;
+        private APIServer _server;
         private const int TestPort = 12345;
 
         // FakeWebServer factory to avoid starting a real web server.
@@ -31,7 +29,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
             _profileServiceMock = new Mock<IProfileService>();
             _dbInteractionMock = new Mock<ISchedulerDatabaseInteraction>();
             // Inject our mocks and fake WebServer factory.
-            _server = new Server(TestPort, _profileServiceMock.Object, _dbInteractionMock.Object, FakeWebServerFactory);
+            _server = new APIServer(TestPort, _profileServiceMock.Object, _dbInteractionMock.Object, FakeWebServerFactory);
         }
 
         [TearDown]
@@ -46,7 +44,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
 
             // Assert
             controller.Should().NotBeNull();
-            controller.Should().BeOfType<Controller>();
+            controller.Should().BeOfType<APIController>();
         }
 
         [Test]
@@ -113,11 +111,11 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
             // Assert: After stopping, WebServer should be null.
             _server.WebServer.Should().BeNull();
         }
-
     }
 
     // A test subclass to expose the protected OnRequestAsync method.
     public class TestablePreprocessRequestModule : PreprocessRequestModule {
+
         public Task CallOnRequestAsync(IHttpContext context) {
             return base.OnRequestAsync(context);
         }

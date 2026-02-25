@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NINA.Plugin.TargetScheduler.API {
 
-    public class Server {
+    public class APIServer {
         public WebServer WebServer;
 
         private Thread serverThread;
@@ -20,7 +20,7 @@ namespace NINA.Plugin.TargetScheduler.API {
         private readonly Func<WebServer> webServerFactory;
 
         // Added optional webServerFactory injection for testing.
-        public Server(int port, IProfileService p, ISchedulerDatabaseInteraction i, Func<WebServer> webServerFactory = null) {
+        public APIServer(int port, IProfileService p, ISchedulerDatabaseInteraction i, Func<WebServer> webServerFactory = null) {
             Port = port;
             // In production, use the default constructor.
             database = i;
@@ -31,12 +31,12 @@ namespace NINA.Plugin.TargetScheduler.API {
                     .WithUrlPrefix($"http://*:{Port}")
                     .WithMode(HttpListenerMode.EmbedIO))
                     .WithModule(new PreprocessRequestModule())
-                    .WithWebApi("/v1", m => m.RegisterController<Controller>(ControllerFactory))
+                    .WithWebApi("/v1", m => m.RegisterController<APIController>(ControllerFactory))
             );
         }
 
-        public Controller ControllerFactory() {
-            return new Controller(database, profileService);
+        public APIController ControllerFactory() {
+            return new APIController(database, profileService);
         }
 
         public void CreateServer() {
@@ -45,12 +45,12 @@ namespace NINA.Plugin.TargetScheduler.API {
 
         public void Start() {
             try {
-                TSLogger.Trace("Creating embedio server");
+                TSLogger.Trace("creating embedio server");
                 CreateServer();
-                TSLogger.Trace("Starting embedio server");
+                TSLogger.Trace("starting embedio server");
                 if (WebServer != null) {
                     serverThread = new Thread(() => APITask(WebServer));
-                    serverThread.Name = "API Thread";
+                    serverThread.Name = "Target Scheduler API Thread";
                     serverThread.SetApartmentState(ApartmentState.STA);
                     serverThread.Start();
                 }
@@ -61,9 +61,11 @@ namespace NINA.Plugin.TargetScheduler.API {
 
         public void Stop() {
             try {
+                TSLogger.Debug("stopping embedio server");
                 apiToken?.Cancel();
                 WebServer?.Dispose();
                 WebServer = null;
+                Thread.Sleep(200);
             } catch (Exception e) {
                 TSLogger.Error($"failed to stop embedio server: {e}");
             }
@@ -71,7 +73,7 @@ namespace NINA.Plugin.TargetScheduler.API {
 
         [STAThread]
         private void APITask(WebServer server) {
-            TSLogger.Info($"starting embedio server, listening on port {Port}");
+            TSLogger.Info($"starting embedio server for TS API, listening on port {Port}");
 
             try {
                 apiToken = new CancellationTokenSource();
@@ -90,7 +92,7 @@ namespace NINA.Plugin.TargetScheduler.API {
         }
 
         protected override Task OnRequestAsync(IHttpContext context) {
-            TSLogger.Trace($"Request: {context.Request.Url.OriginalString}");
+            TSLogger.Debug($"Request: {context.Request.Url.OriginalString}");
             context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
             return Task.CompletedTask;
         }

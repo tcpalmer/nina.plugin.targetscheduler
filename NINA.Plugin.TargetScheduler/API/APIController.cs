@@ -19,7 +19,7 @@ using System.Reflection;
 
 namespace NINA.Plugin.TargetScheduler.API {
 
-    public class Controller : WebApiController {
+    public class APIController : WebApiController {
         private ISchedulerDatabaseContext database;
         private ISchedulerDatabaseInteraction databaseInteraction;
         private IProfileService profileService;
@@ -35,7 +35,7 @@ namespace NINA.Plugin.TargetScheduler.API {
                 profilePreference.ExposureThrottle);
         }
 
-        public Controller(ISchedulerDatabaseInteraction d, IProfileService p) {
+        public APIController(ISchedulerDatabaseInteraction d, IProfileService p) {
             databaseInteraction = d;
             database = d.GetContext();
             profileService = p;
