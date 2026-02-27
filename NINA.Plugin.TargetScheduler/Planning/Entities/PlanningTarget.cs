@@ -13,6 +13,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
 
     public class PlanningTarget : ITarget {
         public string PlanId { get; set; }
+        public string TargetGuid { get; set; }
         public int DatabaseId { get; set; }
         public string Name { get; set; }
         public Coordinates Coordinates { get; set; }
@@ -40,6 +41,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
 
         public PlanningTarget(IProject planProject, Target target) {
             this.PlanId = Guid.NewGuid().ToString();
+            this.TargetGuid = target.Guid;
             this.DatabaseId = target.Id;
             this.Name = target.Name;
             this.Coordinates = target.Coordinates;

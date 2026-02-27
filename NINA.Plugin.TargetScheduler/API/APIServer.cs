@@ -4,12 +4,16 @@ using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile.Interfaces;
 using System;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NINA.Plugin.TargetScheduler.API {
 
     public class APIServer {
+        private const string BASE_ROUTE = "/ts/v0";
+
         public WebServer WebServer;
 
         private Thread serverThread;
@@ -17,22 +21,30 @@ namespace NINA.Plugin.TargetScheduler.API {
         public readonly int Port;
         private readonly ISchedulerDatabaseInteraction database;
         private readonly IProfileService profileService;
+        private static bool PrettyPrint;
         private readonly Func<WebServer> webServerFactory;
 
-        // Added optional webServerFactory injection for testing.
-        public APIServer(int port, IProfileService p, ISchedulerDatabaseInteraction i, Func<WebServer> webServerFactory = null) {
+        public APIServer(int port, bool prettyPrint, IProfileService p, ISchedulerDatabaseInteraction i, Func<WebServer> webServerFactory = null) {
             Port = port;
-            // In production, use the default constructor.
+            PrettyPrint = prettyPrint;
             database = i;
             profileService = p;
-            // If no factory is provided, build the default WebServer.
+
             this.webServerFactory = webServerFactory ?? (() =>
                 new WebServer(o => o
                     .WithUrlPrefix($"http://*:{Port}")
                     .WithMode(HttpListenerMode.EmbedIO))
                     .WithModule(new PreprocessRequestModule())
-                    .WithWebApi("/v1", m => m.RegisterController<APIController>(ControllerFactory))
+                    .WithWebApi(BASE_ROUTE, SerializationCallback, m => m.RegisterController<APIController>(ControllerFactory))
             );
+        }
+
+        public static async Task SerializationCallback(IHttpContext context, object data) {
+            context.Response.ContentType = "application/json";
+
+            var jsonOptions = new JsonSerializerOptions { WriteIndented = PrettyPrint };
+            using var textWriter = context.OpenResponseText(new UTF8Encoding(false));
+            await textWriter.WriteAsync(System.Text.Json.JsonSerializer.Serialize(data, jsonOptions)).ConfigureAwait(false);
         }
 
         public APIController ControllerFactory() {

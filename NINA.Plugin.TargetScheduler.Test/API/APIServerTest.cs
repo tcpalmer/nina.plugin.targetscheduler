@@ -29,7 +29,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
             _profileServiceMock = new Mock<IProfileService>();
             _dbInteractionMock = new Mock<ISchedulerDatabaseInteraction>();
             // Inject our mocks and fake WebServer factory.
-            _server = new APIServer(TestPort, _profileServiceMock.Object, _dbInteractionMock.Object, FakeWebServerFactory);
+            _server = new APIServer(TestPort, false, _profileServiceMock.Object, _dbInteractionMock.Object, FakeWebServerFactory);
         }
 
         [TearDown]

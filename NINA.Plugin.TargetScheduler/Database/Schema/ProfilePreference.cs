@@ -54,6 +54,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
         public int enableAPI { get; set; }
         public int apiPort { get; set; }
+        public int apiPrettyPrint { get; set; }
 
         public ProfilePreference() {
         }
@@ -100,6 +101,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
             EnableAPI = false;
             APIPort = 8188;
+            APIPrettyPrint = false;
         }
 
         [NotMapped]
@@ -458,6 +460,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             set {
                 apiPort = value;
                 RaisePropertyChanged(nameof(APIPort));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public bool APIPrettyPrint {
+            get { return apiPrettyPrint == 1; }
+            set {
+                apiPrettyPrint = value ? 1 : 0;
+                RaisePropertyChanged(nameof(APIPrettyPrint));
             }
         }
 

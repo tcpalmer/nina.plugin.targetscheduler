@@ -59,7 +59,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
             // Assert
             result.Should().HaveCount(2);
             result.First().Name.Should().Be("Profile1");
-            result.First().ProfileId.Should().Be(profile1.Id.ToString());
+            result.First().Id.Should().Be(profile1.Id.ToString());
         }
 
         [Test]
@@ -106,8 +106,8 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargets_ShouldThrowHttpException404_WhenProjectNotFound() {
             // Arrange
-            int projectId = 1;
-            _dbContextMock.Setup(x => x.GetProjectReadOnly(projectId)).Returns((Project)null);
+            string projectId = "1234-abcd";
+            _dbContextMock.Setup(x => x.APIGetProjectReadOnly(projectId)).Returns((Project)null);
 
             // Act
             Action act = () => _controller.GetTargets(projectId);
@@ -119,14 +119,14 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargets_ShouldThrowHttpException500_WhenProfilePreferenceIsNull() {
             // Arrange
-            int projectId = 1;
+            string projectId = "1234-abcd";
             var project = new Project {
                 ProfileId = "profile1",
                 EnableGrader = true,
                 Targets = new List<Target>
                 {
                     new Target {
-                        ProjectId = projectId,
+                        ProjectId = 1,
                         Id = 100,
                         Name = "Test Target",
                         active = true,
@@ -140,7 +140,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
                 }
             };
 
-            _dbContextMock.Setup(x => x.GetProjectReadOnly(projectId)).Returns(project);
+            _dbContextMock.Setup(x => x.APIGetProjectReadOnly(projectId)).Returns(project);
             _dbContextMock.Setup(x => x.GetProfilePreference(project.ProfileId, true))
                           .Returns((ProfilePreference)null);
 
@@ -154,10 +154,10 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargets_ShouldReturnTargets_WhenProjectAndProfilePreferenceExist() {
             // Arrange
-            int projectId = 1;
+            string projectId = "1234-abcd";
             var profilePreference = new ProfilePreference { DelayGrading = 10, ExposureThrottle = 5 };
             var target = new Target {
-                ProjectId = projectId,
+                ProjectId = 1,
                 Id = 100,
                 Name = "Test Target",
                 active = true,
@@ -169,12 +169,16 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
                 ExposurePlans = new List<ExposurePlan>()
             };
             var project = new Project {
+                Id = 1,
+                Guid = projectId,
                 ProfileId = "profile1",
                 EnableGrader = true,
                 Targets = new List<Target> { target }
             };
 
-            _dbContextMock.Setup(x => x.GetProjectReadOnly(projectId)).Returns(project);
+            target.Project = project;
+
+            _dbContextMock.Setup(x => x.APIGetProjectReadOnly(projectId)).Returns(project);
             _dbContextMock.Setup(x => x.GetProfilePreference(project.ProfileId, true))
                           .Returns(profilePreference);
 
@@ -189,8 +193,8 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldThrowHttpException404_WhenTargetNotFound() {
             // Arrange
-            int targetId = 1;
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns((Target)null);
+            string targetId = "efgh-5678";
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns((Target)null);
 
             // Act
             Action act = () => _controller.GetTargetStatistics(targetId);
@@ -202,13 +206,13 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldReturnEmpty_WhenNoExposurePlansExist() {
             // Arrange
-            int targetId = 1;
+            string targetId = "efgh-5678";
             var target = new Target {
                 ExposurePlans = new List<ExposurePlan>(),
                 Project = new Project { ProfileId = "profile1" }
             };
 
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns(target);
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns(target);
             // Provide a valid ProfilePreference so that null isn't returned.
             var profilePreference = new ProfilePreference {
                 AutoAcceptLevelHFR = 1.5,
@@ -227,13 +231,13 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldThrowNullReferenceException_WhenProfilePreferenceIsNull() {
             // Arrange
-            int targetId = 1;
+            string targetId = "efgh-5678";
             var target = new Target {
                 ExposurePlans = new List<ExposurePlan>(),
                 Project = new Project { ProfileId = "profile1" }
             };
 
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns(target);
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns(target);
             // Intentionally return null to simulate missing ProfilePreference.
             _dbContextMock.Setup(x => x.GetProfilePreference("profile1", false)).Returns((ProfilePreference)null);
 
@@ -247,7 +251,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldReturnEmptyStats_WhenNoImagesForPlan() {
             // Arrange
-            int targetId = 1;
+            string targetId = "efgh-5678";
             var exposurePlan = new ExposurePlan {
                 Exposure = -1,
                 ExposureTemplate = new ExposureTemplate("profile1", "Filter1", "Filter1")
@@ -262,10 +266,10 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
                 AutoAcceptLevelEccentricity = 0.3
             };
 
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns(target);
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns(target);
             _dbContextMock.Setup(x => x.GetProfilePreference(target.Project.ProfileId, false))
                           .Returns(profilePreference);
-            _dbContextMock.Setup(x => x.GetAcquiredImages(targetId, exposurePlan.ExposureTemplate.FilterName))
+            _dbContextMock.Setup(x => x.APIGetAcquiredImages(targetId, exposurePlan.ExposureTemplate.FilterName))
                           .Returns(new List<AcquiredImage>()); // no images
 
             // Act
@@ -285,7 +289,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldComputeStats_WhenImagesExist() {
             // Arrange
-            int targetId = 1;
+            string targetId = "efgh-5678";
             var exposurePlan = new ExposurePlan {
                 Exposure = -1,
                 ExposureTemplate = new ExposureTemplate("profile1", "Filter1", "Filter1")
@@ -301,13 +305,13 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
             };
 
             // Create an acquired image with known metadata.
-            var acquiredImage = new AcquiredImage("dummy", targetId, 1, 1, DateTime.Now, "Filter1", 0, "reason",
+            var acquiredImage = new AcquiredImage("dummy", 1, 1, 1, DateTime.Now, "Filter1", 0, "reason",
                 new ImageMetadata { HFR = 1.0, FWHM = 2.0, Eccentricity = 0.2 });
 
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns(target);
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns(target);
             _dbContextMock.Setup(x => x.GetProfilePreference(target.Project.ProfileId, false))
                           .Returns(profilePreference);
-            _dbContextMock.Setup(x => x.GetAcquiredImages(targetId, exposurePlan.ExposureTemplate.FilterName))
+            _dbContextMock.Setup(x => x.APIGetAcquiredImages(targetId, exposurePlan.ExposureTemplate.FilterName))
                           .Returns(new List<AcquiredImage> { acquiredImage });
 
             // Act
@@ -330,7 +334,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldReturnMixedResults_WhenSomeExposurePlansHaveNoAcquiredImages() {
             // Arrange
-            int targetId = 1;
+            string targetId = "efgh-5678";
             // Create two exposure plans: one with no images and one with images.
             var exposurePlanNoImages = new ExposurePlan {
                 Exposure = -1,
@@ -352,18 +356,18 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
                 AutoAcceptLevelEccentricity = 0.3
             };
 
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns(target);
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns(target);
             _dbContextMock.Setup(x => x.GetProfilePreference("profile1", false))
                           .Returns(profilePreference);
 
             // For the exposure plan with no images, return an empty list.
-            _dbContextMock.Setup(x => x.GetAcquiredImages(targetId, "NoImagesFilter"))
+            _dbContextMock.Setup(x => x.APIGetAcquiredImages(targetId, "NoImagesFilter"))
                           .Returns(new List<AcquiredImage>());
 
             // For the exposure plan with images, return one acquired image.
-            var acquiredImage = new AcquiredImage("dummy", targetId, 1, 1, DateTime.Now, "ImagesFilter", 0, "reason",
+            var acquiredImage = new AcquiredImage("dummy", 1, 1, 1, DateTime.Now, "ImagesFilter", 0, "reason",
                 new ImageMetadata { HFR = 1.2, FWHM = 2.1, Eccentricity = 0.25 });
-            _dbContextMock.Setup(x => x.GetAcquiredImages(targetId, "ImagesFilter"))
+            _dbContextMock.Setup(x => x.APIGetAcquiredImages(targetId, "ImagesFilter"))
                           .Returns(new List<AcquiredImage> { acquiredImage });
 
             // Act
@@ -393,7 +397,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldReturnEmptyStats_WhenAcquiredImagesAreNull() {
             // Arrange
-            int targetId = 1;
+            string targetId = "efgh-5678";
             var exposurePlan = new ExposurePlan {
                 Exposure = -1,
                 ExposureTemplate = new ExposureTemplate("profile1", "NullImagesFilter", "NullImagesFilter")
@@ -408,10 +412,10 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
                 AutoAcceptLevelEccentricity = 0.3
             };
 
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns(target);
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns(target);
             _dbContextMock.Setup(x => x.GetProfilePreference("profile1", false)).Returns(profilePreference);
             // Simulate that GetAcquiredImages returns null instead of an empty list.
-            _dbContextMock.Setup(x => x.GetAcquiredImages(targetId, "NullImagesFilter"))
+            _dbContextMock.Setup(x => x.APIGetAcquiredImages(targetId, "NullImagesFilter"))
                 .Returns((List<AcquiredImage>)null);
 
             // Act
@@ -431,7 +435,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargets_ShouldReturnEmpty_WhenNoTargetsExist() {
             // Arrange
-            int projectId = 1;
+            string projectId = "1234-abcd";
             var project = new Project {
                 ProfileId = "profile1",
                 EnableGrader = true,
@@ -439,7 +443,7 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
                 Targets = new List<Target>()
             };
 
-            _dbContextMock.Setup(x => x.GetProjectReadOnly(projectId)).Returns(project);
+            _dbContextMock.Setup(x => x.APIGetProjectReadOnly(projectId)).Returns(project);
             // Provide a valid ProfilePreference to bypass GetExposureCompletionHelper throwing.
             var profilePreference = new ProfilePreference { DelayGrading = 10, ExposureThrottle = 5 };
             _dbContextMock.Setup(x => x.GetProfilePreference("profile1", true))
@@ -455,14 +459,14 @@ namespace NINA.Plugin.TargetScheduler.Test.API {
         [Test]
         public void GetTargetStatistics_ShouldThrowArgumentNullException_WhenExposurePlansIsNull() {
             // Arrange
-            int targetId = 1;
+            string targetId = "efgh-5678";
             // Set ExposurePlans to null to simulate an unexpected state.
             var target = new Target {
                 ExposurePlans = null,
                 Project = new Project { ProfileId = "profile1" }
             };
 
-            _dbContextMock.Setup(x => x.GetTargetReadOnly(targetId)).Returns(target);
+            _dbContextMock.Setup(x => x.APIGetTargetReadOnly(targetId)).Returns(target);
             // Set up ProfilePreference so the code passes earlier checks.
             var profilePreference = new ProfilePreference {
                 AutoAcceptLevelHFR = 1.5,

@@ -60,9 +60,9 @@ namespace NINA.Plugin.TargetScheduler.API {
         }
 
         [Route(HttpVerbs.Get, "/projects/{id}/targets")]
-        public IEnumerable<TargetResponse> GetTargets(int id) {
+        public IEnumerable<TargetResponse> GetTargets(string id) {
             TSLogger.Debug("API call: /projects/" + id + "/targets");
-            Project p = database.GetProjectReadOnly(id);
+            Project p = database.APIGetProjectReadOnly(id);
 
             if (p == null) {
                 throw new HttpException(System.Net.HttpStatusCode.NotFound);
@@ -73,9 +73,9 @@ namespace NINA.Plugin.TargetScheduler.API {
         }
 
         [Route(HttpVerbs.Get, "/targets/{id}/statistics")]
-        public IEnumerable<TargetStatisticsResponse> GetTargetStatistics(int id) {
+        public IEnumerable<TargetStatisticsResponse> GetTargetStatistics(string id) {
             TSLogger.Debug("API call: /targets/" + id + "/statistics");
-            var t = database.GetTargetReadOnly(id);
+            var t = database.APIGetTargetReadOnly(id);
 
             if (t == null) {
                 throw new HttpException(System.Net.HttpStatusCode.NotFound);
@@ -89,7 +89,7 @@ namespace NINA.Plugin.TargetScheduler.API {
 
             var plans = t.ExposurePlans.Select(p => {
                 // Already read-only by default
-                var images = database.GetAcquiredImages(id, p.ExposureTemplate.FilterName);
+                var images = database.APIGetAcquiredImages(id, p.ExposureTemplate.FilterName);
 
                 if (images == null || !images.Any()) {
                     return TargetStatisticsResponse.Empty(p);
@@ -147,7 +147,7 @@ namespace NINA.Plugin.TargetScheduler.API {
                         WaitPeriod = true,
                         StartTime = plan.StartTime,
                         EndTime = (DateTime)plan.WaitForNextTargetTime,
-                        TargetId = -1,
+                        Id = null,
                         ExposurePlan = []
                     };
 
@@ -158,7 +158,7 @@ namespace NINA.Plugin.TargetScheduler.API {
                     continue;
                 }
 
-                if (planItem.TargetId != plan.PlanTarget.DatabaseId) {
+                if (planItem.Id != plan.PlanTarget.TargetGuid) {
                     planItem = new PreviewResponse();
                     newItem = true;
                 }
@@ -166,7 +166,7 @@ namespace NINA.Plugin.TargetScheduler.API {
                 if (newItem) {
                     planItem.StartTime = plan.StartTime;
                     planItem.EndTime = plan.EndTime;
-                    planItem.TargetId = plan.PlanTarget.DatabaseId;
+                    planItem.Id = plan.PlanTarget.TargetGuid;
                     planItem.Name = plan.PlanTarget.Name;
 
                     response.Add(planItem);
@@ -209,12 +209,12 @@ namespace NINA.Plugin.TargetScheduler.API {
     public class ProfileResponse {
 
         public ProfileResponse(ProfileMeta m) {
-            ProfileId = m.Id.ToString();
+            Id = m.Id.ToString();
             Name = m.Name;
             Active = m.IsActive;
         }
 
-        public string ProfileId { get; private set; }
+        public string Id { get; private set; }
         public string Name { get; private set; }
         public bool Active { get; private set; }
     }
@@ -222,8 +222,8 @@ namespace NINA.Plugin.TargetScheduler.API {
     public class ProjectResponse {
 
         public ProjectResponse(Project p) {
+            Id = p.Guid;
             ProfileId = p.ProfileId;
-            ProjectId = p.Id;
             Name = p.Name;
             State = Enum.GetName(typeof(ProjectState), p.State);
             Priority = (int)p.Priority;
@@ -245,8 +245,8 @@ namespace NINA.Plugin.TargetScheduler.API {
             SmartExposureOrder = p.SmartExposureOrder;
         }
 
+        public string Id { get; private set; }
         public string ProfileId { get; private set; }
-        public int ProjectId { get; private set; }
         public string Name { get; private set; }
         public string State { get; private set; }
         public int Priority { get; private set; }
@@ -271,27 +271,27 @@ namespace NINA.Plugin.TargetScheduler.API {
     public class TargetResponse {
 
         public TargetResponse(Target t, ExposureCompletionHelper ech) {
-            ProjectId = t.ProjectId;
-            TargetId = t.Id;
+            Id = t.Guid;
+            ProjectId = t.Project.Guid;
             Name = t.Name;
             Active = t.active;
-            Ra = t.RA;
+            RA = t.RA;
             Dec = t.Dec;
             Rotation = t.Rotation;
             Epoch = Enum.GetName(typeof(Epoch), t.Epoch);
-            Roi = t.ROI;
+            ROI = t.ROI;
             ExposurePlan = t.ExposurePlans.Select(p => new ExposurePlanResponse(p, ech.IsProvisionalPercentComplete(p)));
         }
 
-        public int ProjectId { get; private set; }
-        public int TargetId { get; private set; }
+        public string Id { get; private set; }
+        public string ProjectId { get; private set; }
         public string Name { get; private set; }
         public bool Active { get; private set; }
-        public double Ra { get; private set; }
+        public double RA { get; private set; }
         public double Dec { get; private set; }
         public double Rotation { get; private set; }
         public string Epoch { get; private set; }
-        public double Roi { get; private set; }
+        public double ROI { get; private set; }
         public IEnumerable<ExposurePlanResponse> ExposurePlan { get; private set; }
     }
 
@@ -391,7 +391,7 @@ namespace NINA.Plugin.TargetScheduler.API {
             ExposurePlan = new List<PreviewExposurePlanResponse>();
         }
 
-        public int TargetId { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public bool WaitPeriod { get; set; }
         public DateTime StartTime { get; set; }

@@ -382,6 +382,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         }
 
         public string PlanId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string TargetGuid { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int DatabaseId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string Name { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Coordinates Coordinates { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

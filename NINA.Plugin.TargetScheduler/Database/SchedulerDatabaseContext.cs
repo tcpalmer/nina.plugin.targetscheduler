@@ -68,7 +68,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         Project GetProject(int projectId);
 
-        Project GetProjectReadOnly(int projectId);
+        Project APIGetProjectReadOnly(string guid);
 
         Project GetProjectOnly(int projectId);
 
@@ -76,7 +76,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         Target GetTarget(int projectId, int targetId);
 
-        Target GetTargetReadOnly(int targetId);
+        Target APIGetTargetReadOnly(string guid);
 
         Target GetTargetByProject(int projectId, int targetId);
 
@@ -103,6 +103,8 @@ namespace NINA.Plugin.TargetScheduler.Database {
         void ClearExistingFilterCadences(int targetId, bool impactingChange = true);
 
         List<AcquiredImage> GetAcquiredImages(int targetId, string filterName);
+
+        List<AcquiredImage> APIGetAcquiredImages(string targetGuid, string filterName);
 
         List<AcquiredImage> GetAcquiredImages(int targetId);
 
@@ -254,7 +256,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
         }
 
         public ProfilePreference GetProfilePreferenceByGuid(string guid) {
-            return ProfilePreferenceSet.Where(p => p.guid == guid).FirstOrDefault();
+            return ProfilePreferenceSet.Where(p => p.guid.Equals(guid)).FirstOrDefault();
         }
 
         public List<Project> GetAllProjects() {
@@ -348,11 +350,11 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return project;
         }
 
-        public Project GetProjectReadOnly(int projectId) {
+        public Project APIGetProjectReadOnly(string guid) {
             Project project = ProjectSet
                 .Include("targets.exposureplans.exposuretemplate")
                 .Include("ruleweights")
-                .Where(p => p.Id == projectId)
+                .Where(p => p.guid.Equals(guid))
                 .AsNoTracking()
             .FirstOrDefault();
 
@@ -381,11 +383,11 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return target;
         }
 
-        public Target GetTargetReadOnly(int targetId) {
+        public Target APIGetTargetReadOnly(string guid) {
             Target target = TargetSet
                 .Include("exposureplans.exposuretemplate")
                 .Include("Project")
-                .Where(t => t.Id == targetId)
+                .Where(t => t.guid.Equals(guid))
                 .AsNoTracking()
                 .FirstOrDefault();
             return target;
@@ -402,7 +404,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
         public Target GetTargetByGuid(string guid) {
             return TargetSet
                 .Include("exposureplans.exposuretemplate")
-                .Where(t => t.guid == guid)
+                .Where(t => t.guid.Equals(guid))
                 .FirstOrDefault();
         }
 
@@ -416,7 +418,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
         public ExposurePlan GetExposurePlanByGuid(string guid) {
             return ExposurePlanSet
                 .Include("exposuretemplate")
-                .Where(p => p.guid == guid)
+                .Where(p => p.guid.Equals(guid))
                 .FirstOrDefault();
         }
 
@@ -432,7 +434,7 @@ namespace NINA.Plugin.TargetScheduler.Database {
         }
 
         public ExposureTemplate GetExposureTemplateByGuid(string guid) {
-            return ExposureTemplateSet.Where(e => e.guid == guid).FirstOrDefault();
+            return ExposureTemplateSet.Where(e => e.guid.Equals(guid)).FirstOrDefault();
         }
 
         public List<OverrideExposureOrderItem> GetOverrideExposureOrders(int targetId) {
@@ -510,12 +512,19 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return images.ToList();
         }
 
+        public List<AcquiredImage> APIGetAcquiredImages(string targetGuid, string filterName) {
+            Target t = GetTargetByGuid(targetGuid);
+            if (t == null) { return null; }
+
+            return GetAcquiredImages(t.Id, filterName);
+        }
+
         public AcquiredImage GetAcquiredImage(int id) {
             return AcquiredImageSet.Where(p => p.Id == id).FirstOrDefault();
         }
 
         public AcquiredImage GetAcquiredImageByGuid(string guid) {
-            return AcquiredImageSet.Where(p => p.guid == guid).FirstOrDefault();
+            return AcquiredImageSet.Where(p => p.guid.Equals(guid)).FirstOrDefault();
         }
 
         public List<AcquiredImage> GetAcquiredImages(int targetId) {

@@ -682,7 +682,71 @@
 
                         <Label Margin="0,40,0,6"
                                VerticalAlignment="Center"
-                               Content="Simulation Preferences"
+                               Content="API Preferences"
+                               FontSize="16"
+                               FontWeight="Bold" />
+                        <UniformGrid Width="320"
+                                     Height="66"
+                                     Margin="12,0,0,6"
+                                     HorizontalAlignment="Left"
+                                     Columns="2"
+                                     Rows="3">
+
+                            <TextBlock VerticalAlignment="Center"
+                                       FontWeight="Bold"
+                                       Text="Enable API"
+                                       ToolTip="If true, then enable the TS API and start it (if stopped)" />
+                            <CheckBox HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableAPI, Mode=TwoWay}"
+                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock MaxHeight="20"
+                                       Margin="3,3,0,0"
+                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableAPI}"
+                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+                            <TextBlock VerticalAlignment="Center"
+                                       FontWeight="Bold"
+                                       Text="API Port"
+                                       ToolTip="HTTP port for TS API (1024-49151)" />
+                            <TextBox MaxHeight="20"
+                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                                <TextBox.Text>
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.APIPort"
+                                             UpdateSourceTrigger="LostFocus">
+                                        <Binding.ValidationRules>
+                                            <rules:IntRangeRule>
+                                                <rules:IntRangeRule.ValidRange>
+                                                    <rules:IntRangeChecker Maximum="49151"
+                                                                           Minimum="1024" />
+                                                </rules:IntRangeRule.ValidRange>
+                                            </rules:IntRangeRule>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <TextBlock MaxHeight="20"
+                                       Margin="3,3,0,0"
+                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.APIPort}"
+                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+                            <TextBlock VerticalAlignment="Center"
+                                       FontWeight="Bold"
+                                       Text="Enable Formatted Output"
+                                       ToolTip="If true, then enable formatted output (pretty print)" />
+                            <CheckBox HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.APIPrettyPrint, Mode=TwoWay}"
+                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock MaxHeight="20"
+                                       Margin="3,3,0,0"
+                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.APIPrettyPrint}"
+                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+                        </UniformGrid>
+
+                        <Label Margin="0,40,0,6"
+                               VerticalAlignment="Center"
+                               Content="Simulation Preferences (developers only)"
                                FontSize="16"
                                FontWeight="Bold" />
                         <UniformGrid Width="320"
@@ -729,57 +793,6 @@
                             <TextBlock MaxHeight="20"
                                        Margin="3,3,0,0"
                                        Text="{Binding ProfilePreferenceProxy.ProfilePreference.SkipSimulatedUpdates}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
-                        </UniformGrid>
-
-                        <Label Margin="0,40,0,6"
-                               VerticalAlignment="Center"
-                               Content="API Preferences"
-                               FontSize="16"
-                               FontWeight="Bold" />
-                        <UniformGrid Width="320"
-                                     Height="44"
-                                     Margin="12,0,0,6"
-                                     HorizontalAlignment="Left"
-                                     Columns="2"
-                                     Rows="2">
-
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="Enable API"
-                                       ToolTip="If true, then enable the TS API and start it (if stopped)" />
-                            <CheckBox HorizontalAlignment="Left"
-                                      VerticalAlignment="Center"
-                                      IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableAPI, Mode=TwoWay}"
-                                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableAPI}"
-                                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
-
-                            <TextBlock VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       Text="API Port"
-                                       ToolTip="HTTP port for TS API (1024-49151)" />
-                            <TextBox MaxHeight="20"
-                                     Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-                                <TextBox.Text>
-                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.APIPort"
-                                             UpdateSourceTrigger="LostFocus">
-                                        <Binding.ValidationRules>
-                                            <rules:IntRangeRule>
-                                                <rules:IntRangeRule.ValidRange>
-                                                    <rules:IntRangeChecker Maximum="49151"
-                                                                           Minimum="1024" />
-                                                </rules:IntRangeRule.ValidRange>
-                                            </rules:IntRangeRule>
-                                        </Binding.ValidationRules>
-                                    </Binding>
-                                </TextBox.Text>
-                            </TextBox>
-                            <TextBlock MaxHeight="20"
-                                       Margin="3,3,0,0"
-                                       Text="{Binding ProfilePreferenceProxy.ProfilePreference.APIPort}"
                                        Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
                         </UniformGrid>
                     </StackPanel>

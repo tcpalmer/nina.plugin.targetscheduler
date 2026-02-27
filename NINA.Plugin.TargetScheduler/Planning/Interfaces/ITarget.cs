@@ -8,6 +8,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Interfaces {
 
     public interface ITarget {
         string PlanId { get; set; }
+        string TargetGuid { get; set; }
         int DatabaseId { get; set; }
         string Name { get; set; }
         Coordinates Coordinates { get; set; }

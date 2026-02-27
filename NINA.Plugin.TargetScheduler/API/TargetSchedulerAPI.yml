@@ -3,7 +3,7 @@ info:
   title: Target Scheduler API
   version: '1.0'
 servers:
-  - url: http://localhost:8188/v1/
+  - url: http://localhost:8188/ts/v0/
 paths:
   /profiles:
     get:

@@ -80,9 +80,9 @@ namespace NINA.Plugin.TargetScheduler {
                 SyncManager.Instance.Start(profileService);
             }
 
-            (bool apiEnabled, int apiPort) = APIPrefs(profileService);
+            (bool apiEnabled, int apiPort, bool prettyPrint) = APIPrefs(profileService);
             if (apiEnabled) {
-                APIServer = new APIServer(apiPort, profileService, new SchedulerDatabaseInteraction());
+                APIServer = new APIServer(apiPort, prettyPrint, profileService, new SchedulerDatabaseInteraction());
                 APIServer.Start();
             }
 
@@ -103,16 +103,16 @@ namespace NINA.Plugin.TargetScheduler {
             return profilePreference.EnableSynchronization;
         }
 
-        public static (bool enabled, int port) APIPrefs(IProfileService profileService) {
+        public static (bool enabled, int port, bool prettyPrint) APIPrefs(IProfileService profileService) {
             ProfilePreference profilePreference = new SchedulerPlanLoader(profileService.ActiveProfile).GetProfilePreferences();
-            return (profilePreference.EnableAPI, profilePreference.APIPort);
+            return (profilePreference.EnableAPI, profilePreference.APIPort, profilePreference.APIPrettyPrint);
         }
 
         public static void StartAPIServer(IProfileService profileService) {
             APIServer?.Stop();
-            (bool apiEnabled, int apiPort) = APIPrefs(profileService);
 
-            APIServer = new APIServer(apiPort, profileService, new SchedulerDatabaseInteraction());
+            (bool apiEnabled, int apiPort, bool prettyPrint) = APIPrefs(profileService);
+            APIServer = new APIServer(apiPort, prettyPrint, profileService, new SchedulerDatabaseInteraction());
             APIServer.Start();
         }
 
@@ -262,9 +262,9 @@ namespace NINA.Plugin.TargetScheduler {
 
                 APIServer?.Stop();
                 APIServer = null;
-                (bool apiEnabled, int apiPort) = APIPrefs(profileService);
+                (bool apiEnabled, int apiPort, bool prettyPrint) = APIPrefs(profileService);
                 if (apiEnabled) {
-                    APIServer = new APIServer(apiPort, profileService, new SchedulerDatabaseInteraction());
+                    APIServer = new APIServer(apiPort, prettyPrint, profileService, new SchedulerDatabaseInteraction());
                     APIServer.Start();
                 }
             }
