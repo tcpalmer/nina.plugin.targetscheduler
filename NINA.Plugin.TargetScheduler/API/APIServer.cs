@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 namespace NINA.Plugin.TargetScheduler.API {
 
     public class APIServer {
-        private const string BASE_ROUTE = "/ts/v0";
+        private const string API_VERSION = "v0";
+        private const string BASE_ROUTE = "/ts/" + API_VERSION;
 
         public WebServer WebServer;
 
@@ -67,7 +68,7 @@ namespace NINA.Plugin.TargetScheduler.API {
                     serverThread.Start();
                 }
 
-                Notification.ShowInformation($"Target Scheduler API started: http://localhost:{Port}/ts/v0/...");
+                Notification.ShowInformation($"Target Scheduler API started: http://localhost:{Port}/ts/{API_VERSION}/...");
             } catch (Exception e) {
                 TSLogger.Error($"failed to start embedio server: {e}");
             }
