@@ -325,6 +325,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 foreach (ITarget target in project.Targets) {
                     if (target.Rejected
                         && target.RejectedReason != Reasons.TargetNotYetVisible
+                        && target.RejectedReason != Reasons.TargetMoonAvoidance
                         && target.RejectedReason != Reasons.TargetBeforeMeridianWindow
                         && target.RejectedReason != Reasons.TargetMeridianFlipClipped
                         && target.RejectedReason != Reasons.TargetMaxAltitude) {
