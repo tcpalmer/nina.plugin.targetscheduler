@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.9.0.0 - 2026-03-XX
+## 5.9.0.0 - 2026-02-28
 * Exposed read-only API.
 * Fixed issue with detecting future targets allowed by moon avoidance.
 
