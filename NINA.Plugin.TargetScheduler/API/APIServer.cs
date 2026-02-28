@@ -66,6 +66,8 @@ namespace NINA.Plugin.TargetScheduler.API {
                     serverThread.SetApartmentState(ApartmentState.STA);
                     serverThread.Start();
                 }
+
+                Notification.ShowInformation($"Target Scheduler API started: http://localhost:{Port}/ts/v0/...");
             } catch (Exception e) {
                 TSLogger.Error($"failed to start embedio server: {e}");
             }
@@ -78,6 +80,7 @@ namespace NINA.Plugin.TargetScheduler.API {
                 WebServer?.Dispose();
                 WebServer = null;
                 Thread.Sleep(200);
+                Notification.ShowInformation($"Target Scheduler API stopped");
             } catch (Exception e) {
                 TSLogger.Error($"failed to stop embedio server: {e}");
             }
