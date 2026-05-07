@@ -3,9 +3,9 @@
     "NINA.Plugin.TargetScheduler": {
       "commandName": "Project"
     },
-    "NINA": {
+    "NINA-Repo": {
       "commandName": "Executable",
-      "executablePath": "C:\\Program Files\\N.I.N.A. - Nighttime Imaging 'N' Astronomy\\NINA.exe"
+      "executablePath": "C:\\Users\\Tom\\source\\repos\\nina\\NINA\\bin\\Debug\\net10.0-windows\\win-x64\\NINA.exe"
     }
   }
 }

@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.10.0.0 - 2026-05-07
+* Ported to NINA 3.3 (currently the nightly release)
+
 ## 5.9.0.0 - 2026-02-28
 * Exposed read-only API.
 * Fixed issue with detecting future targets allowed by moon avoidance.

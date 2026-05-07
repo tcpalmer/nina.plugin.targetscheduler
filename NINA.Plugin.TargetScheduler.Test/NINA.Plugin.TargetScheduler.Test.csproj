@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows7.0</TargetFramework>
+		<TargetFramework>net10.0-windows7.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<UseWindowsForms>true</UseWindowsForms>
@@ -31,7 +31,7 @@
 		<Content Include="External\JPLEPH">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="External\x64\SOFA\SOFAlib.dll">
+		<Content Include="External\x64\SOFA\SOFA_2023_10_11.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 		<Content Include="External\x64\SQLite\SQLite.Interop.dll">
@@ -40,15 +40,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FluentAssertions" Version="6.12.1" />
+		<PackageReference Include="FluentAssertions" Version="7.0.0" />
 		<PackageReference Include="LinqKit" Version="1.3.8" />
 		<PackageReference Include="LinqKit.Core" Version="1.2.8" />
 		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
 		<PackageReference Include="Moq" Version="4.20.72" />
-		<PackageReference Include="NINA.Plugin" Version="3.2.0.9001" />
-		<PackageReference Include="NUnit" Version="4.2.2" />
-		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+		<PackageReference Include="NINA.Plugin" Version="3.3.0.1035-nightly" />
+		<PackageReference Include="NUnit" Version="4.4.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="6.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>

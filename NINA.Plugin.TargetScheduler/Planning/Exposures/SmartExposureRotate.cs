@@ -50,10 +50,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
     }
 
     public class ExposureRotateStatus {
-        private OrderedDictionary<int, ExposureCountState> exposureCountState;
+        private System.Collections.Generic.OrderedDictionary<int, ExposureCountState> exposureCountState;
 
         public ExposureRotateStatus(ITarget target) {
-            exposureCountState = new OrderedDictionary<int, ExposureCountState>(target.ExposurePlans.Count);
+            exposureCountState = new System.Collections.Generic.OrderedDictionary<int, ExposureCountState>(target.ExposurePlans.Count);
             target.ExposurePlans.ForEach(ep => {
                 exposureCountState.Add(ep.DatabaseId, new ExposureCountState());
             });

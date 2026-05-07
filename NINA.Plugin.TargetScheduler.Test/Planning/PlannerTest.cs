@@ -358,7 +358,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             ITarget pt1 = pp.Targets[0];
             pt1.Rejected.Should().BeFalse();
 
-            TimeSpan precision = TimeSpan.FromSeconds(1);
+            TimeSpan precision = TimeSpan.FromSeconds(2);
             pt1.StartTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 20, 37, 57), precision);
             pt1.CulminationTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 21, 7, 18), precision);
             pt1.EndTime.Should().BeCloseTo(new DateTime(2023, 12, 17, 21, 37, 18), precision);

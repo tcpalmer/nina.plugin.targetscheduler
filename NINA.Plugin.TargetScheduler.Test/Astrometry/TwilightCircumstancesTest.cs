@@ -25,8 +25,8 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
             date = date.AddDays(1);
             Assertions.AssertTime(sut.NighttimeEnd, date, 5, 37, 17);
             Assertions.AssertTime(sut.AstronomicalTwilightEnd, date, 6, 7, 46);
-            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 6, 39, 5);
-            Assertions.AssertTime(sut.CivilTwilightEnd, date, 7, 7, 0);
+            Assertions.AssertTime(sut.NauticalTwilightEnd, date, 6, 39, 6);
+            Assertions.AssertTime(sut.CivilTwilightEnd, date, 7, 7, 1);
 
             sut.HasCivilTwilight().Should().BeTrue();
             sut.HasNauticalTwilight().Should().BeTrue();
@@ -106,7 +106,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
             var sut = new TwilightCircumstances(TestData.North_Artic, dateTime);
 
             Assertions.AssertTime(sut.CivilTwilightStart, date, 13, 3, 12);
-            Assertions.AssertTime(sut.NauticalTwilightStart, date, 15, 10, 56);
+            Assertions.AssertTime(sut.NauticalTwilightStart, date, 15, 10, 57);
             Assertions.AssertTime(sut.AstronomicalTwilightStart, date, 16, 33, 23);
             Assertions.AssertTime(sut.NighttimeStart, date, 17, 41, 53);
             date = date.AddDays(1);
