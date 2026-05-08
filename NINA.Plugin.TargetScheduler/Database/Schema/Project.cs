@@ -24,6 +24,12 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         Low, Normal, High
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum TargetPriority {
+        Default = -1,
+        Low = 0, Normal = 1, High = 2
+    }
+
     [JsonObject(MemberSerialization.OptIn)]
     public class Project : INotifyPropertyChanged {
         public const int FLATS_HANDLING_OFF = 0;

@@ -1,4 +1,5 @@
 ﻿using NINA.Astrometry;
+using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Planning.Scoring.Rules;
 using System;
@@ -15,6 +16,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Interfaces {
         Epoch Epoch { get; set; }
         double Rotation { get; set; }
         double ROI { get; set; }
+        TargetPriority Priority { get; set; }
         bool IsPreview { get; set; }
         List<IExposure> AllExposurePlans { get; set; }
         List<IExposure> ExposurePlans { get; set; }

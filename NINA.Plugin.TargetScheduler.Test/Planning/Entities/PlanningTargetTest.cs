@@ -34,6 +34,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Entities {
             sut.Coordinates.Should().Be(target.Coordinates);
             sut.Rotation.Should().Be(14);
             sut.ROI.Should().Be(.8);
+            sut.Priority.Should().Be(TargetPriority.Default);
             sut.Rejected.Should().BeFalse();
             sut.AllExposurePlans.Should().NotBeNull().And.HaveCount(0);
             sut.ExposurePlans.Should().NotBeNull().And.HaveCount(0);

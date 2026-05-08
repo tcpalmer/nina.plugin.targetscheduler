@@ -8,6 +8,7 @@
              xmlns:ninactrl="clr-namespace:NINA.CustomControlLibrary;assembly=NINA.CustomControlLibrary"
              xmlns:nrules="clr-namespace:NINA.Core.Utility.ValidationRules;assembly=NINA.Core"
              xmlns:rules="clr-namespace:NINA.Plugin.TargetScheduler.Controls.ValidationRules"
+             xmlns:schema="clr-namespace:NINA.Plugin.TargetScheduler.Database.Schema"
              xmlns:uc="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
              xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
              d:DesignHeight="500"
@@ -96,6 +97,7 @@
                 <RowDefinition MinHeight="25" />
                 <RowDefinition MinHeight="25" />
                 <RowDefinition MinHeight="25" />
+                <RowDefinition MinHeight="25" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
@@ -149,9 +151,29 @@
                        Grid.Column="0"
                        VerticalAlignment="Center"
                        FontWeight="Bold"
+                       Text="Priority"
+                       ToolTip="Priority of this target (Default inherits from project priority)" />
+            <ComboBox Grid.Row="2"
+                      Grid.Column="1"
+                      MaxHeight="20"
+                      HorizontalAlignment="Left"
+                      ItemsSource="{Binding Source={local:EnumBindingSource {x:Type schema:TargetPriority}}}"
+                      SelectedValue="{Binding TargetProxy.Target.Priority}"
+                      Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+            <TextBlock Grid.Row="2"
+                       Grid.Column="1"
+                       MaxHeight="20"
+                       Margin="0,0,0,0"
+                       Text="{Binding TargetProxy.Target.Priority}"
+                       Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+            <TextBlock Grid.Row="3"
+                       Grid.Column="0"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
                        Text="Coordinates"
                        ToolTip="Target coordinates" />
-            <StackPanel Grid.Row="2"
+            <StackPanel Grid.Row="3"
                         Grid.Column="1"
                         Orientation="Horizontal"
                         Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
@@ -250,7 +272,7 @@
                           ItemsSource="{Binding Source={local:EnumBindingSource {x:Type astro:Epoch}}}"
                           SelectedValue="{Binding TargetProxy.Target.Epoch}" />
             </StackPanel>
-            <StackPanel Grid.Row="2"
+            <StackPanel Grid.Row="3"
                         Grid.Column="1"
                         Orientation="Horizontal"
                         Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
@@ -278,13 +300,13 @@
                 </Button>
             </StackPanel>
 
-            <TextBlock Grid.Row="3"
+            <TextBlock Grid.Row="4"
                        Grid.Column="0"
                        VerticalAlignment="Center"
                        FontWeight="Bold"
                        Text="Rotation"
                        ToolTip="Target rotation" />
-            <StackPanel Grid.Row="3"
+            <StackPanel Grid.Row="4"
                         Grid.Column="1"
                         Orientation="Horizontal"
                         Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
@@ -308,19 +330,19 @@
                 <TextBlock Margin="2,0,0,0"
                            Text="°" />
             </StackPanel>
-            <TextBlock Grid.Row="3"
+            <TextBlock Grid.Row="4"
                        Grid.Column="1"
                        MaxHeight="20"
                        Text="{Binding TargetProxy.Target.Rotation, Converter={StaticResource DegreesDisplayConverter}}"
                        Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
-            <TextBlock Grid.Row="4"
+            <TextBlock Grid.Row="5"
                        Grid.Column="0"
                        VerticalAlignment="Center"
                        FontWeight="Bold"
                        Text="ROI"
                        ToolTip="Target region of interest" />
-            <TextBox Grid.Row="4"
+            <TextBox Grid.Row="5"
                      Grid.Column="1"
                      Width="30"
                      MaxHeight="20"
@@ -340,7 +362,7 @@
                     </Binding>
                 </TextBox.Text>
             </TextBox>
-            <TextBlock Grid.Row="4"
+            <TextBlock Grid.Row="5"
                        Grid.Column="1"
                        MaxHeight="20"
                        Text="{Binding TargetProxy.Target.ROI, Converter={StaticResource PercentDisplayConverter}}"

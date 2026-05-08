@@ -389,6 +389,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         public Epoch Epoch { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public double Rotation { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public double ROI { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public TargetPriority Priority { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool IsPreview { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public IProject Project { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool Rejected { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

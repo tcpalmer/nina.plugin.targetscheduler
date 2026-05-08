@@ -26,6 +26,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public double rotation { get; set; }
         public double roi { get; set; }
         public string unusedOEO { get; set; }
+        public int priority_col { get; set; }
 
         [ForeignKey("Project")][JsonProperty] public int ProjectId { get; set; }
         public virtual Project Project { get; set; }
@@ -42,6 +43,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             epochCode = (int)Epoch.J2000;
             rotation = 0;
             roi = 100;
+            Priority = TargetPriority.Default;
             ExposurePlans = new List<ExposurePlan>();
             OverrideExposureOrders = new List<OverrideExposureOrderItem>();
             FilterCadences = new List<FilterCadenceItem>();
@@ -255,6 +257,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             }
         }
 
+        [NotMapped]
+        [JsonProperty]
+        public TargetPriority Priority {
+            get { return (TargetPriority)priority_col; }
+            set {
+                priority_col = (int)value;
+                RaisePropertyChanged(nameof(TargetPriority));
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
@@ -285,6 +297,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             target.epochCode = epochCode;
             target.rotation = rotation;
             target.roi = roi;
+            target.priority_col = priority_col;
             ExposurePlans.ForEach(item => target.ExposurePlans.Add(item.GetPasteCopy(profileId, moveOp)));
             OverrideExposureOrders.ForEach(item => target.OverrideExposureOrders.Add(item.GetPasteCopy(Id)));
 
@@ -306,6 +319,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             sb.AppendLine($"Epoch: {Epoch}");
             sb.AppendLine($"Rotation: {Rotation}");
             sb.AppendLine($"ROI: {ROI}");
+            sb.AppendLine($"Priority: {Priority}");
 
             return sb.ToString();
         }
@@ -318,6 +332,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             HasMany(t => t.ExposurePlans)
              .WithRequired(e => e.Target)
              .HasForeignKey(e => e.TargetId);
+            Property(t => t.priority_col).HasColumnName("priority");
         }
     }
 }

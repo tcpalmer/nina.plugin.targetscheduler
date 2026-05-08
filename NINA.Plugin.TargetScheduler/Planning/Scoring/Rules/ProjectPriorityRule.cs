@@ -17,18 +17,19 @@ namespace NINA.Plugin.TargetScheduler.Planning.Scoring.Rules {
         /// <param name="potentialTarget"></param>
         /// <returns></returns>
         public override double Score(IScoringEngine scoringEngine, ITarget potentialTarget) {
-            IProject project = potentialTarget.Project;
+            if (potentialTarget.Priority != TargetPriority.Default) {
+                switch (potentialTarget.Priority) {
+                    case TargetPriority.Low: return 0;
+                    case TargetPriority.Normal: return 0.5;
+                    case TargetPriority.High: return 1.0;
+                    default: return 0;
+                }
+            }
 
-            switch (project.Priority) {
-                case ProjectPriority.Low:
-                    return 0;
-
-                case ProjectPriority.Normal:
-                    return 0.5;
-
-                case ProjectPriority.High:
-                    return 1.0;
-
+            switch (potentialTarget.Project.Priority) {
+                case ProjectPriority.Low: return 0;
+                case ProjectPriority.Normal: return 0.5;
+                case ProjectPriority.High: return 1.0;
                 default: return 0;
             }
         }

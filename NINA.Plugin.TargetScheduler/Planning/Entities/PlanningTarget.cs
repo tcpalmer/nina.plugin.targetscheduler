@@ -20,6 +20,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public Epoch Epoch { get; set; }
         public double Rotation { get; set; }
         public double ROI { get; set; }
+        public TargetPriority Priority { get; set; }
         public bool IsPreview { get; set; }
         public List<IExposure> AllExposurePlans { get; set; }
         public List<IExposure> ExposurePlans { get; set; }
@@ -48,6 +49,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             this.Epoch = target.Epoch;
             this.Rotation = target.Rotation;
             this.ROI = target.ROI;
+            this.Priority = target.Priority;
             this.IsPreview = false;
             this.Project = planProject;
             this.Rejected = false;
@@ -111,6 +113,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             sb.AppendLine($"Coords: {Coordinates.RAString} {Coordinates.DecString} {Epoch}");
             sb.AppendLine($"Rotation: {Rotation}");
             sb.AppendLine($"ROI: {ROI}");
+            sb.AppendLine($"Priority: {Priority}");
             sb.AppendLine($"StartTime: {Utils.FormatDateTimeFull(StartTime)}");
             sb.AppendLine($"EndTime: {Utils.FormatDateTimeFull(EndTime)}");
             sb.AppendLine($"CulminationTime: {Utils.FormatDateTimeFull(CulminationTime)}");
