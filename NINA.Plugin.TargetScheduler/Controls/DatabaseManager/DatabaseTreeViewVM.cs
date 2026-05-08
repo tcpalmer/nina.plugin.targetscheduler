@@ -1,4 +1,6 @@
-﻿using NINA.Profile.Interfaces;
+﻿using Accord.Statistics.Kernels;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Profile.Interfaces;
 using NINA.WPF.Base.ViewModel;
 using System.Collections.Generic;
 using System.Windows.Input;
@@ -19,8 +21,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
             ExpandAllCommand = new RelayCommand(ExpandAll);
             CollapseAllCommand = new RelayCommand(CollapseAll);
-            SwitchDisplayModeCommand = new RelayCommand(SwitchDisplayMode);
-            SwitchColorizeModeCommand = new RelayCommand(SwitchColorizeMode);
+            ToggleDisplayModeCommand = new RelayCommand(ToggleDisplayMode);
+            ToggleColorizeModeCommand = new RelayCommand(ToggleColorizeMode);
             RefreshCommand = new RelayCommand(Refresh);
         }
 
@@ -41,8 +43,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         public ICommand ExpandAllCommand { get; private set; }
         public ICommand CollapseAllCommand { get; private set; }
-        public ICommand SwitchDisplayModeCommand { get; private set; }
-        public ICommand SwitchColorizeModeCommand { get; private set; }
+        public ICommand ToggleDisplayModeCommand { get; private set; }
+        public ICommand ToggleColorizeModeCommand { get; private set; }
         public ICommand RefreshCommand { get; private set; }
 
         private void ExpandAll() {
@@ -53,45 +55,19 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             TreeDataItem.VisitAll(RootList[0], i => { i.IsExpanded = false; });
         }
 
-        private TreeDisplayMode displayMode = TreeDisplayMode.DisplayAll;
+        public bool EnableDisplayAll => ParentVM.SelectedDisplayMode == TreeDisplayMode.DisplayAll;
 
-        public TreeDisplayMode DisplayMode {
-            get => displayMode;
-            private set {
-                displayMode = value;
-                ShowDisplayAll = value == TreeDisplayMode.DisplayAll;
-            }
+        private void ToggleDisplayMode() {
+            TreeDisplayMode mode = ParentVM.SelectedDisplayMode == TreeDisplayMode.DisplayAll ? TreeDisplayMode.DisplayActiveOnly : TreeDisplayMode.DisplayAll;
+            ParentVM.SetTreeDisplayMode(mode);
+            ParentVM.SetTreeColorizeMode(ParentVM.SelectedColorizeMode);
         }
 
-        private bool showDisplayAll = true;
+        public bool EnableColorize => ParentVM.SelectedColorizeMode;
 
-        public bool ShowDisplayAll {
-            get => showDisplayAll;
-            private set {
-                showDisplayAll = value;
-                RaisePropertyChanged(nameof(ShowDisplayAll));
-            }
-        }
-
-        private bool colorizeProjectsTargets = false;
-
-        public bool ColorizeProjectsTargets {
-            get => colorizeProjectsTargets;
-            private set {
-                colorizeProjectsTargets = value;
-                RaisePropertyChanged(nameof(ColorizeProjectsTargets));
-            }
-        }
-
-        private void SwitchDisplayMode() {
-            DisplayMode = DisplayMode == TreeDisplayMode.DisplayAll ? TreeDisplayMode.DisplayActiveOnly : TreeDisplayMode.DisplayAll;
-            ParentVM.SetTreeDisplayMode(DisplayMode);
-            ParentVM.SetTreeColorizeMode(ColorizeProjectsTargets);
-        }
-
-        private void SwitchColorizeMode() {
-            ColorizeProjectsTargets = ColorizeProjectsTargets ? false : true;
-            ParentVM.SetTreeColorizeMode(ColorizeProjectsTargets);
+        private void ToggleColorizeMode() {
+            bool mode = ParentVM.SelectedColorizeMode ? false : true;
+            ParentVM.SetTreeColorizeMode(mode);
         }
 
         public void Refresh() {
@@ -100,8 +76,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 RootList = refreshed;
             }
 
-            DisplayMode = TreeDisplayMode.DisplayAll;
-            ColorizeProjectsTargets = false;
+            ParentVM.SelectedDisplayMode = TreeDisplayMode.DisplayAll;
+            ParentVM.SelectedColorizeMode = false;
             Clipboard.Clear();
         }
     }

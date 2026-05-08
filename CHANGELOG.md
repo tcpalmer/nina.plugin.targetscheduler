@@ -2,6 +2,7 @@
 
 ## 5.10.0.0 - 2026-05-07
 * Ported to NINA 3.3 (currently the nightly release)
+* Tree toggles colorize and display all or active only are now persisted for each NINA profile
 
 ## 5.9.0.0 - 2026-02-28
 * Exposed read-only API.

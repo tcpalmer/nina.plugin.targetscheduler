@@ -2,6 +2,7 @@
 using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Profile;
 using NINA.Profile.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,15 @@ namespace NINA.Plugin.TargetScheduler.Util {
 
     public class Utils {
         public static readonly string DateFMT = "yyyy-MM-dd HH:mm:ss";
+
+        public static IPluginOptionsAccessor GetPluginOptionsAccessor(IProfileService profileService) {
+            var guid = PluginOptionsAccessor.GetAssemblyGuid(typeof(TargetScheduler));
+            if (guid == null) {
+                throw new Exception("Guid not found in TargetScheduler assembly metadata");
+            }
+
+            return new PluginOptionsAccessor(profileService, guid.Value); ;
+        }
 
         public static FilterInfo LookupFilter(IProfile profile, string filterName) {
             if (profile == null) throw new ArgumentNullException("profile");

@@ -9,6 +9,7 @@ using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Planning.Exposures;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile;
 using NINA.Profile.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
@@ -29,6 +30,7 @@ using RelayCommandParam = CommunityToolkit.Mvvm.Input.RelayCommand<object>;
 namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
     public class DatabaseManagerVM : BaseVM {
+        private IPluginOptionsAccessor pluginOptions;
         private IApplicationMediator applicationMediator;
         private IFramingAssistantVM framingAssistantVM;
         private IDeepSkyObjectSearchVM deepSkyObjectSearchVM;
@@ -37,9 +39,6 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         private TreeDataItem selectedTreeDataItem;
         private TreeDataItem activeTreeDataItem;
-
-        private TreeDisplayMode SelectedDisplayMode;
-        private bool SelectedColorizeMode;
 
         public DatabaseManagerVM(IProfileService profileService,
             IApplicationMediator applicationMediator,
@@ -52,11 +51,21 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             this.deepSkyObjectSearchVM = deepSkyObjectSearchVM;
             this.planetariumFactory = planetariumFactory;
 
+            pluginOptions = Utils.GetPluginOptionsAccessor(profileService);
             database = new SchedulerDatabaseInteraction();
 
             SelectedItemChangedCommand = new RelayCommandParam(SelectedItemChanged);
-            SelectedDisplayMode = TreeDisplayMode.DisplayAll;
+
             InitializeProjectsColorize();
+            SetTreeDisplayMode(SelectedDisplayMode);
+            SetTreeColorizeMode(SelectedColorizeMode);
+
+            profileService.ProfileChanged += ProfileService_ProfileChanged;
+        }
+
+        private void ProfileService_ProfileChanged(object sender, EventArgs e) {
+            SetTreeDisplayMode(SelectedDisplayMode);
+            SetTreeColorizeMode(SelectedColorizeMode);
         }
 
         public SchedulerDatabaseInteraction Database { get { return database; } }
@@ -1039,9 +1048,22 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             throw new Exception($"Failed to find profile in nav tree: {profileId}");
         }
 
+        public TreeDisplayMode SelectedDisplayMode {
+            get => TreeDisplayAllMode ? TreeDisplayMode.DisplayAll : TreeDisplayMode.DisplayActiveOnly;
+            set { TreeDisplayAllMode = value == TreeDisplayMode.DisplayAll; }
+        }
+
+        // profile-specific application storage, not TS database
+        private bool TreeDisplayAllMode {
+            get => pluginOptions.GetValueBoolean(nameof(TreeDisplayAllMode), true);
+            set {
+                pluginOptions.SetValueBoolean(nameof(TreeDisplayAllMode), value);
+                RaisePropertyChanged();
+            }
+        }
+
         internal void SetTreeDisplayMode(TreeDisplayMode displayMode) {
             SelectedDisplayMode = displayMode;
-
             if (SelectedDisplayMode == TreeDisplayMode.DisplayAll) {
                 TreeDataItem.VisitAll(RootProjectsList[0], item => { item.Visibility = Visibility.Visible; });
                 return;
@@ -1064,6 +1086,20 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                         break;
                 }
             });
+        }
+
+        public bool SelectedColorizeMode {
+            get => TreeColorizeMode;
+            set { TreeColorizeMode = value; }
+        }
+
+        // profile-specific application storage, not TS database
+        public bool TreeColorizeMode {
+            get => pluginOptions.GetValueBoolean(nameof(TreeColorizeMode), false);
+            set {
+                pluginOptions.SetValueBoolean(nameof(TreeColorizeMode), value);
+                RaisePropertyChanged();
+            }
         }
 
         private void InitializeProjectsColorize() {
