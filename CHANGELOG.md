@@ -5,6 +5,7 @@
 * Implemented several TS-specific variables for NINA 3.3 expressions
 * Tree toggles colorize and display all or active only are now persisted for each NINA profile
 * Added a planning priority field to targets, if not default then it overrides the project priority
+* Fixed issue with deleting acquired images but not associated thumbnails
 
 ## 5.9.0.0 - 2026-02-28
 * Exposed read-only API.
