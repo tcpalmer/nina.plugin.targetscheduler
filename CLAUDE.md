@@ -29,7 +29,7 @@ The solution contains four projects:
 
 ## NINA Interface
 
-All TS interaction with runtime NINA is via the https://github.com/isbeorn/nina/tree/develop/NINA.Plugin package, also available from https://www.nuget.org/packages/NINA.Plugin/3.3.0.1035-nightly.
+The NINA repository is https://github.com/isbeorn/nina. However, all TS interaction with runtime NINA is via the https://github.com/isbeorn/nina/tree/develop/NINA.Plugin package, also available from https://www.nuget.org/packages/NINA.Plugin/.
 
 ## Code Style And Formatting
 
@@ -44,9 +44,9 @@ All TS interaction with runtime NINA is via the https://github.com/isbeorn/nina/
 
 The TS database code is under the Database folder. Subfolders include:
 - Schema: EF files for each table
-- Migrate: scripts to migration to a new TS version that includes database changes. The scripts are all relative to the current database state, starting with tables defined in the Initial folder.
+- Migrate: scripts to migrate to a new TS version that includes database changes. The scripts are all relative to the current database state, starting with tables defined in the Initial folder.
 
-The `SchedulerDatabaseContext` class handles virtually all database operations.
+The `SchedulerDatabaseContext` class handles virtually all database operations as well as automatically detecting the need to run new migration scripts.
 
 ### Planning Engine
 
@@ -64,14 +64,7 @@ Variables expose TS runtime state to the NINA 3.3 expression system via NINA's `
 **Location:** `Symbol/` folder — `SymbolPublisher.cs` (singleton, registers all symbols), `SymbolEventHandler.cs` (subscribes to `TargetSchedulerEventMediator` events and pushes updates).
 
 **Published symbols:**
-- Plugin: `TS_Version`
-- Container state: `TS_ContainerRunning`, `TS_ContainerWaiting`, `TS_ContainerPaused`
-- Container timing: `TS_ContainerLastStarted`, `TS_ContainerLastStopped`
-- Current target: `TS_CurrentTargetName`, `TS_CurrentProjectName`, `TS_CurrentTargetCoordinates`, `TS_CurrentTargetRotation`, `TS_CurrentTargetStarted`
-- Current exposure: `TS_CurrentFilterName`, `TS_CurrentExposureLength`
-- Next target: `TS_NextTargetStart`, `TS_NextTargetName`, `TS_NextProjectName`
-
-Symbol values are updated by `SymbolEventHandler` in response to `TargetSchedulerEventMediator` events.
+All supported symbols are listed in `SymbolPublisher.cs`. Symbol values are updated by `SymbolEventHandler` in response to `TargetSchedulerEventMediator` events.
 
 ### Publish/Subscribe
 
