@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(git log *)"
+    ]
+  }
+}
