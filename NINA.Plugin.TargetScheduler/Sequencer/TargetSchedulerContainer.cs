@@ -215,7 +215,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             imageSaveWatcher.Stop();
             ClearTarget();
-
+            TargetScheduler.EventMediator.InvokeSymbolReset();
             base.ResetProgress();
         }
 
@@ -237,16 +237,19 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         public override Task Interrupt() {
             TSLogger.Debug("TargetSchedulerContainer: Interrupt");
+            TargetScheduler.EventMediator.InvokeSymbolReset();
             return base.Interrupt();
         }
 
         public override void Teardown() {
             TSLogger.Debug("TargetSchedulerContainer: Teardown");
             imageSaveWatcher.Stop();
-            TargetScheduler.EventMediator.InvokeContainerStopping(this);
+
             PauseEnabled = false;
             UnpauseEnabled = false;
             PauseRequested = false;
+
+            TargetScheduler.EventMediator.InvokeSymbolReset();
             containerStoppedPublisher.Publish();
         }
 
@@ -299,6 +302,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     InformTSConditionChecks();
                     ClearTarget();
 
+                    TargetScheduler.EventMediator.InvokeContainerStopping(null);
+                    TargetScheduler.EventMediator.InvokeSymbolReset();
+
                     TSLogger.Info("planner returned empty plan, done");
                     return;
                 }
@@ -307,6 +313,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     if (previousPlanTarget != null) {
                         await ExecuteEventContainer(AfterTargetContainer, progress, token);
                         await ExecuteEventContainer(AfterAllTargetsContainer, progress, token);
+                        TargetScheduler.EventMediator.InvokeTargetStopping();
                         previousPlanTarget = null;
                     }
 
@@ -343,6 +350,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         if (previousPlanTarget != null && !target.Equals(previousPlanTarget)) {
                             await ExecuteEventContainer(AfterTargetContainer, progress, token);
                             await ExecuteEventContainer(AfterAllTargetsContainer, progress, token);
+                            TargetScheduler.EventMediator.InvokeTargetStopping();
+                        } else {
+                            TargetScheduler.EventMediator.InvokeTargetStarting(target);
                         }
 
                         TSLogger.Info("--BEGIN PLAN EXECUTION--------------------------------------------------------");
@@ -374,6 +384,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         PauseEnabled = false;
                         UnpauseEnabled = false;
 
+                        TargetScheduler.EventMediator.InvokeContainerStopping(null);
+                        TargetScheduler.EventMediator.InvokeSymbolReset();
+
                         if (Utils.IsCancelException(ex)) {
                             TSLogger.Warning("sequence was canceled or interrupted, target scheduler execution is incomplete");
                             SchedulerProgress.Reset();
@@ -393,6 +406,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
             PauseEnabled = false;
             UnpauseEnabled = false;
+
+            TargetScheduler.EventMediator.InvokeContainerStopping(null);
+            TargetScheduler.EventMediator.InvokeSymbolReset();
         }
 
         private async Task PauseContainer(IProgress<ApplicationStatus> progress, CancellationToken token) {

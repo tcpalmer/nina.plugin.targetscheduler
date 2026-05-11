@@ -210,6 +210,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 SyncClient.Instance.SetClientState(ClientState.Ready);
             }
 
+            TargetScheduler.EventMediator.InvokeContainerStopping(null);
             base.Teardown();
         }
 

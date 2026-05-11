@@ -13,8 +13,10 @@ using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Sequencer;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Plugin.TargetScheduler.Symbol;
 using NINA.Plugin.TargetScheduler.SyncService.Sync;
 using NINA.Profile.Interfaces;
+using NINA.Sequencer.Logic;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Interfaces.ViewModel;
 using System;
@@ -51,6 +53,7 @@ namespace NINA.Plugin.TargetScheduler {
         public TargetScheduler(IProfileService profileService,
             IOptionsVM options,
             IApplicationMediator applicationMediator,
+            ISymbolBroker symbolBroker,
             IFramingAssistantVM framingAssistantVM,
             IDeepSkyObjectSearchVM deepSkyObjectSearchVM,
             IPlanetariumFactory planetariumFactory) {
@@ -70,6 +73,8 @@ namespace NINA.Plugin.TargetScheduler {
 
             options.AddImagePattern(FlatSessionIdImagePattern);
             options.AddImagePattern(ProjectNameImagePattern);
+
+            SymbolPublisher.Instance.Init(symbolBroker);
         }
 
         public override Task Initialize() {

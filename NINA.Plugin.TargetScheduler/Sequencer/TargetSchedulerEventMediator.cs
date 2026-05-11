@@ -1,4 +1,5 @@
 ﻿using NINA.Plugin.TargetScheduler.Planning.Interfaces;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
 using System;
 
 namespace NINA.Plugin.TargetScheduler.Sequencer {
@@ -17,11 +18,17 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private event EventHandler WaitStoppingEvent;
 
+        private event EventHandler<TargetStartingEventArgs> TargetStartingEvent;
+
+        private event EventHandler TargetStoppingingEvent;
+
         private event EventHandler<ExposureStartingEventArgs> ExposureStartingEvent;
 
         private event EventHandler ExposureStoppingEvent;
 
         private event EventHandler<TargetCompleteEventArgs> TargetCompleteEvent;
+
+        private event EventHandler SymbolResetEvent;
 
         public TargetSchedulerEventMediator() {
         }
@@ -56,6 +63,16 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             remove { WaitStoppingEvent -= value; }
         }
 
+        public event EventHandler<TargetStartingEventArgs> TargetStarting {
+            add { TargetStartingEvent += value; }
+            remove { TargetStartingEvent -= value; }
+        }
+
+        public event EventHandler TargetStopping {
+            add { TargetStoppingingEvent += value; }
+            remove { TargetStoppingingEvent -= value; }
+        }
+
         public event EventHandler<ExposureStartingEventArgs> ExposureStarting {
             add { ExposureStartingEvent += value; }
             remove { ExposureStartingEvent -= value; }
@@ -71,45 +88,78 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             remove { TargetCompleteEvent -= value; }
         }
 
+        public event EventHandler SymbolReset {
+            add { SymbolResetEvent += value; }
+            remove { SymbolResetEvent -= value; }
+        }
+
         public void InvokeContainerStarting(TargetSchedulerContainer container) {
+            TSLogger.Trace("invoking event: ContainerStarting");
             ContainerStartingEvent?.Invoke(container, EventArgs.Empty);
         }
 
         public void InvokeContainerPaused(TargetSchedulerContainer container) {
+            TSLogger.Trace("invoking event: ContainerPaused");
             ContainerPausedEvent?.Invoke(container, EventArgs.Empty);
         }
 
         public void InvokeContainerUnpaused(TargetSchedulerContainer container) {
+            TSLogger.Trace("invoking event: ContainerUnpaused");
             ContainerUnpausedEvent?.Invoke(container, EventArgs.Empty);
         }
 
         public void InvokeContainerStopping(TargetSchedulerContainer container) {
+            TSLogger.Trace("invoking event: ContainerStopping");
             ContainerStoppingEvent?.Invoke(container, EventArgs.Empty);
         }
 
         public void InvokeWaitStarting(DateTime waitUntil, ITarget nextTarget) {
+            TSLogger.Trace("invoking event: WaitStarting");
             WaitStartingEvent?.Invoke(this, new WaitStartingEventArgs { WaitUntil = waitUntil, Target = nextTarget });
         }
 
         public void InvokeWaitStopping() {
+            TSLogger.Trace("invoking event: WaitStopping");
             WaitStoppingEvent?.Invoke(this, EventArgs.Empty);
         }
 
+        public void InvokeTargetStarting(ITarget target) {
+            TSLogger.Trace($"invoking event: TargetStarting ({target?.Name})");
+            TargetStartingEvent?.Invoke(this, new TargetStartingEventArgs { Target = target });
+        }
+
+        public void InvokeTargetStopping() {
+            TSLogger.Trace("invoking event: TargetStopping");
+            TargetStoppingingEvent?.Invoke(this, EventArgs.Empty);
+        }
+
         public void InvokeExposureStarting(ITarget target, IExposure exposure, bool isNewTarget) {
+            TSLogger.Trace("invoking event: ExposureStarting");
             ExposureStartingEvent?.Invoke(this, new ExposureStartingEventArgs { Target = target, Exposure = exposure, IsNewTarget = isNewTarget });
         }
 
         public void InvokeExposureStopping() {
+            TSLogger.Trace("invoking event: ExposureStopping");
             ExposureStoppingEvent?.Invoke(this, EventArgs.Empty);
         }
 
         public void InvokeTargetComplete(ITarget target) {
+            TSLogger.Trace($"invoking event: TargetComplete ({target?.Name})");
             TargetCompleteEvent?.Invoke(this, new TargetCompleteEventArgs { Target = target });
+        }
+
+        internal void InvokeSymbolReset() {
+            TSLogger.Trace("invoking event: SymbolReset");
+            SymbolResetEvent?.Invoke(this, EventArgs.Empty);
         }
     }
 
     public class WaitStartingEventArgs : EventArgs {
         public DateTime WaitUntil { get; set; }
+        public ITarget Target { get; set; }
+    }
+
+    public class TargetStartingEventArgs : EventArgs {
         public ITarget Target { get; set; }
     }
 
