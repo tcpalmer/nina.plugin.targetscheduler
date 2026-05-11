@@ -44,6 +44,9 @@ If you like this plugin and it saves you time, please consider [Buying Me a Beer
 ## Documentation
 The [plugin documentation](https://tcpalmer.github.io/nina-scheduler/) provides a detailed description of the plugin and how to use it.  See the [release notes](https://tcpalmer.github.io/nina-scheduler/release.html) for changes in recent versions.
 
+## Contributions
+Please see [CONTRIBUTIONS.md](https://github.com/tcpalmer/nina.plugin.targetscheduler/blob/main/CONTRIBUTING.md) for details on contributing.
+
 ## Acknowledgements
 * Chris Woodhouse has been involved since the beginning and was instrumental in hashing out the initial design and requirements.
 * Matt Nudi also provided design feedback and critical early beta testing.
