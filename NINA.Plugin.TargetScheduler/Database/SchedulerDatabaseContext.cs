@@ -118,13 +118,13 @@ namespace NINA.Plugin.TargetScheduler.Database {
 
         List<AcquiredImage> GetPendingAcquiredImagesForGrading(ExposurePlan exposurePlan);
 
-        int GetAcquiredImagesCount(DateTime olderThan, int targetId);
+        int GetAcquiredImagesCount(DateTime olderThan, string profileId, int projectId, int targetId);
 
         AcquiredImage ManualUpdateGrading(AcquiredImage acquiredImage, GradingStatus oldStatus, GradingStatus newStatus);
 
         void DeleteOverrideExposureOrders(int targetId);
 
-        void DeleteAcquiredImages(DateTime olderThan, int targetId);
+        void DeleteAcquiredImages(DateTime olderThan, string profileId, int projectId, int targetId);
 
         void DeleteAcquiredImages(int targetId);
 
@@ -560,10 +560,16 @@ namespace NINA.Plugin.TargetScheduler.Database {
             return images.ToList();
         }
 
-        public int GetAcquiredImagesCount(DateTime olderThan, int targetId) {
+        public int GetAcquiredImagesCount(DateTime olderThan, string profileId, int projectId, int targetId) {
             var predicate = PredicateBuilder.New<AcquiredImage>();
             long olderThanSecs = Common.DateTimeToUnixSeconds(olderThan);
             predicate = predicate.And(a => a.acquiredDate < olderThanSecs);
+            if (!string.IsNullOrEmpty(profileId)) {
+                predicate = predicate.And(a => a.profileId.Equals(profileId));
+            }
+            if (projectId != 0) {
+                predicate = predicate.And(a => a.ProjectId == projectId);
+            }
             if (targetId != 0) {
                 predicate = predicate.And(a => a.TargetId == targetId);
             }
@@ -624,12 +630,18 @@ namespace NINA.Plugin.TargetScheduler.Database {
             }
         }
 
-        public void DeleteAcquiredImages(DateTime olderThan, int targetId) {
+        public void DeleteAcquiredImages(DateTime olderThan, string profileId, int projectId, int targetId) {
             using (var transaction = Database.BeginTransaction()) {
                 try {
                     var predicate = PredicateBuilder.New<AcquiredImage>();
                     long olderThanSecs = Common.DateTimeToUnixSeconds(olderThan);
                     predicate = predicate.And(a => a.acquiredDate < olderThanSecs);
+                    if (!string.IsNullOrEmpty(profileId)) {
+                        predicate = predicate.And(a => a.profileId.Equals(profileId));
+                    }
+                    if (projectId != 0) {
+                        predicate = predicate.And(a => a.ProjectId == projectId);
+                    }
                     if (targetId != 0) {
                         predicate = predicate.And(a => a.TargetId == targetId);
                     }

@@ -596,6 +596,32 @@ namespace NINA.Plugin.TargetScheduler.Test.Database {
             }
         }
 
+        [Test, Order(14)]
+        [NonParallelizable]
+        public void TestDeleteAcquiredImagesAlsoCleansImageData() {
+            List<int> acquiredImageIds;
+
+            using (var context = db.GetContext()) {
+                // 5 AcquiredImages written in TestWriteAcquiredImage, untouched since
+                List<AcquiredImage> before = context.GetAcquiredImages(1, "Ha");
+                before.Count.Should().Be(5);
+                acquiredImageIds = before.Select(a => a.Id).ToList();
+
+                // 3 ImageData rows were written against two of those AcquiredImages
+                context.ImageDataSet.Count(d => acquiredImageIds.Contains(d.AcquiredImageId)).Should().Be(3);
+            }
+
+            using (var context = db.GetContext()) {
+                // markDate.AddDays(2) is after all records (written at markDate.AddDays(1)); null profileId = no profile filter
+                context.DeleteAcquiredImages(markDate.AddDays(2), null, 1, 1);
+            }
+
+            using (var context = db.GetContext()) {
+                context.GetAcquiredImages(1, "Ha").Count.Should().Be(0);
+                context.ImageDataSet.Count(d => acquiredImageIds.Contains(d.AcquiredImageId)).Should().Be(0);
+            }
+        }
+
         private void LoadTestDatabase() {
             using (var context = db.GetContext()) {
                 try {

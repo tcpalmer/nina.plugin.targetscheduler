@@ -43,8 +43,6 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             RefreshTableCommand = new AsyncRelayCommand(RefreshTable);
             CsvOutputCommand = new AsyncRelayCommand(CsvOutput);
             PurgeCommand = new AsyncRelayCommand(PurgeRecords);
-            PurgeTargetChoices = GetPurgeTargetChoices();
-
             InitializeCriteria();
 
             AcquiredImageCollection = new AcquiredImageCollection();
@@ -80,6 +78,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             ProjectChoices = GetProjectChoices();
             TargetChoices = GetTargetChoices(SelectedProjectId);
             FilterChoices = GetFilterChoices(SelectedTargetId);
+
+            PurgeProfileChoices = GetProfileChoices();
+            PurgeProjectChoices = GetProjectChoices(PROFILE_ANY);
+            PurgeTargetChoices = GetTargetChoices(0);
         }
 
         private bool tableLoading = false;
@@ -324,22 +326,57 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             }
         }
 
-        private AsyncObservableCollection<KeyValuePair<int, string>> GetPurgeTargetChoices() {
-            List<Target> targets;
-            AsyncObservableCollection<KeyValuePair<int, string>> choices = new AsyncObservableCollection<KeyValuePair<int, string>> {
-                new KeyValuePair<int, string>(0, "All")
-            };
+        private AsyncObservableCollection<KeyValuePair<string, string>> purgeProfileChoices;
 
-            using (var context = database.GetContext()) {
-                targets = context.TargetSet.AsNoTracking().ToList();
+        public AsyncObservableCollection<KeyValuePair<string, string>> PurgeProfileChoices {
+            get => purgeProfileChoices;
+            set {
+                purgeProfileChoices = value;
+                RaisePropertyChanged(nameof(PurgeProfileChoices));
             }
+        }
 
-            targets.Sort((t1, t2) => t1.Name.CompareTo(t2.Name));
-            targets.ForEach(t => {
-                choices.Add(new KeyValuePair<int, string>(t.Id, t.Name));
-            });
+        private string purgeSelectedProfileId = PROFILE_ANY;
 
-            return choices;
+        public string PurgeSelectedProfileId {
+            get => purgeSelectedProfileId;
+            set {
+                purgeSelectedProfileId = value;
+                purgeSelectedProjectId = 0;
+                purgeSelectedTargetId = 0;
+
+                PurgeProjectChoices = GetProjectChoices(purgeSelectedProfileId);
+                PurgeTargetChoices = GetTargetChoices(purgeSelectedProjectId);
+
+                RaisePropertyChanged(nameof(PurgeSelectedProfileId));
+                RaisePropertyChanged(nameof(PurgeSelectedProjectId));
+                RaisePropertyChanged(nameof(PurgeSelectedTargetId));
+            }
+        }
+
+        private AsyncObservableCollection<KeyValuePair<int, string>> purgeProjectChoices;
+
+        public AsyncObservableCollection<KeyValuePair<int, string>> PurgeProjectChoices {
+            get => purgeProjectChoices;
+            set {
+                purgeProjectChoices = value;
+                RaisePropertyChanged(nameof(PurgeProjectChoices));
+            }
+        }
+
+        private int purgeSelectedProjectId = 0;
+
+        public int PurgeSelectedProjectId {
+            get => purgeSelectedProjectId;
+            set {
+                purgeSelectedProjectId = value;
+                purgeSelectedTargetId = 0;
+
+                PurgeTargetChoices = GetTargetChoices(purgeSelectedProjectId);
+
+                RaisePropertyChanged(nameof(PurgeSelectedProjectId));
+                RaisePropertyChanged(nameof(PurgeSelectedTargetId));
+            }
         }
 
         private AsyncObservableCollection<KeyValuePair<int, string>> purgeTargetChoices;
@@ -428,7 +465,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
 
         private async Task<bool> PurgeRecords() {
             using (var context = database.GetContext()) {
-                int count = context.GetAcquiredImagesCount(PurgeOlderThanDate, PurgeSelectedTargetId);
+                string profileIdFilter = PurgeSelectedProfileId.Equals(PROFILE_ANY) ? null : PurgeSelectedProfileId;
+                int count = context.GetAcquiredImagesCount(PurgeOlderThanDate, profileIdFilter, PurgeSelectedProjectId, PurgeSelectedTargetId);
                 if (count == 0) {
                     MyMessageBox.Show("No records selected for deletion");
                     return true;
@@ -436,7 +474,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
 
                 if (MyMessageBox.Show($"Delete {count} acquired image records?", "Delete records?", MessageBoxButton.YesNo, MessageBoxResult.No) == MessageBoxResult.Yes) {
                     TSLogger.Info($"deleting {count} acquired images records");
-                    context.DeleteAcquiredImages(PurgeOlderThanDate, PurgeSelectedTargetId);
+                    context.DeleteAcquiredImages(PurgeOlderThanDate, profileIdFilter, PurgeSelectedProjectId, PurgeSelectedTargetId);
                     SearchCriteraKey = null;
                     _ = LoadRecords();
                 }

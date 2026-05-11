@@ -198,7 +198,7 @@
                             <TextBlock Margin="15,5,0,0"
                                        FontSize="12"
                                        FontStyle="Italic"
-                                       Text="Delete acquired image records by date or date and target.  This will not remove image files - only the Target Scheduler database records."
+                                       Text="Delete acquired image records by date, profile, project, and/or target.  This will not remove image files - only the Target Scheduler database records."
                                        TextWrapping="Wrap" />
                             <Grid Width="600"
                                   Margin="15,10,5,12"
@@ -208,6 +208,8 @@
                                     <ColumnDefinition Width="260" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
+                                    <RowDefinition MinHeight="25" />
+                                    <RowDefinition MinHeight="25" />
                                     <RowDefinition MinHeight="25" />
                                     <RowDefinition MinHeight="25" />
                                     <RowDefinition MinHeight="25" />
@@ -233,8 +235,42 @@
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center"
                                            FontWeight="Bold"
-                                           Text="Target" />
+                                           Text="Profile" />
                                 <ComboBox Grid.Row="1"
+                                          Grid.Column="1"
+                                          Width="200"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
+                                          DisplayMemberPath="Value"
+                                          ItemsSource="{Binding PurgeProfileChoices}"
+                                          SelectedValue="{Binding PurgeSelectedProfileId}"
+                                          SelectedValuePath="Key" />
+
+                                <TextBlock Grid.Row="2"
+                                           Grid.Column="0"
+                                           MaxWidth="120"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           FontWeight="Bold"
+                                           Text="Project" />
+                                <ComboBox Grid.Row="2"
+                                          Grid.Column="1"
+                                          Width="200"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
+                                          DisplayMemberPath="Value"
+                                          ItemsSource="{Binding PurgeProjectChoices}"
+                                          SelectedValue="{Binding PurgeSelectedProjectId}"
+                                          SelectedValuePath="Key" />
+
+                                <TextBlock Grid.Row="3"
+                                           Grid.Column="0"
+                                           MaxWidth="120"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center"
+                                           FontWeight="Bold"
+                                           Text="Target" />
+                                <ComboBox Grid.Row="3"
                                           Grid.Column="1"
                                           Width="200"
                                           HorizontalAlignment="Left"
@@ -244,7 +280,7 @@
                                           SelectedValue="{Binding PurgeSelectedTargetId}"
                                           SelectedValuePath="Key" />
 
-                                <Button Grid.Row="3"
+                                <Button Grid.Row="4"
                                         Grid.Column="0"
                                         Width="18"
                                         Height="18"
@@ -253,7 +289,7 @@
                                         VerticalAlignment="Center"
                                         Command="{Binding PurgeCommand}"
                                         Style="{StaticResource BackgroundButton}"
-                                        ToolTip="Delete acquired image records based on date/target selections">
+                                        ToolTip="Delete acquired image records based on date/profile/project/target selections">
                                     <Grid>
                                         <Path Data="{StaticResource SS_DeleteSVG}"
                                               Fill="{StaticResource ButtonForegroundBrush}"
