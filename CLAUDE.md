@@ -37,6 +37,7 @@ The NINA repository is https://github.com/isbeorn/nina. However, all TS interact
 - Treat the root [`.editorconfig`](.editorconfig) as the canonical C# style source. It covers indentation, line endings, namespace style, `using` placement, `var` preferences, naming, and selected analyzer severities.
 - For XAML, follow surrounding file style; no repo-wide XAML formatter configuration is checked in.
 - Prefer modern C# supported by the target project. For new or refactored MVVM code, prefer `CommunityToolkit.Mvvm` where it fits instead of expanding legacy relay-command patterns.
+- Remove any unused `using` directives before saving a file.
 
 ## Plugin Components
 
@@ -47,6 +48,25 @@ The TS database code is under the Database folder. Subfolders include:
 - Migrate: scripts to migrate to a new TS version that includes database changes. The scripts are all relative to the current database state, starting with tables defined in the Initial folder.
 
 The `SchedulerDatabaseContext` class handles virtually all database operations as well as automatically detecting the need to run new migration scripts.
+
+#### Querying the live database from PowerShell
+
+`sqlite3` is not installed on this machine. Use the `System.Data.SQLite.dll` bundled with the built plugin instead:
+
+```powershell
+Add-Type -Path "C:\Users\Tom\source\repos\nina.plugin.targetscheduler\NINA.Plugin.TargetScheduler\bin\Debug\net10.0-windows7.0\System.Data.SQLite.dll"
+
+$conn = New-Object System.Data.SQLite.SQLiteConnection("Data Source=C:\Users\Tom\AppData\Local\NINA\SchedulerPlugin\schedulerdb.sqlite;Version=3;")
+$conn.Open()
+$cmd = $conn.CreateCommand()
+$cmd.CommandText = "-- SQL here"
+# $reader = $cmd.ExecuteReader()   # SELECT multiple rows
+# $cmd.ExecuteScalar()             # SELECT single value
+# $cmd.ExecuteNonQuery()           # INSERT / UPDATE / DELETE
+$conn.Close()
+```
+
+Always use parameterised queries (`$cmd.Parameters.AddWithValue("@name", $value)`) rather than string interpolation for values.
 
 ### Planning Engine
 

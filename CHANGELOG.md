@@ -4,6 +4,7 @@
 * Ported to NINA 3.3 (currently the nightly release)
 * Implemented several TS-specific variables for NINA 3.3 expressions
 * Tree toggles colorize and display all or active only are now persisted for each NINA profile
+* Added ability to display the original saved image file from acquired images (not the thumbnail)
 * Added a planning priority field to targets, if not default then it overrides the project priority
 * Added Profile and Project criteria to acquired image record purging
 * Fixed issue with deleting acquired images but not associated thumbnails

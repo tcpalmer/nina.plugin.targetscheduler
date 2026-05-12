@@ -2,6 +2,7 @@
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Equipment.Interfaces;
+using NINA.Image.Interfaces;
 using NINA.Plugin.Interfaces;
 using NINA.Plugin.TargetScheduler.API;
 using NINA.Plugin.TargetScheduler.Controls.AcquiredImages;
@@ -36,6 +37,8 @@ namespace NINA.Plugin.TargetScheduler {
 
         public static TargetSchedulerEventMediator EventMediator { get => lazy.Value; }
 
+        public static IImageDataFactory ImageDataFactory { get; private set; }
+
         // Plugin specific image file patterns
         public static readonly ImagePattern FlatSessionIdImagePattern = new ImagePattern("$$TSSESSIONID$$", "Session identifier for working with TS lights and flats", "Target Scheduler");
 
@@ -56,7 +59,8 @@ namespace NINA.Plugin.TargetScheduler {
             ISymbolBroker symbolBroker,
             IFramingAssistantVM framingAssistantVM,
             IDeepSkyObjectSearchVM deepSkyObjectSearchVM,
-            IPlanetariumFactory planetariumFactory) {
+            IPlanetariumFactory planetariumFactory,
+            IImageDataFactory imageDataFactory) {
             if (Properties.Settings.Default.UpdateSettings) {
                 Properties.Settings.Default.Upgrade();
                 Properties.Settings.Default.UpdateSettings = false;
@@ -68,6 +72,7 @@ namespace NINA.Plugin.TargetScheduler {
             this.framingAssistantVM = framingAssistantVM;
             this.deepSkyObjectSearchVM = deepSkyObjectSearchVM;
             this.planetariumFactory = planetariumFactory;
+            ImageDataFactory = imageDataFactory;
 
             profileService.ProfileChanged += ProfileService_ProfileChanged;
 

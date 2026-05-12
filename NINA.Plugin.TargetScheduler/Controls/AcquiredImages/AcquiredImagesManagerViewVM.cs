@@ -5,6 +5,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using NINA.Core.Locale;
 using NINA.Core.MyMessageBox;
 using NINA.Core.Utility;
+using NINA.Plugin.TargetScheduler.Controls.AcquiredImages.ImageView;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Grading;
@@ -664,6 +665,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
 
             database = new SchedulerDatabaseInteraction();
             UpdateGradingCommand = new RelayCommandParam(UpdateGrading, CanCmdExec);
+            ShowImageCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ShowImage);
 
             NamesItem names = ProjectTargetNameCache.GetNames(acquiredImage.ProjectId, acquiredImage.TargetId);
             if (names == null) {
@@ -782,6 +784,31 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
                 gradingStatusValue = value;
                 RaisePropertyChanged(nameof(GradingStatusValue));
             }
+        }
+
+        private string ResolveImagePath(string fileName) {
+            if (string.IsNullOrWhiteSpace(fileName)) return null;
+            if (File.Exists(fileName)) return fileName;
+            string dir = Path.GetDirectoryName(fileName);
+            if (dir == null) return null;
+            string rejected = Path.Combine(dir, "rejected", Path.GetFileName(fileName));
+            return File.Exists(rejected) ? rejected : null;
+        }
+
+        public bool CanShowImage {
+            get {
+                try { return ResolveImagePath(acquiredImage.Metadata?.FileName) != null; } catch { return false; }
+            }
+        }
+
+        public ICommand ShowImageCommand { get; private set; }
+
+        private void ShowImage() {
+            string resolved = ResolveImagePath(acquiredImage.Metadata?.FileName);
+            if (resolved == null) return;
+            var window = new ImageViewerWindow(resolved);
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
         }
 
         public ICommand UpdateGradingCommand { get; private set; }
