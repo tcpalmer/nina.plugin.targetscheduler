@@ -2,6 +2,8 @@
 
 Thank you for considering a contribution to the Target Scheduler NINA plugin. Please keep in mind that this plugin is maintained by one person in their spare time and the ability to concentrate on it will vary over time - so be patient if your request isn't addressed immediately.
 
+If you find an issue with the TS documentation, please open an issue on that repository: https://github.com/tcpalmer/nina-scheduler.
+
 ## Issues
 Issues can be created and tracked at https://github.com/tcpalmer/nina.plugin.targetscheduler/issues. When submitting a bug report, please include/attach the following:
 * The applicable NINA and TS versions
