@@ -126,3 +126,45 @@ Tests live in `NINA.Plugin.TargetScheduler.Test/`.
 - **Assertions:** FluentAssertions (`.Should()`, `.Be()`, etc.)
 
 Coverage spans: planning engine, scoring rules, astrometry, database schema/migrations, sequencer logic, API. External native DLLs (NOVAS, SOFA, SQLite x64) required by tests are bundled under `Test/External/`.
+
+## Release Process
+
+The three PowerShell scripts in `Utilities/` automate the multi-step TS release workflow. All three accept a single mandatory `-Version` parameter (e.g. `'6.1.2.3'`) and must be run in order. Do **not** suggest running these scripts or run them yourself without explicit permission from the user.
+
+### releasePart1.ps1 — Package artifacts
+
+Prerequisite: a clean build must have been done manually beforehand.
+
+What it does:
+1. Renames the plugin DLL inside `%LOCALAPPDATA%\NINA\Plugins\3.0.0\NINA.Plugin.TargetScheduler\` from `NINA.Plugin.TargetScheduler.dll` to `NINA.Plugin.TargetScheduler-{Version}.dll`.
+2. Renames the plugin folder from `NINA.Plugin.TargetScheduler` to `NINA.Plugin.TargetScheduler-{Version}`.
+3. Moves the versioned folder into the local package repo at `C:\Users\Tom\source\repos\package\NINA.Plugin.TargetScheduler\`.
+4. Runs `CreateNET7Manifest.ps1` (from the package repo) against the versioned DLL to produce `manifest.json` and a zip archive. The `-installerUrl` points to the expected GitHub release download URL for the zip.
+5. Moves the generated zip into the package subdirectory alongside the versioned folder.
+
+Output: `C:\Users\Tom\source\repos\package\NINA.Plugin.TargetScheduler\NINA.Plugin.TargetScheduler-{Version}.zip` and a `manifest.json` in the package root.
+
+### releasePart2.ps1 — Create GitHub release
+
+Prerequisite: Part 1 must have completed successfully (zip must exist).
+
+What it does:
+1. Reads `CHANGELOG.md` and extracts the body of the topmost `##` section as release notes.
+2. Creates a GitHub release tagged `v{Version}` on `tcpalmer/nina.plugin.targetscheduler` (via `gh release create`), marked as latest, with those release notes.
+3. Attaches the plugin zip from Part 1 as a release asset.
+
+GitHub automatically generates source-code zip and tar.gz archives for every tagged release.
+
+### releasePart3.ps1 — Update NINA plugin manifests fork
+
+Prerequisite: Parts 1 and 2 must have completed; `manifest.json` must exist at `C:\Users\Tom\source\repos\package\manifest.json`.
+
+What it does:
+1. Syncs the fork `tcpalmer/nina.plugin.manifests` with its upstream (via `gh repo sync`).
+2. Checks out `main` and pulls in the local clone at `C:\Users\Tom\source\repos\nina.plugin.manifests`.
+3. Creates a new branch `feature/Target_Scheduler-{Version}`.
+4. Interactively prompts for each existing manifest JSON in `manifests\t\Target Scheduler\3.0.0\`: enter a new name to rename it, `d` to delete it, or Enter to keep it.
+5. Copies `manifest.json` into that directory as `manifest-{Version}.json`.
+6. Commits all changes with message `Target Scheduler {Version}` and pushes the branch to the fork.
+
+After Part 3 completes, the user manually opens a pull request against the upstream manifests repo from the pushed branch.
