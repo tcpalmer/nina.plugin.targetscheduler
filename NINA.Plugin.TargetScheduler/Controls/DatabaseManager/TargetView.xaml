@@ -89,6 +89,25 @@
                             Stretch="Uniform" />
                     </Grid>
                 </Button>
+                <Button
+                    Width="25"
+                    Height="25"
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    Command="{Binding NavigateToReportCommand}"
+                    IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="View acquisition report"
+                    ToolTipService.ShowOnDisabled="True">
+                    <Grid>
+                        <Path
+                            Margin="5"
+                            Data="{StaticResource SS_ReportSVG}"
+                            Fill="{StaticResource ButtonForegroundBrush}"
+                            Stretch="Uniform" />
+                    </Grid>
+                </Button>
             </StackPanel>
         </StackPanel>
 

@@ -82,6 +82,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             OverrideExposureOrderCommand = new RelayCommand(DisplayOverrideExposureOrder);
             CancelOverrideExposureOrderCommand = new RelayCommand(CancelOverrideExposureOrder);
             SendCoordinatesToFramingAssistantCommand = new AsyncRelayCommand(SendCoordinatesToFramingAssistant);
+            NavigateToReportCommand = new RelayCommand(NavigateToReport);
 
             TargetImportVM = new TargetImportVM(deepSkyObjectSearchVM, framingAssistantVM, planetariumFactory);
             TargetImportVM.PropertyChanged += ImportTarget_PropertyChanged;
@@ -276,6 +277,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public ICommand RefreshCommand { get; private set; }
 
         public ICommand SendCoordinatesToFramingAssistantCommand { get; private set; }
+        public ICommand NavigateToReportCommand { get; private set; }
         public ICommand ShowTargetImportViewCommand { get; private set; }
 
         public ICommand AddExposurePlanCommand { get; private set; }
@@ -647,6 +649,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             applicationMediator.ChangeTab(ApplicationTab.FRAMINGASSISTANT);
             // Note that IFramingAssistantVM doesn't expose any properties to set the rotation, although they are on the impl
             return await framingAssistantVM.SetCoordinates(TargetDSO);
+        }
+
+        private void NavigateToReport() {
+            managerVM.NavigateToReportingAction?.Invoke(profileId, project.Id, TargetProxy.Target.Id);
         }
     }
 

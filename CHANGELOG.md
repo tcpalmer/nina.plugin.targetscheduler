@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.10.1.0 - 2026-05-XX
+* Added a button to jump from a target view to the reporting section and display the report for that target
+
 ## 5.10.0.0 - 2026-05-12
 * Ported to NINA 3.3 (currently the nightly release)
 * Implemented several TS-specific variables for NINA 3.3 expressions

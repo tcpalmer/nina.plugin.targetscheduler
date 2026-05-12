@@ -68,6 +68,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             SetTreeColorizeMode(SelectedColorizeMode);
         }
 
+        public Action<string, int, int> NavigateToReportingAction { get; set; }
+
         public SchedulerDatabaseInteraction Database { get { return database; } }
 
         public int PanelHeight { get => 690; }

@@ -47,6 +47,7 @@
             <Expander
                 Margin="0,0,0,10"
                 ExpandDirection="Down"
+                Expanded="ReportingExpander_Expanded"
                 IsExpanded="{Binding ReportingManagerIsExpanded}">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">

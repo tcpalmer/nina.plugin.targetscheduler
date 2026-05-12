@@ -184,6 +184,7 @@ namespace NINA.Plugin.TargetScheduler {
                 databaseManagerIsExpanded = value;
                 if (value && DatabaseManagerVM == null) {
                     DatabaseManagerVM = new DatabaseManagerVM(profileService, applicationMediator, framingAssistantVM, deepSkyObjectSearchVM, planetariumFactory);
+                    DatabaseManagerVM.NavigateToReportingAction = NavigateToReporting;
                 }
             }
         }
@@ -209,6 +210,7 @@ namespace NINA.Plugin.TargetScheduler {
                 if (value && ReportingManagerViewVM == null) {
                     ReportingManagerViewVM = new ReportingManagerViewVM(profileService);
                 }
+                RaisePropertyChanged(nameof(ReportingManagerIsExpanded));
             }
         }
 
@@ -222,6 +224,13 @@ namespace NINA.Plugin.TargetScheduler {
                     AcquiredImagesManagerViewVM = new AcquiredImagesManagerViewVM(profileService);
                 }
             }
+        }
+
+        private void NavigateToReporting(string profileId, int projectId, int targetId) {
+            ReportingManagerIsExpanded = true;
+            ReportingManagerViewVM.SelectedProfileId = profileId;
+            ReportingManagerViewVM.SelectedProjectId = projectId;
+            ReportingManagerViewVM.SelectedTargetId = targetId;
         }
 
         private void ProcessExited(object sender, EventArgs e) {
@@ -252,6 +261,7 @@ namespace NINA.Plugin.TargetScheduler {
             TSLogger.SetLogLevel(ProfileLogLevel(profileService));
 
             DatabaseManagerVM = new DatabaseManagerVM(profileService, applicationMediator, framingAssistantVM, deepSkyObjectSearchVM, planetariumFactory);
+            DatabaseManagerVM.NavigateToReportingAction = NavigateToReporting;
             PlanPreviewerViewVM = new PlanPreviewerViewVM(profileService);
             AcquiredImagesManagerViewVM = new AcquiredImagesManagerViewVM(profileService);
 
