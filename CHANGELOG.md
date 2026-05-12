@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.10.0.0 - 2026-05-07
+## 5.10.0.0 - 2026-05-12
 * Ported to NINA 3.3 (currently the nightly release)
 * Implemented several TS-specific variables for NINA 3.3 expressions
 * Tree toggles colorize and display all or active only are now persisted for each NINA profile
