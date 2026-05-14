@@ -262,6 +262,12 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                         TSLogger.Info($"SYNC client received event container: {syncedEventContainer.EventContainerType}");
                         await DoEventContainer(syncedEventContainer, progress, token);
                     }
+
+                    if (syncedAction is SyncedAutoFocus syncedAutoFocus) {
+                        DisplayText = "Running synced autofocus";
+                        TSLogger.Info($"SYNC client received autofocus: {syncedAutoFocus.AutoFocusId}");
+                        await DoSyncedAutoFocus(syncedAutoFocus, progress, token);
+                    }
                 } catch (Exception ex) {
                     if (Utils.IsCancelException(ex)) {
                         TSLogger.Warning("TargetSchedulerSyncContainer was canceled or interrupted, execution is incomplete");
@@ -384,6 +390,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             }
 
             return exposure;
+        }
+
+        private async Task DoSyncedAutoFocus(SyncedAutoFocus syncedAutoFocus, IProgress<ApplicationStatus> progress, CancellationToken token) {
+            // TODO: trigger TargetSchedulerSyncAutoFocus and wait for completion
+            TSLogger.Info($"SYNC client autofocus stub: {syncedAutoFocus.AutoFocusId}");
+            await Task.Delay(1000, token);
+            await SyncClient.Instance.CompleteAutoFocus(syncedAutoFocus.AutoFocusId);
         }
 
         private async Task DoSyncedSolveRotate(SyncedSolveRotate syncedSolveRotate, IProgress<ApplicationStatus> progress, CancellationToken token) {

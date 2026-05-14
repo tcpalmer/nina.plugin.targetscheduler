@@ -6,6 +6,10 @@ This file is a guide for coding agents working in 'NINA.Plugin.TargetScheduler.s
 
 This guide covers all projects listed in 'NINA.Plugin.TargetScheduler.sln'.
 
+## Implicit Command Approvals
+
+Proceed without asking for confirmation before running any read-only operation — shell commands, web fetches, file reads, build verification. Ask first for anything that writes to disk, modifies remote state, or could be destructive. If the intent is ambiguous, ask.
+
 ## Overview
 
 NINA.Plugin.TargetScheduler (aka 'Target Scheduler', aka 'TS') is a plugin for the NINA astrophotography application.
@@ -38,6 +42,16 @@ The NINA repository is https://github.com/isbeorn/nina. However, all TS interact
 - For XAML, follow surrounding file style; no repo-wide XAML formatter configuration is checked in.
 - Prefer modern C# supported by the target project. For new or refactored MVVM code, prefer `CommunityToolkit.Mvvm` where it fits instead of expanding legacy relay-command patterns.
 - Remove any unused `using` directives before saving a file.
+
+## When Making Changes
+
+- **Protected branches**: If the current branch is `main` or `release/nightly-3.3`, refuse all code changes and warn the user. Read-only tasks — analysis, research, design discussion — are permitted on any branch.
+- Scope each change to the stated task only. Don't fix unrelated issues, restructure surrounding code, or expand the footprint beyond what was asked.
+- Surface ambiguities before writing code rather than making assumptions. One clarifying question upfront beats an unwanted implementation.
+- Propose targeted refactorings only when they directly serve the current task, and always call them out explicitly so the user can accept or skip them.
+- After any code change, verify the project builds without new errors before reporting the task complete.
+- Run affected tests when modifying logic that has test coverage; add tests for new behaviour where a clear test exists nearby to follow.
+- Don't add new NuGet package dependencies without explicit approval.
 
 ## Plugin Components
 

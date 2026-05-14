@@ -169,6 +169,9 @@
 	<data name="24" type="System.Resources.ResXFileRef, System.Windows.Forms">
 		<value>24.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
 	</data>
+	<data name="25" type="System.Resources.ResXFileRef, System.Windows.Forms">
+		<value>25.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
+	</data>
 	<data name="3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>3.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
   </data>
