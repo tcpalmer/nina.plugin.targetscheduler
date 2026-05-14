@@ -39,7 +39,6 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         private ActionResponse activeActionResponse;
         private IFocuserMediator? focuserMediator;
         private IFilterWheelMediator? filterWheelMediator;
-        private SyncFocuserConsumer syncFocusConsumer;
         private CancellationTokenSource staleClientPurgeCts;
 
         public SyncServer() {
@@ -53,19 +52,6 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                 TSLogger.Info($"SYNC server setting state {State} -> {state}");
                 State = state;
             }
-        }
-
-        public void InitSyncAutoFocus(IFocuserMediator focuserMediator, IFilterWheelMediator filterWheelMediator) {
-            if (focuserMediator == null) { return; }
-
-            this.focuserMediator = focuserMediator;
-            this.filterWheelMediator = filterWheelMediator;
-            this.syncFocusConsumer = new SyncFocuserConsumer();
-
-            focuserMediator.RegisterConsumer(syncFocusConsumer);
-            filterWheelMediator.RegisterConsumer(syncFocusConsumer);
-
-            TSLogger.Info("SYNC server: synced autofocus enabled");
         }
 
         public override Task<RegistrationResponse> Register(RegistrationRequest request, ServerCallContext context) {
@@ -613,8 +599,6 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
 
         public void Shutdown() {
             try {
-                focuserMediator?.RemoveConsumer(syncFocusConsumer);
-                filterWheelMediator?.RemoveConsumer(syncFocusConsumer);
                 staleClientPurgeCts?.Cancel();
             } catch (Exception ex) {
                 TSLogger.Error("exception stopping stale client purge thread", ex);

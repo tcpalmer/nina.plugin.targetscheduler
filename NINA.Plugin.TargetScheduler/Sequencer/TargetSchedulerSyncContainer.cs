@@ -19,6 +19,7 @@ using NINA.Profile.Interfaces;
 using NINA.Sequencer.Container;
 using NINA.Sequencer.SequenceItem;
 using NINA.Sequencer.SequenceItem.Platesolving;
+using NINA.WPF.Base.Interfaces;
 using NINA.WPF.Base.Interfaces.Mediator;
 using NINA.WPF.Base.Interfaces.ViewModel;
 using Scheduler.SyncService;
@@ -45,6 +46,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private readonly ITelescopeMediator telescopeMediator;
         private readonly IRotatorMediator rotatorMediator;
         private readonly ICameraMediator cameraMediator;
+        private readonly IFocuserMediator focuserMediator;
+        private readonly IAutoFocusVMFactory autoFocusVMFactory;
+        private readonly IImageHistoryVM imageHistory;
         private readonly IImagingMediator imagingMediator;
         private readonly IImageSaveMediator imageSaveMediator;
         private readonly IImageHistoryVM imageHistoryVM;
@@ -72,6 +76,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             ITelescopeMediator telescopeMediator,
             IRotatorMediator rotatorMediator,
             ICameraMediator cameraMediator,
+            IFocuserMediator focuserMediator,
+            IAutoFocusVMFactory autoFocusVMFactory,
+            IImageHistoryVM imageHistory,
             IImagingMediator imagingMediator,
             IImageSaveMediator imageSaveMediator,
             IImageHistoryVM imageHistoryVM,
@@ -83,6 +90,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             this.telescopeMediator = telescopeMediator;
             this.rotatorMediator = rotatorMediator;
             this.cameraMediator = cameraMediator;
+            this.focuserMediator = focuserMediator;
+            this.autoFocusVMFactory = autoFocusVMFactory;
+            this.imageHistory = imageHistory;
             this.imagingMediator = imagingMediator;
             this.imageSaveMediator = imageSaveMediator;
             this.imageHistoryVM = imageHistoryVM;
@@ -105,6 +115,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             clone.telescopeMediator,
             clone.rotatorMediator,
             clone.cameraMediator,
+            clone.focuserMediator,
+            clone.autoFocusVMFactory,
+            clone.imageHistory,
             clone.imagingMediator,
             clone.imageSaveMediator,
             clone.imageHistoryVM,
@@ -393,9 +406,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         private async Task DoSyncedAutoFocus(SyncedAutoFocus syncedAutoFocus, IProgress<ApplicationStatus> progress, CancellationToken token) {
-            // TODO: trigger TargetSchedulerSyncAutoFocus and wait for completion
-            TSLogger.Info($"SYNC client autofocus stub: {syncedAutoFocus.AutoFocusId}");
-            await Task.Delay(1000, token);
+            SyncRunAutoFocus syncRunAutoFocus = new SyncRunAutoFocus(syncedAutoFocus.FilterName, profileService, imageHistory, cameraMediator, filterWheelMediator, focuserMediator, autoFocusVMFactory);
+            if (syncRunAutoFocus.Enabled) {
+                TSLogger.Info($"SYNC client starting autofocus, filter={syncedAutoFocus.FilterName}, id={syncedAutoFocus.AutoFocusId}");
+                await syncRunAutoFocus.Execute(progress, token);
+                TSLogger.Info("SYNC client autofocus completed");
+            }
+
             await SyncClient.Instance.CompleteAutoFocus(syncedAutoFocus.AutoFocusId);
         }
 

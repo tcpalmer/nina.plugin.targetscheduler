@@ -1,5 +1,4 @@
 ﻿using GrpcDotNetNamedPipes;
-using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Profile.Interfaces;
 using Scheduler.SyncService;
@@ -36,6 +35,7 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         public static readonly int DEFAULT_SYNC_WAIT_TIMEOUT = 300;
         public static readonly int DEFAULT_SYNC_ACTION_TIMEOUT = 300;
         public static readonly int DEFAULT_SYNC_SOLVEROTATE_TIMEOUT = 300;
+        public static readonly int DEFAULT_SYNC_AUTOFOCUS_TIMEOUT = 300;
 
         private NamedPipeServer? pipe;
         private string? mutexid;
@@ -52,14 +52,13 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         private SyncManager() {
         }
 
-        public void Start(IProfileService profileService, IFocuserMediator focuserMediator, IFilterWheelMediator filterWheelMediator) {
+        public void Start(IProfileService profileService) {
             string profileId = profileService.ActiveProfile.Id.ToString();
             try {
                 TryStartServer();
 
                 if (IsServer) {
                     SyncServer.Instance.ProfileId = profileId;
-                    SyncServer.Instance.InitSyncAutoFocus(focuserMediator, filterWheelMediator);
                 } else {
                     SyncClient.Instance.Register(profileId);
                 }

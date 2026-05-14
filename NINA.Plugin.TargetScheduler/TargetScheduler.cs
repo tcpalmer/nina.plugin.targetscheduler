@@ -94,9 +94,7 @@ namespace NINA.Plugin.TargetScheduler {
             TSLogger.SetLogLevel(ProfileLogLevel(profileService));
 
             if (SyncEnabled(profileService)) {
-                bool syncedAutoFocus = SyncAutofocusEnabled(profileService);
-                focuserMediator = syncedAutoFocus ? focuserMediator : null;
-                SyncManager.Instance.Start(profileService, focuserMediator, filterWheelMediator);
+                SyncManager.Instance.Start(profileService);
             }
 
             (bool apiEnabled, int apiPort, bool prettyPrint) = APIPrefs(profileService);
@@ -120,11 +118,6 @@ namespace NINA.Plugin.TargetScheduler {
         public static bool SyncEnabled(IProfileService profileService) {
             ProfilePreference profilePreference = new SchedulerPlanLoader(profileService.ActiveProfile).GetProfilePreferences();
             return profilePreference.EnableSynchronization;
-        }
-
-        public bool SyncAutofocusEnabled(IProfileService profileService) {
-            ProfilePreference profilePreference = new SchedulerPlanLoader(profileService.ActiveProfile).GetProfilePreferences();
-            return profilePreference.EnableSyncedAutoFocus;
         }
 
         public static (bool enabled, int port, bool prettyPrint) APIPrefs(IProfileService profileService) {
@@ -290,7 +283,7 @@ namespace NINA.Plugin.TargetScheduler {
                 if (SyncManager.Instance.IsRunning) {
                     SyncManager.Instance.Shutdown();
                     if (SyncEnabled(profileService)) {
-                        SyncManager.Instance.Start(profileService, focuserMediator, filterWheelMediator);
+                        SyncManager.Instance.Start(profileService);
                     }
                 }
 
