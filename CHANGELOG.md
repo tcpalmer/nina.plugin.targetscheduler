@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.9.1.0 - 2026-05-XX
+* Fixed problem with the project max altitude check.
+
 ## 5.9.0.0 - 2026-02-28
 * Exposed read-only API.
 * Fixed issue with detecting future targets allowed by moon avoidance.

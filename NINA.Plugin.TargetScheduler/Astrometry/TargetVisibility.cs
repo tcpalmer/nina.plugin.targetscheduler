@@ -35,13 +35,15 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
         public DateTime Sunrise { get; private set; }
         public int SampleInterval { get; private set; }
         public DateTime TransitTime { get; private set; }
+        public MaximumAltitudeClipper MaxAltitudeClipper { get; private set; }
         public bool ImagingPossible { get; private set; }
         public IList<PositionAtTime> TargetPositions { get; private set; }
 
         public TargetVisibility(ITarget target, ObserverInfo observerInfo, DateTime imagingDate, DateTime? sunset, DateTime? sunrise, int sampleInterval = 10) :
-            this(target.Name, target.DatabaseId, observerInfo, target.Coordinates, imagingDate, sunset, sunrise, sampleInterval) { }
+            this(target.Name, target.DatabaseId, observerInfo, target.Coordinates, imagingDate, sunset, sunrise, target.Project.MaximumAltitude, sampleInterval) { }
 
-        public TargetVisibility(string targetName, int targetId, ObserverInfo observerInfo, Coordinates coordinates, DateTime imagingDate, DateTime? sunset, DateTime? sunrise, int sampleInterval = 10) {
+        public TargetVisibility(string targetName, int targetId, ObserverInfo observerInfo, Coordinates coordinates, DateTime imagingDate,
+            DateTime? sunset, DateTime? sunrise, double maxAltitude = 0, int sampleInterval = 10) {
             if (sunset >= sunrise) {
                 throw new ArgumentException("sunset is after sunrise");
             }
@@ -63,6 +65,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
                 this.ImagingPossible = cached.ImagingPossible;
                 this.TargetPositions = cached.TargetPositions;
                 this.TransitTime = cached.TransitTime;
+                this.MaxAltitudeClipper = cached.MaxAltitudeClipper;
             } else {
                 //Stopwatch stopWatch = new Stopwatch();
                 //stopWatch.Start();
@@ -94,6 +97,7 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
 
                 TransitTime = GetImagingTransitTime(observerInfo, coordinates);
                 TargetPositions = TargetPositions.AsReadOnly();
+                MaxAltitudeClipper = new MaximumAltitudeClipper(this, observerInfo, coordinates, Sunset, Sunrise, maxAltitude);
 
                 //stopWatch.Stop();
                 //TSLogger.Info($"TargetVisibility timing for {cacheKey}:\n*** {stopWatch.Elapsed}");
@@ -171,6 +175,69 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
 
             int pos = FindInterval(atTime, 0, TargetPositions.Count - 1);
             return TargetPositions[pos].Altitude;
+        }
+
+        /// <summary>
+        /// Return true if the maximum altitude is exceeded at any time in the provided time range.
+        /// Otherwise false.
+        /// </summary>
+        /// <param name="fromTime"></param>
+        /// <param name="toTime"></param>
+        /// <param name="maximumAltitude"></param>
+        /// <returns></returns>
+        public (bool maxExceeded, DateTime atTime) XXSCheckMaximumAltitude(DateTime fromTime, DateTime toTime, double maximumAltitude) {
+            if (fromTime > toTime)
+                throw new ArgumentException($"fromTime cannot be after toTime: {fromTime} > {toTime}");
+
+            int pos = FindInterval(fromTime, 0, TargetPositions.Count - 1);
+            PositionAtTime pat = TargetPositions[pos];
+            while (pat.AtTime <= toTime && pos < TargetPositions.Count - 1) {
+                if (pat.Altitude >= maximumAltitude) {
+                    return (true, pat.AtTime);
+                }
+
+                pat = TargetPositions[++pos];
+            }
+
+            return (false, toTime);
+        }
+
+        public TimeInterval MaximumAltitudeExceededInterval(DateTime fromTime, DateTime toTime,
+            ObserverInfo location, Coordinates coordinates, double maximumAltitude) {
+            if (fromTime > toTime)
+                throw new ArgumentException($"fromTime cannot be after toTime: {fromTime} > {toTime}");
+
+            // Quick check: if the altitude at transit never exceeds the project maximum, nothing is clipped
+            double transitAltitude = 90.0 - double.Abs(location.Latitude - coordinates.Dec);
+            if (transitAltitude <= maximumAltitude)
+                return null;
+
+            // We exceed at some point in 24 hours, but might be outside from-to span: see if max is exceeded during the time span
+            int startPos = FindInterval(fromTime, 0, TargetPositions.Count - 1);
+            int endPos = FindInterval(toTime, 0, TargetPositions.Count - 1);
+            int pos = startPos;
+            int exceededStartPos = -1;
+            int exceededEndPos = TargetPositions.Count + 1;
+
+            while (pos <= endPos) {
+                if (TargetPositions[pos].Altitude > maximumAltitude) { exceededStartPos = pos; break; }
+                pos++;
+            }
+
+            if (exceededStartPos == -1)
+                return null;
+
+            // Now we know that we being exceeding at some point in the time span (pos=exceededStartPos): find the end time
+            pos = exceededStartPos;
+            while (pos <= endPos) {
+                if (TargetPositions[pos].Altitude <= maximumAltitude) { exceededEndPos = pos; break; }
+                pos++;
+            }
+
+            if (exceededEndPos == TargetPositions.Count + 1)
+                exceededEndPos = endPos;
+
+            return new TimeInterval(TargetPositions[exceededStartPos].AtTime, TargetPositions[exceededEndPos].AtTime);
         }
 
         /// <summary>
