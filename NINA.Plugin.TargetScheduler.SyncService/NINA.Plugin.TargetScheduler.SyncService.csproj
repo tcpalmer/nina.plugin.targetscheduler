@@ -18,7 +18,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="GrpcDotNetNamedPipes" Version="3.1.0" />
-		<PackageReference Include="NINA.Plugin" Version="3.3.0.1035-nightly" />
+		<PackageReference Include="NINA.Plugin" Version="3.3.0.1037-nightly" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
 	</ItemGroup>
 
