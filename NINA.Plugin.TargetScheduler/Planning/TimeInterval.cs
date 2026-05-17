@@ -35,6 +35,10 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             return new TimeInterval(start, end);
         }
 
+        public bool Contains(DateTime dt) {
+            return dt >= StartTime && dt <= EndTime;
+        }
+
         public override string ToString() {
             return $"{Utils.FormatDateTimeFull(StartTime)} - {Utils.FormatDateTimeFull(EndTime)}";
         }

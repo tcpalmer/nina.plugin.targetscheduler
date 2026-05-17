@@ -231,6 +231,46 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         }
 
         [Test]
+        public void testVisibilityMaxAlt() {
+            // M13 at 43.5°N, May 14 2026; approximate civil twilight times for that date/latitude
+            IProfile profile = GetProfileService();
+            DateTime atTime = new DateTime(2026, 5, 14, 23, 0, 0);
+            DateTime sunset = new DateTime(2026, 5, 14, 21, 0, 0);
+            DateTime sunrise = new DateTime(2026, 5, 15, 5, 30, 0);
+
+            ObserverInfo observer = new ObserverInfo {
+                Latitude = 43.5,
+                Longitude = -79,
+                Elevation = 0
+            };
+
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 30;
+            p1.MaximumAltitude = 65;
+            ITarget t1 = PlanMocks.GetMockPlanTarget("M13", TestData.M13).Object;
+            t1.StartTime = DateTime.MinValue;
+            t1.Project = p1;
+            IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            e1.TwilightLevel = TwilightLevel.Nighttime;
+            t1.ExposurePlans.Add(e1);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+            TargetVisibility viz = new TargetVisibility(t1, observer, atTime, sunset, sunrise, 60);
+            TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observer, atTime);
+
+            // This is time now before the max is exceeded
+            sut.Visibility(atTime, t1, twilightCircumstances, viz).Should().BeTrue();
+            t1.Rejected.Should().BeFalse();
+            t1.StartTime.Should().Be(atTime);
+            t1.EndTime.Should().Be(new DateTime(2026, 5, 15, 0, 20, 0));
+
+            // But starting at midnight, the max alt clips below the min time
+            sut.Visibility(new DateTime(2026, 5, 15, 0, 0, 0), t1, twilightCircumstances, viz).Should().BeFalse();
+            t1.Rejected.Should().BeTrue();
+            t1.RejectedReason.Should().Be(Reasons.TargetMaxAltitude);
+        }
+
+        [Test]
         public void testGetTwilightSpan() {
             IProfile profile = GetProfileService();
             DateTime atTime = new DateTime(2025, 7, 20, 18, 0, 0);
@@ -448,7 +488,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Above max altitude at start but descending and available later
             sut.CheckFuture(t1, GetMoonAvoidanceExpert("L"));
             t1.Rejected.Should().BeFalse();
-            t1.StartTime.Should().BeCloseTo(new DateTime(2024, 10, 16, 1, 57, 58), 1.Seconds());
+            t1.StartTime.Should().BeCloseTo(new DateTime(2024, 10, 16, 1, 57, 8), 1.Seconds());
         }
 
         [Test]

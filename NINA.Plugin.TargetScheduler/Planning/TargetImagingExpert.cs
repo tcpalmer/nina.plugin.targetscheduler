@@ -43,8 +43,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             TargetVisibility targetVisibility = new(target, observerInfo,
                 twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, targetVisibilitySampleInterval);
 
-            if (!Visibility(atTime, target, twilightCircumstances, targetVisibility)) { return false; }
-            return CheckMaximumAltitude(atTime, target, targetVisibility);
+            return Visibility(atTime, target, twilightCircumstances, targetVisibility);
         }
 
         /// <summary>
@@ -114,6 +113,25 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 TSLogger.Debug($"Target not visible for min time after meridian window clip: {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}");
                 SetRejected(target, Reasons.TargetNotVisible);
                 return false;
+            }
+
+            // Check for maximum altitude exceeded
+            if (project.MaximumAltitude != 0) {
+                MaximumAltitudeClipper maxAltitudeClipper = targetVisibility.MaxAltitudeClipper;
+                if (maxAltitudeClipper.IsClipped) {
+                    TimeInterval exceedsMaxInterval = maxAltitudeClipper.ClipInterval;
+
+                    // See if imaging the minimum time is possible before max is exceeded
+                    if (targetStartTime.AddMinutes(project.MinimumTime) < exceedsMaxInterval.StartTime) {
+                        // There is time now before the max is exceeded
+                        targetEndTime = exceedsMaxInterval.StartTime;
+                    } else {
+                        // No time now but might be later
+                        TSLogger.Debug($"Target not visible for min time after max altitude clip: {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}, max alt is {project.MaximumAltitude}");
+                        SetRejected(target, Reasons.TargetMaxAltitude);
+                        return false;
+                    }
+                }
             }
 
             // Special handling when profile specifies a pause before MF.  If pause > 0 and that pause would occur in the visibility
@@ -316,10 +334,16 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             TargetVisibility targetVisibility = new(target, observerInfo,
                 twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, targetVisibilitySampleInterval);
 
-            while (true) {
-                // Check target for maximum altitude, moon avoidance, and twilight at this time
+            // Advance time if currently exceeding a max altitude constraint
+            MaximumAltitudeClipper maxAltClipper = targetVisibility.MaxAltitudeClipper;
+            if (maxAltClipper.IsClipped) {
+                if (maxAltClipper.ClipInterval.Contains(atTime)) {
+                    atTime = maxAltClipper.ClipInterval.EndTime;
+                }
+            }
 
-                CheckMaximumAltitude(atTime, target, targetVisibility);
+            while (true) {
+                // Check target for moon avoidance, and twilight at this time
 
                 if (!target.Rejected) {
                     MoonAvoidanceFilter(atTime, target, moonExpert);
@@ -341,7 +365,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                     return;
                 }
 
-                // Otherwise, advance time and check target visibility at the new time
+                // Otherwise, advance time and check target visibility at the new time (which also rechecks max altitude)
                 atTime = atTime.AddSeconds(targetFutureTestSampleInterval);
                 ClearRejections(target);
                 if (Visibility(atTime, target, twilightCircumstances, targetVisibility)) {

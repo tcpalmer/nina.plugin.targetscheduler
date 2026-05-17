@@ -75,6 +75,17 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         }
 
         [Test]
+        public void TestContains() {
+            DateTime now = DateTime.Now;
+            TimeInterval sut = new TimeInterval(now, now.AddHours(1));
+            sut.Contains(now.AddSeconds(-1)).Should().BeFalse();
+            sut.Contains(now).Should().BeTrue();
+            sut.Contains(now.AddSeconds(1)).Should().BeTrue();
+            sut.Contains(now.AddHours(1)).Should().BeTrue();
+            sut.Contains(now.AddHours(2)).Should().BeFalse();
+        }
+
+        [Test]
         public void TestTotalTimeSpan() {
             DateTime now = DateTime.Now;
             TimeInterval ti1 = new TimeInterval(now, now.AddHours(1));
