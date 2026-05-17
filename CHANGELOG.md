@@ -1,7 +1,8 @@
 # Target Scheduler
 
-## 5.9.1.0 - 2026-05-XX
+## 5.9.1.0 - 2026-05-17
 * Fixed problem with the project max altitude check.
+* Fixed issue with deleting acquired images but not associated thumbnails
 
 ## 5.9.0.0 - 2026-02-28
 * Exposed read-only API.

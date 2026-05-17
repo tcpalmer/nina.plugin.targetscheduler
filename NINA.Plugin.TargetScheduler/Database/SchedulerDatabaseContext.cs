@@ -634,6 +634,8 @@ namespace NINA.Plugin.TargetScheduler.Database {
                         predicate = predicate.And(a => a.TargetId == targetId);
                     }
 
+                    List<int> ids = AcquiredImageSet.Where(predicate).Select(a => a.Id).ToList();
+                    ImageDataSet.RemoveRange(ImageDataSet.Where(d => ids.Contains(d.AcquiredImageId)));
                     AcquiredImageSet.RemoveRange(AcquiredImageSet.Where(predicate));
                     SaveChanges();
                     transaction.Commit();
@@ -649,6 +651,8 @@ namespace NINA.Plugin.TargetScheduler.Database {
                 try {
                     var predicate = PredicateBuilder.New<AcquiredImage>();
                     predicate = predicate.And(a => a.TargetId == targetId);
+                    List<int> ids = AcquiredImageSet.Where(predicate).Select(a => a.Id).ToList();
+                    ImageDataSet.RemoveRange(ImageDataSet.Where(d => ids.Contains(d.AcquiredImageId)));
                     AcquiredImageSet.RemoveRange(AcquiredImageSet.Where(predicate));
                     SaveChanges();
                     transaction.Commit();
