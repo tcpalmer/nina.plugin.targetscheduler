@@ -1,23 +1,24 @@
 # Target Scheduler
 
 ## 5.10.1.0 - 2026-05-XX
-* Added a button to jump from a target view to the reporting section and display the report for that target
+* Added a button to jump from a target view to the reporting section and display the report for that target.
+* Added ability for sync clients to run an autofocus when the sync server is running one.
 
 ## 5.10.0.0 - 2026-05-12
-* Ported to NINA 3.3 (currently the nightly release)
-* Implemented several TS-specific variables for NINA 3.3 expressions
-* Tree toggles colorize and display all or active only are now persisted for each NINA profile
-* Added ability to display the original saved image file from acquired images (not the thumbnail)
-* Added a planning priority field to targets, if not default then it overrides the project priority
-* Added Profile and Project criteria to acquired image record purging
-* Fixed issue with deleting acquired images but not associated thumbnails
+* Ported to NINA 3.3 (currently the nightly release).
+* Implemented several TS-specific variables for NINA 3.3 expressions.
+* Tree toggles colorize and display all or active only are now persisted for each NINA profile.
+* Added ability to display the original saved image file from acquired images (not the thumbnail).
+* Added a planning priority field to targets, if not default then it overrides the project priority.
+* Added Profile and Project criteria to acquired image record purging.
+* Fixed issue with deleting acquired images but not associated thumbnails.
 
 ## 5.9.0.0 - 2026-02-28
 * Exposed read-only API.
 * Fixed issue with detecting future targets allowed by moon avoidance.
 
 ## 5.8.3.2 - 2026-01-06
-* Rebuild with debugging info
+* Rebuild with debugging info.
 
 ## 5.8.3.1 - 2025-12-28
 * Fixed issue with flats mishandling ROI.
