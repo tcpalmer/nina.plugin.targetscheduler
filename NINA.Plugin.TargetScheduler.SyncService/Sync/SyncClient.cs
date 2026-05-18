@@ -148,6 +148,12 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                         return new SyncedEventContainer(response.EventContainerId, eventContainerType);
                     }
 
+                    if (response.AutoFocusReady) {
+                        await AcceptAutoFocus(response.AutoFocusId);
+                        SetClientState(ClientState.Focusing);
+                        return new SyncedAutoFocus(response.AutoFocusId, response.AutoFocusFilterName);
+                    }
+
                     await Task.Delay(SyncManager.CLIENT_ACTION_READY_POLL_PERIOD, token);
                 } catch (Exception e) {
                     if (e is TaskCanceledException || (e is RpcException && e.Message.Contains("Cancelled"))) {
@@ -193,6 +199,23 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                 }
             } catch (Exception e) {
                 TSLogger.Error("SYNC client exception accepting solve/rotate", e);
+            }
+        }
+
+        private async Task AcceptAutoFocus(string autoFocusId) {
+            AutoFocusRequest request = new AutoFocusRequest {
+                Guid = Id,
+                AutoFocusId = autoFocusId
+            };
+
+            try {
+                TSLogger.Info($"SYNC client accepting autofocus: {request.AutoFocusId}");
+                StatusResponse response = await base.AcceptAutoFocusAsync(request);
+                if (!response.Success) {
+                    TSLogger.Error($"SYNC client problem accepting autofocus: {response.Message}");
+                }
+            } catch (Exception e) {
+                TSLogger.Error("SYNC client exception accepting autofocus", e);
             }
         }
 
@@ -245,6 +268,23 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                 }
             } catch (Exception e) {
                 TSLogger.Error("SYNC client exception submitting completed solve/rotate", e);
+            }
+        }
+
+        public async Task CompleteAutoFocus(string autoFocusId) {
+            AutoFocusRequest request = new AutoFocusRequest {
+                Guid = Id,
+                AutoFocusId = autoFocusId
+            };
+
+            try {
+                TSLogger.Info($"SYNC client submitting completed autofocus to server ({request.AutoFocusId})");
+                StatusResponse response = await base.CompleteAutoFocusAsync(request);
+                if (!response.Success) {
+                    TSLogger.Error($"SYNC client problem submitting completed autofocus: {response.Message}");
+                }
+            } catch (Exception e) {
+                TSLogger.Error("SYNC client exception submitting completed autofocus", e);
             }
         }
 
@@ -371,6 +411,16 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         public SyncedEventContainer(string eventContainerId, EventContainerType eventContainerType) {
             EventContainerId = eventContainerId;
             EventContainerType = eventContainerType;
+        }
+    }
+
+    public class SyncedAutoFocus : SyncedAction {
+        public string AutoFocusId { get; private set; }
+        public string FilterName { get; private set; }
+
+        public SyncedAutoFocus(string autoFocusId, string filterName) {
+            AutoFocusId = autoFocusId;
+            FilterName = filterName;
         }
     }
 }

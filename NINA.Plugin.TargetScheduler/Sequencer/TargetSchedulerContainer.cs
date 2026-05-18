@@ -65,6 +65,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private readonly IImagingMediator imagingMediator;
         private readonly IImageSaveMediator imageSaveMediator;
         private readonly IImageHistoryVM imageHistoryVM;
+        private readonly IFocuserMediator focuserMediator;
         private readonly IFilterWheelMediator filterWheelMediator;
         private readonly IDomeMediator domeMediator;
         private readonly IDomeFollower domeFollower;
@@ -76,6 +77,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         private readonly IMessageBroker messageBroker;
         private IImageSaveWatcher imageSaveWatcher;
         private bool synchronizationEnabled;
+        private IProgress<ApplicationStatus> progress;
+        private CancellationToken cancellationToken;
         private WaitStartPublisher waitStartPublisher;
         public TargetCompletePublisher targetCompletePublisher;
         private ContainerStoppedPublisher containerStoppedPublisher;
@@ -110,6 +113,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 IImagingMediator imagingMediator,
                 IImageSaveMediator imageSaveMediator,
                 IImageHistoryVM imageHistoryVM,
+                IFocuserMediator focuserMediator,
                 IFilterWheelMediator filterWheelMediator,
                 IDomeMediator domeMediator,
                 IDomeFollower domeFollower,
@@ -129,6 +133,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             this.imagingMediator = imagingMediator;
             this.imageSaveMediator = imageSaveMediator;
             this.imageHistoryVM = imageHistoryVM;
+            this.focuserMediator = focuserMediator;
             this.filterWheelMediator = filterWheelMediator;
             this.domeMediator = domeMediator;
             this.domeFollower = domeFollower;
@@ -160,6 +165,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             waitStartPublisher = new WaitStartPublisher(messageBroker);
             targetCompletePublisher = new TargetCompletePublisher(messageBroker);
             containerStoppedPublisher = new ContainerStoppedPublisher(messageBroker);
+
+            TargetScheduler.EventMediator.ContainerStarting += EventMediator_ContainerStarting;
+            TargetScheduler.EventMediator.ContainerStopping += EventMediator_ContainerStopping;
 
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.LocationChanged), ProfileService_LocationChanged);
             WeakEventManager<IProfileService, EventArgs>.AddHandler(profileService, nameof(profileService.HorizonChanged), ProfileService_HorizonChanged);
@@ -255,11 +263,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         public override async Task Execute(IProgress<ApplicationStatus> progress, CancellationToken token) {
             TSLogger.Debug("TargetSchedulerContainer: Execute");
+            this.Progress = progress;
+            this.CancellationToken = token;
 
             PauseEnabled = true;
+            profilePreferences = GetProfilePreferences();
             TargetScheduler.EventMediator.InvokeContainerStarting(this);
 
-            profilePreferences = GetProfilePreferences();
             DateTime atTime = GetPlannerTime(DateTime.Now, DateTime.Now.Date.AddHours(13));
 
             if (profilePreferences.EnableSimulatedRun) {
@@ -435,6 +445,33 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 UnpauseRequested = false;
                 progress?.Report(new ApplicationStatus() { Status = "" });
             }
+        }
+
+        private SyncFocuserConsumer syncFocuserConsumer;
+
+        private void EventMediator_ContainerStarting(object sender, EventArgs e) {
+            if (syncAutoFocusEnabled()) {
+                syncFocuserConsumer = new SyncFocuserConsumer(focuserMediator, filterWheelMediator, progress, cancellationToken);
+                syncFocuserConsumer.ContainerStarting(progress, cancellationToken);
+            }
+        }
+
+        private void EventMediator_ContainerStopping(object sender, EventArgs e) {
+            if (syncAutoFocusEnabled()) {
+                syncFocuserConsumer.ContainerStopping();
+                syncFocuserConsumer?.Dispose();
+                syncFocuserConsumer = null;
+            }
+        }
+
+        private bool syncAutoFocusEnabled() {
+            if (profilePreferences != null) {
+                return profilePreferences.EnableSynchronization
+                    && profilePreferences.EnableSyncedAutoFocus
+                    && SyncManager.Instance.RunningServer;
+            }
+
+            return false;
         }
 
         private DateTime GetPlannerTime(DateTime actualTime, DateTime simulatedTime) {
@@ -766,6 +803,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public string CoordinatesDisplay { get; private set; }
         public string StopAtDisplay { get; private set; }
 
+        public IProgress<ApplicationStatus> Progress { get => progress; private set => progress = value; }
+        public CancellationToken CancellationToken { get => cancellationToken; private set => cancellationToken = value; }
+
         private void Target_OnCoordinatesChanged(object sender, EventArgs e) {
             AfterParentChanged();
         }
@@ -814,6 +854,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 cloneMe.imagingMediator,
                 cloneMe.imageSaveMediator,
                 cloneMe.imageHistoryVM,
+                cloneMe.focuserMediator,
                 cloneMe.filterWheelMediator,
                 cloneMe.domeMediator,
                 cloneMe.domeFollower,
@@ -839,6 +880,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                 imagingMediator,
                 imageSaveMediator,
                 imageHistoryVM,
+                focuserMediator,
                 filterWheelMediator,
                 domeMediator,
                 domeFollower,

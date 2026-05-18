@@ -1,5 +1,6 @@
 ﻿using Grpc.Core;
 using NINA.Astrometry;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using Scheduler.SyncService;
 using System.Collections.Concurrent;
@@ -16,7 +17,8 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         ExposureReady,
         SolveRotateReady,
         EndSyncContainers,
-        EventContainerReady
+        EventContainerReady,
+        AutoFocusReady
     }
 
     public class SyncServer : SchedulerSync.SchedulerSyncBase {
@@ -29,11 +31,14 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         private ClientActiveState clientActiveExposures = new ClientActiveState();
         private ClientActiveState clientActiveSolveRotates = new ClientActiveState();
         private ClientActiveState clientActiveEventContainers = new ClientActiveState();
+        private ClientActiveState clientActiveAutoFocuses = new ClientActiveState();
 
         public ServerState State { get; set; }
         public string ProfileId { get; internal set; }
 
         private ActionResponse activeActionResponse;
+        private IFocuserMediator? focuserMediator;
+        private IFilterWheelMediator? filterWheelMediator;
         private CancellationTokenSource staleClientPurgeCts;
 
         public SyncServer() {
@@ -108,7 +113,8 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
                     ActionResponse response = (
                         State == ServerState.ExposureReady ||
                         State == ServerState.SolveRotateReady ||
-                        State == ServerState.EventContainerReady) ?
+                        State == ServerState.EventContainerReady ||
+                        State == ServerState.AutoFocusReady) ?
                                                 activeActionResponse :
                                                 new ActionResponse { Success = true, ExposureReady = false, Terminate = false, EventContainer = false };
 
@@ -299,6 +305,106 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
             } else {
                 TSLogger.Warning($"SYNC server client not found in active event container list: {request.Guid}");
                 return Task.FromResult(new StatusResponse { Success = false, Message = "client not found in active event container list" });
+            }
+        }
+
+        public async Task SyncAutoFocus(string autoFocusId, string filterName, int syncActionTimeout, CancellationToken token) {
+            activeActionResponse = new ActionResponse {
+                Success = true,
+                ExposureReady = false,
+                SolveRotateReady = false,
+                Terminate = false,
+                EventContainer = false,
+                AutoFocusReady = true,
+                AutoFocusId = autoFocusId,
+                AutoFocusFilterName = filterName
+            };
+
+            SetServerState(ServerState.AutoFocusReady);
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            TimeSpan timeout = TimeSpan.FromSeconds(syncActionTimeout);
+
+            TSLogger.Info($"SYNC server informing clients of autofocus ({autoFocusId}), timeout {timeout.TotalSeconds}s");
+
+            while (NotTimedOut(stopwatch, timeout)) {
+                if (AllClientsInState(ClientState.Focusing)) {
+                    TSLogger.Info("SYNC server all clients now focusing, continuing");
+                    SetServerState(ServerState.Ready);
+                    activeActionResponse = new ActionResponse { Success = true, ExposureReady = false, SolveRotateReady = false, Terminate = false, EventContainer = false };
+                    SetClientActiveAutoFocusList(autoFocusId);
+                    return;
+                }
+
+                await Task.Delay(SyncManager.SERVER_AWAIT_AUTOFOCUS_POLL_PERIOD, token);
+            }
+
+            TSLogger.Warning($"SYNC server timed out waiting for one or more clients to accept autofocus ({autoFocusId}), continuing");
+        }
+
+        public override Task<StatusResponse> AcceptAutoFocus(AutoFocusRequest request, ServerCallContext context) {
+            TSLogger.Info($"SYNC server accepted autofocus ({request.AutoFocusId}) from client ({request.Guid})");
+            registeredClients[request.Guid].SetState(ClientState.Focusing);
+            return Task.FromResult(new StatusResponse { Success = true, Message = "" });
+        }
+
+        public override Task<StatusResponse> CompleteAutoFocus(AutoFocusRequest request, ServerCallContext context) {
+            TSLogger.Info($"SYNC server received completed autofocus ({request.AutoFocusId}) from client ({request.Guid})");
+
+            if (RemoveClientFromActiveAutoFocusList(request.Guid, request.AutoFocusId)) {
+                registeredClients[request.Guid].SetState(ClientState.Actionready);
+                return Task.FromResult(new StatusResponse { Success = true, Message = "" });
+            } else {
+                TSLogger.Warning($"SYNC server client not found in active autofocus list: {request.Guid}");
+                return Task.FromResult(new StatusResponse { Success = false, Message = "client not found in active autofocus list" });
+            }
+        }
+
+        public async Task WaitForClientAutoFocusCompletion(string autoFocusId, int syncAutoFocusTimeout, CancellationToken token) {
+            if (clientActiveAutoFocuses.IsEmpty()) {
+                TSLogger.Warning("SYNC server not waiting on any clients for completed autofocus");
+                return;
+            }
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            TimeSpan timeout = TimeSpan.FromSeconds(syncAutoFocusTimeout);
+            TSLogger.Info($"SYNC server waiting for all clients to complete autofocus: {autoFocusId}, timeout {syncAutoFocusTimeout}s");
+
+            while (NotTimedOut(stopwatch, timeout)) {
+                if (clientActiveAutoFocuses.IsEmpty()) {
+                    TSLogger.Info($"SYNC server all clients have completed autofocus: {autoFocusId}");
+                    return;
+                }
+
+                await Task.Delay(SyncManager.SERVER_AWAIT_AUTOFOCUS_COMPLETE_POLL_PERIOD, token);
+            }
+
+            TSLogger.Warning($"SYNC server timed out waiting for all clients to complete autofocus: {autoFocusId}, clearing wait list and continuing.  Remaining was:");
+            clientActiveAutoFocuses.Log();
+            clientActiveAutoFocuses.Clear();
+        }
+
+        private void SetClientActiveAutoFocusList(string autoFocusId) {
+            lock (lockObj) {
+                clientActiveAutoFocuses.Clear();
+                foreach (SyncClientInstance client in registeredClients.Values) {
+                    if (client.ClientState == ClientState.Focusing) {
+                        clientActiveAutoFocuses.Add(client.Guid, autoFocusId);
+                    }
+                }
+
+                clientActiveAutoFocuses.Log();
+            }
+        }
+
+        private bool RemoveClientFromActiveAutoFocusList(string clientId, string autoFocusId) {
+            lock (lockObj) {
+                if (clientActiveAutoFocuses.ContainsKey(clientId)) {
+                    clientActiveAutoFocuses.Remove(clientId, autoFocusId);
+                    clientActiveAutoFocuses.Log();
+                    return true;
+                }
+
+                return false;
             }
         }
 

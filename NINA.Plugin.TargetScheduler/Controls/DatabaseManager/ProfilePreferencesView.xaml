@@ -610,11 +610,11 @@
                             FontWeight="Bold" />
                         <UniformGrid
                             Width="320"
-                            Height="110"
+                            Height="132"
                             Margin="12,0,0,6"
                             HorizontalAlignment="Left"
                             Columns="2"
-                            Rows="5">
+                            Rows="6">
 
                             <TextBlock
                                 VerticalAlignment="Center"
@@ -630,6 +630,22 @@
                                 MaxHeight="20"
                                 Margin="3,3,0,0"
                                 Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSynchronization}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Enable Synced Autofocus"
+                                ToolTip="If true, then this sync client profile will perform autofocus when triggered by the sync server" />
+                            <CheckBox
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding Path=ProfilePreferenceProxy.ProfilePreference.EnableSyncedAutoFocus, Mode=TwoWay}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.EnableSyncedAutoFocus}"
                                 Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
 
                             <TextBlock

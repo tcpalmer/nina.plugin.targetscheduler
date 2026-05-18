@@ -34,7 +34,8 @@
       "PowerShell(curl.exe -s \"https://api.github.com/repos/isbeorn/nina/contents/NINA.Image/Interfaces\")",
       "Bash(dotnet build *)",
       "Bash(powershell -Command \"Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/isbeorn/nina/develop/NINA.WPF.Base/Resources/StaticResources/SVGDictionary.xaml' -OutFile 'C:\\\\temp\\\\svgdict.xaml'; Get-Content 'C:\\\\temp\\\\svgdict.xaml' | Measure-Object -Line\")",
-      "PowerShell($content = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/isbeorn/nina/develop/NINA.WPF.Base/Resources/StaticResources/SVGDictionary.xaml' -UseBasicParsing | Select-Object -ExpandProperty Content; $content.Length)"
+      "PowerShell($content = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/isbeorn/nina/develop/NINA.WPF.Base/Resources/StaticResources/SVGDictionary.xaml' -UseBasicParsing | Select-Object -ExpandProperty Content; $content.Length)",
+      "Bash(xargs grep -l \"class.*SequenceTrigger\")"
     ]
   }
 }

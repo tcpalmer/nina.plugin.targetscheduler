@@ -25,6 +25,8 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         public static readonly int SERVER_AWAIT_SOLVEROTATE_COMPLETE_POLL_PERIOD = 1000;
         public static readonly int SERVER_AWAIT_EVENTCONTAINER_POLL_PERIOD = 1000;
         public static readonly int SERVER_AWAIT_EVENTCONTAINER_COMPLETE_POLL_PERIOD = 1000;
+        public static readonly int SERVER_AWAIT_AUTOFOCUS_POLL_PERIOD = 1000;
+        public static readonly int SERVER_AWAIT_AUTOFOCUS_COMPLETE_POLL_PERIOD = 1000;
         public static readonly int CLIENT_KEEPALIVE_PERIOD = 3000;
         public static readonly int CLIENT_WAIT_POLL_PERIOD = 1000;
         public static readonly int CLIENT_ACTION_READY_POLL_PERIOD = 3000;
@@ -33,6 +35,7 @@ namespace NINA.Plugin.TargetScheduler.SyncService.Sync {
         public static readonly int DEFAULT_SYNC_WAIT_TIMEOUT = 300;
         public static readonly int DEFAULT_SYNC_ACTION_TIMEOUT = 300;
         public static readonly int DEFAULT_SYNC_SOLVEROTATE_TIMEOUT = 300;
+        public static readonly int DEFAULT_SYNC_AUTOFOCUS_TIMEOUT = 300;
 
         private NamedPipeServer? pipe;
         private string? mutexid;

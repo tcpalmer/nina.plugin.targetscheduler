@@ -6,6 +6,10 @@ This file is a guide for coding agents working in 'NINA.Plugin.TargetScheduler.s
 
 This guide covers all projects listed in 'NINA.Plugin.TargetScheduler.sln'.
 
+## Implicit Command Approvals
+
+Proceed without asking for confirmation before running any read-only operation — shell commands, web fetches, file reads, build verification. Ask first for anything that writes to disk, modifies remote state, or could be destructive. If the intent is ambiguous, ask.
+
 ## Overview
 
 NINA.Plugin.TargetScheduler (aka 'Target Scheduler', aka 'TS') is a plugin for the NINA astrophotography application.
@@ -38,6 +42,16 @@ The NINA repository is https://github.com/isbeorn/nina. However, all TS interact
 - For XAML, follow surrounding file style; no repo-wide XAML formatter configuration is checked in.
 - Prefer modern C# supported by the target project. For new or refactored MVVM code, prefer `CommunityToolkit.Mvvm` where it fits instead of expanding legacy relay-command patterns.
 - Remove any unused `using` directives before saving a file.
+
+## When Making Changes
+
+- **Protected branches**: If the current branch is `main` or `release/nightly-3.3`, refuse all code changes and warn the user. Read-only tasks — analysis, research, design discussion — are permitted on any branch.
+- Scope each change to the stated task only. Don't fix unrelated issues, restructure surrounding code, or expand the footprint beyond what was asked.
+- Surface ambiguities before writing code rather than making assumptions. One clarifying question upfront beats an unwanted implementation.
+- Propose targeted refactorings only when they directly serve the current task, and always call them out explicitly so the user can accept or skip them.
+- After any code change, verify the project builds without new errors before reporting the task complete.
+- Run affected tests when modifying logic that has test coverage; add tests for new behaviour where a clear test exists nearby to follow.
+- Don't add new NuGet package dependencies without explicit approval.
 
 ## Plugin Components
 
@@ -111,6 +125,62 @@ Synchronization allows multiple NINA instances on the same machine to coordinate
 **Sequencer integration** (`Sequencer/`): `TargetSchedulerSyncContainer.cs` (sync-aware sequence container), `SyncTakeExposure.cs`, `TargetSchedulerSyncWait.cs`.
 
 Sync is opt-in and initialized via `SyncEnabled()` in `TargetScheduler.cs`. The server/client role is determined by plugin preferences at startup.
+
+#### Adding a new synced feature
+
+Each synced feature follows the same pattern. Use `SyncSolveRotate` or `SyncAutoFocus` as the reference implementation. A new feature called `Foo` requires changes to five files, in this order:
+
+**1. `Protos/schedulersync.proto`** — update the protocol first, before touching any C# code.
+- Add a new `FooRequest` message (fields: `guid`, `fooId`; mirror `SolveRotateRequest`).
+- Add `fooReady` (bool) and `fooId` (string) fields — and any extra data the client needs — to `ActionResponse`, using the next available field numbers.
+- Add `rpc AcceptFoo (FooRequest) returns (StatusResponse)` and `rpc CompleteFoo (FooRequest) returns (StatusResponse)` to the service.
+- If the client needs a new `ClientState` value, add it to the `ClientState` enum in the proto (not in C#).
+- **Build the SyncService project** (`dotnet build`) after editing the proto. `Grpc.Tools` regenerates the C# stubs automatically; downstream code referencing new generated types won't compile until this build succeeds.
+
+**2. `SyncManager.cs`** — add two poll-period constants:
+```csharp
+public static readonly int SERVER_AWAIT_FOO_POLL_PERIOD = 1000;
+public static readonly int SERVER_AWAIT_FOO_COMPLETE_POLL_PERIOD = 1000;
+```
+
+**3. `SyncServer.cs`** — add six pieces:
+- `AutoFocusReady` → `FooReady` in the `ServerState` enum.
+- `private ClientActiveState clientActiveFoos = new ClientActiveState();` field.
+- Include `State == ServerState.FooReady` in the `RequestAction` condition that returns `activeActionResponse`.
+- `public async Task SyncFoo(string fooId, ..., int syncActionTimeout, CancellationToken token)` — sets `activeActionResponse` with `FooReady = true` and any extra fields, sets server state to `FooReady`, polls `AllClientsInState(ClientState.Foo)` until all clients have accepted or timeout.
+- `public override Task<StatusResponse> AcceptFoo(FooRequest request, ServerCallContext context)` — sets client state to the new `ClientState.Foo` value.
+- `public override Task<StatusResponse> CompleteFoo(FooRequest request, ServerCallContext context)` — calls `RemoveClientFromActiveFooList`, sets client state to `Actionready`.
+- `public async Task WaitForClientFooCompletion(string fooId, int timeout, CancellationToken token)` — polls `clientActiveFoos.IsEmpty()`.
+- Private helpers `SetClientActiveFooList` and `RemoveClientFromActiveFooList` (copy from the SolveRotate equivalents).
+
+**4. `SyncClient.cs`** — add three pieces:
+- `public class SyncedFoo : SyncedAction` with whatever properties clients need (at minimum, `FooId`).
+- `private async Task AcceptFoo(string fooId)` — sends `FooRequest` via `base.AcceptFooAsync`.
+- `public async Task CompleteFoo(string fooId)` — sends `FooRequest` via `base.CompleteFooAsync`.
+- In `StartRequestAction()`, add a dispatch branch after the other `if (response.XxxReady)` blocks:
+```csharp
+if (response.FooReady) {
+    await AcceptFoo(response.FooId);
+    SetClientState(ClientState.Foo);
+    return new SyncedFoo(response.FooId, /* other fields */);
+}
+```
+
+**5. `TargetSchedulerSyncContainer.cs`** — wire up the client side:
+- Add a detection block in the `Execute` loop after the other `syncedAction is SyncedXxx` blocks:
+```csharp
+if (syncedAction is SyncedFoo syncedFoo) {
+    DisplayText = "Running synced foo";
+    TSLogger.Info($"SYNC client received foo: {syncedFoo.FooId}");
+    await DoSyncedFoo(syncedFoo, progress, token);
+}
+```
+- Implement `DoSyncedFoo` to perform the actual work and then call `SyncClient.Instance.CompleteFoo(syncedFoo.FooId)`.
+
+**Key design notes:**
+- `ActionResponse` goes **server → client** (carries what the client should do). `FooRequest` goes **client → server** (acknowledgement/completion).
+- `ClientActiveState` is a `ConcurrentDictionary` that tracks which registered clients are still executing an action. `SetClientActiveFooList` populates it from clients currently in the `Foo` state; `RemoveClientFromActiveFooList` removes one entry as each client calls `CompleteFoo`.
+- `ServerState` is a C#-only enum in `SyncServer.cs`; `ClientState` lives in the proto and is shared across the wire.
 
 ### API
 

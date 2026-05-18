@@ -15,9 +15,11 @@ service SchedulerSync {
 	rpc AcceptExposure (ExposureRequest) returns (StatusResponse);
 	rpc AcceptSolveRotate (SolveRotateRequest) returns (StatusResponse);
 	rpc AcceptEventContainer (EventContainerRequest) returns (StatusResponse);
+	rpc AcceptAutoFocus (AutoFocusRequest) returns (StatusResponse);
 	rpc CompleteExposure (ExposureRequest) returns (StatusResponse);
 	rpc CompleteSolveRotate (SolveRotateRequest) returns (StatusResponse);
 	rpc CompleteEventContainer (EventContainerRequest) returns (StatusResponse);
+	rpc CompleteAutoFocus (AutoFocusRequest) returns (StatusResponse);
 	rpc Keepalive (ClientIdRequest) returns (StatusResponse);
 }
 
@@ -30,7 +32,7 @@ enum ClientState {
 	SOLVING = 5;
 	ENDING = 6;
 	EVENTCONTAINER = 7;
-
+	FOCUSING = 8;
 }
 
 message RegistrationRequest {
@@ -79,6 +81,9 @@ message ActionResponse {
 	bool eventContainer = 15;
 	string eventContainerType = 16;
 	string eventContainerId = 17;
+	bool autoFocusReady = 18;
+	string autoFocusId = 19;
+	string autoFocusFilterName = 20;
 }
 
 message ExposureRequest {
@@ -95,4 +100,9 @@ message EventContainerRequest {
 	string guid = 1;
 	string eventContainerId = 2;
 	string eventContainerType = 3;
+}
+
+message AutoFocusRequest {
+	string guid = 1;
+	string autoFocusId = 2;
 }

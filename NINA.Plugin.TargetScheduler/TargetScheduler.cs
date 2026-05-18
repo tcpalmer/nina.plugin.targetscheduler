@@ -2,6 +2,7 @@
 using NINA.Core.Model;
 using NINA.Core.Utility;
 using NINA.Equipment.Interfaces;
+using NINA.Equipment.Interfaces.Mediator;
 using NINA.Image.Interfaces;
 using NINA.Plugin.Interfaces;
 using NINA.Plugin.TargetScheduler.API;
@@ -51,6 +52,8 @@ namespace NINA.Plugin.TargetScheduler {
         private IFramingAssistantVM framingAssistantVM;
         private IDeepSkyObjectSearchVM deepSkyObjectSearchVM;
         private IPlanetariumFactory planetariumFactory;
+        private IFocuserMediator focuserMediator;
+        private IFilterWheelMediator filterWheelMediator;
 
         [ImportingConstructor]
         public TargetScheduler(IProfileService profileService,
@@ -60,6 +63,8 @@ namespace NINA.Plugin.TargetScheduler {
             IFramingAssistantVM framingAssistantVM,
             IDeepSkyObjectSearchVM deepSkyObjectSearchVM,
             IPlanetariumFactory planetariumFactory,
+            IFocuserMediator focuserMediator,
+            IFilterWheelMediator filterWheelMediator,
             IImageDataFactory imageDataFactory) {
             if (Properties.Settings.Default.UpdateSettings) {
                 Properties.Settings.Default.Upgrade();
@@ -71,6 +76,8 @@ namespace NINA.Plugin.TargetScheduler {
             this.applicationMediator = applicationMediator;
             this.framingAssistantVM = framingAssistantVM;
             this.deepSkyObjectSearchVM = deepSkyObjectSearchVM;
+            this.focuserMediator = focuserMediator;
+            this.filterWheelMediator = filterWheelMediator;
             this.planetariumFactory = planetariumFactory;
             ImageDataFactory = imageDataFactory;
 
