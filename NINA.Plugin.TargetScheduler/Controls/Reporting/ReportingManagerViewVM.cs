@@ -10,6 +10,8 @@ using NINA.WPF.Base.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +31,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         public ReportingManagerViewVM(IProfileService profileService) : base(profileService) {
             database = new SchedulerDatabaseInteraction();
             RefreshTableCommand = new RelayCommand(RefreshTable);
+            ShowProfileSummaryCommand = new RelayCommand(ShowProfileSummary);
+            OpenInBrowserCommand = new RelayCommand(OpenProfileSummaryInBrowser);
             InitializeCriteria();
 
             ReportRowCollection = new ReportRowCollection();
@@ -94,12 +98,14 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 selectedProjectId = 0;
                 selectedTargetId = 0;
 
+                ClearProfileSummary();
                 ProjectChoices = GetProjectChoices(selectedProfileId);
                 TargetChoices = GetTargetChoices(selectedProjectId);
 
                 RaisePropertyChanged(nameof(SelectedProfileId));
                 RaisePropertyChanged(nameof(SelectedProjectId));
                 RaisePropertyChanged(nameof(SelectedTargetId));
+                RaisePropertyChanged(nameof(IsProfileSelected));
             }
         }
 
@@ -193,6 +199,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             get => selectedTargetId;
             set {
                 selectedTargetId = value;
+                if (selectedTargetId != 0) ClearProfileSummary();
                 SelectedTarget = selectedTargetId != 0 ? GetTarget(selectedTargetId) : null;
                 RaisePropertyChanged(nameof(SelectedTargetId));
                 _ = LoadRecords();
@@ -212,12 +219,75 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         }
 
         public ICommand RefreshTableCommand { get; private set; }
+        public ICommand ShowProfileSummaryCommand { get; private set; }
+        public ICommand OpenInBrowserCommand { get; private set; }
+
+        public bool IsProfileSelected => selectedProfileId != null && selectedProfileId != PROFILE_ANY;
+
+        private string profileSummaryHeader;
+
+        public string ProfileSummaryHeader {
+            get => profileSummaryHeader;
+            set {
+                profileSummaryHeader = value;
+                RaisePropertyChanged(nameof(ProfileSummaryHeader));
+            }
+        }
+
+        private string profileSummaryText;
+
+        public string ProfileSummaryText {
+            get => profileSummaryText;
+            set {
+                profileSummaryText = value;
+                RaisePropertyChanged(nameof(ProfileSummaryText));
+                RaisePropertyChanged(nameof(IsShowingProfileSummary));
+            }
+        }
+
+        public bool IsShowingProfileSummary => !string.IsNullOrEmpty(profileSummaryText);
+
+        private void ClearProfileSummary() {
+            profileSummaryHeader = null;
+            profileSummaryText = null;
+            RaisePropertyChanged(nameof(ProfileSummaryHeader));
+            RaisePropertyChanged(nameof(ProfileSummaryText));
+            RaisePropertyChanged(nameof(IsShowingProfileSummary));
+        }
+
+        private void OpenProfileSummaryInBrowser() {
+            var choice = profileChoices?.FirstOrDefault(c => c.Key == selectedProfileId);
+            string profileName = choice?.Value ?? selectedProfileId;
+            try {
+                string htmlPath = ProfileSummaryHTMLReport.Generate(selectedProfileId, profileName, database);
+                TSLogger.Debug($"opening profile summary report in browser: {htmlPath}");
+                Process p = new Process();
+                p.StartInfo.UseShellExecute = true;
+                p.StartInfo.FileName = htmlPath;
+                p.Start();
+            } catch (Exception ex) {
+                TSLogger.Error($"exception opening profile summary in browser: {ex.Message} {ex.StackTrace}");
+            }
+        }
 
         private void RefreshTable() {
             SelectedTargetId = 0;
             SelectedProjectId = 0;
             InitializeCriteria();
             _ = LoadRecords();
+        }
+
+        private void ShowProfileSummary() {
+            var choice = profileChoices?.FirstOrDefault(c => c.Key == selectedProfileId);
+            ProfileSummaryHeader = $"Profile Summary: {choice?.Value ?? selectedProfileId}";
+
+            _ = Task.Run(() => {
+                try {
+                    ProfileSummaryText = ProfileSummaryReport.Generate(selectedProfileId, database);
+                } catch (Exception ex) {
+                    TSLogger.Error($"exception generating profile summary: {ex.Message} {ex.StackTrace}");
+                }
+            });
         }
 
         private ReportRowCollection reportRowCollection;

@@ -47,15 +47,36 @@
                                    VerticalAlignment="Center"
                                    FontWeight="Bold"
                                    Text="Profile" />
-                        <ComboBox Grid.Row="0"
-                                  Grid.Column="1"
-                                  MinWidth="233"
-                                  HorizontalAlignment="Left"
-                                  VerticalAlignment="Center"
-                                  DisplayMemberPath="Value"
-                                  ItemsSource="{Binding ProfileChoices}"
-                                  SelectedValue="{Binding SelectedProfileId}"
-                                  SelectedValuePath="Key" />
+                        <StackPanel Grid.Row="0"
+                                    Grid.Column="1"
+                                    Orientation="Horizontal">
+                            <ComboBox MinWidth="233"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      DisplayMemberPath="Value"
+                                      ItemsSource="{Binding ProfileChoices}"
+                                      SelectedValue="{Binding SelectedProfileId}"
+                                      SelectedValuePath="Key" />
+                            <Button Margin="10,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding ShowProfileSummaryCommand}"
+                                    IsEnabled="{Binding IsProfileSelected}"
+                                    Style="{StaticResource BackgroundButton}"
+                                    ToolTip="Generate a summary of exposure progress for the selected profile">
+                                <StackPanel Orientation="Horizontal">
+                                    <Grid Width="18"
+                                          Height="18">
+                                        <Path Data="{StaticResource SS_ReportSVG}"
+                                              Fill="{StaticResource ButtonForegroundBrush}"
+                                              Stretch="Uniform" />
+                                    </Grid>
+                                    <TextBlock Margin="5,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Text="Show Profile Summary Report" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
 
                         <TextBlock Grid.Row="1"
                                    Grid.Column="0"
@@ -127,6 +148,41 @@
         </Grid>
 
         <StackPanel Visibility="{Binding TableLoading, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
+
+            <StackPanel Visibility="{Binding IsShowingProfileSummary, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock MaxWidth="500"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Text="{Binding ProfileSummaryHeader}" />
+                    <Button Margin="10,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Command="{Binding OpenInBrowserCommand}"
+                            Style="{StaticResource BackgroundButton}"
+                            ToolTip="Open in browser">
+                        <Grid Width="18"
+                              Height="18">
+                            <Path Data="{StaticResource SS_HtmlSVG}"
+                                  Fill="{StaticResource ButtonForegroundBrush}"
+                                  Stretch="Uniform" />
+                        </Grid>
+                    </Button>
+                </StackPanel>
+                <ScrollViewer MaxHeight="600"
+                              Margin="0,10,0,0"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+                    <TextBlock FontFamily="Consolas"
+                               FontSize="13"
+                               Text="{Binding ProfileSummaryText}"
+                               TextWrapping="NoWrap" />
+                </ScrollViewer>
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding IsShowingProfileSummary, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}">
             <TextBlock MaxWidth="500"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Center"
@@ -576,6 +632,8 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+            </StackPanel>
+
         </StackPanel>
     </StackPanel>
 </UserControl>
