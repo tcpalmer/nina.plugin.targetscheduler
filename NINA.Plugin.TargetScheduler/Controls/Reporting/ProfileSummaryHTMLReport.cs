@@ -72,6 +72,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             sb.AppendLine("            border-top: none;");
             sb.AppendLine("            padding: 15px;");
             sb.AppendLine("        }");
+            sb.AppendLine("        details > summary { list-style: none; cursor: pointer; user-select: none; }");
+            sb.AppendLine("        details > summary::-webkit-details-marker { display: none; }");
+            sb.AppendLine("        details > summary::marker { display: none; }");
+            sb.AppendLine("        .toggle-arrow { display: inline-block; transition: transform 0.15s ease; }");
+            sb.AppendLine("        details[open] > summary .toggle-arrow { transform: rotate(90deg); }");
             sb.AppendLine("        .project-block { margin-bottom: 24px; }");
             sb.AppendLine("        .project-header {");
             sb.AppendLine("            background-color: #2a2a2a;");
@@ -152,8 +157,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 suffixHtml = "";
             }
 
-            sb.AppendLine("        <div class=\"project-block\">");
-            sb.AppendLine($"            <div class=\"project-header\">{HtmlEncode(pRow.project.Name)} ({pctHtml}{suffixHtml})</div>");
+            sb.AppendLine("        <details class=\"project-block\">");
+            sb.AppendLine($"            <summary class=\"project-header\"><span class=\"toggle-arrow\">&#9658;</span> {HtmlEncode(pRow.project.Name)} ({pctHtml}{suffixHtml})</summary>");
 
             var targetRows = new List<(Target target, double percent, bool provisional)>();
             foreach (var target in pRow.project.Targets ?? new List<Target>()) {
@@ -169,15 +174,15 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 AppendTarget(sb, tRow, pRow.helper);
             }
 
-            sb.AppendLine("        </div>");
+            sb.AppendLine("        </details>");
         }
 
         private static void AppendTarget(StringBuilder sb, (Target target, double percent, bool provisional) tRow, ExposureCompletionHelper helper) {
             string pctHtml = $"<span class=\"pct\">{tRow.percent:F2}%</span>";
             string suffixHtml = tRow.provisional ? " <span class=\"pregrad\">pre-grading</span>" : "";
 
-            sb.AppendLine("            <div class=\"target-block\">");
-            sb.AppendLine($"                <div class=\"target-header\">&#9658; {HtmlEncode(tRow.target.Name)} ({pctHtml}{suffixHtml})</div>");
+            sb.AppendLine("            <details class=\"target-block\">");
+            sb.AppendLine($"                <summary class=\"target-header\"><span class=\"toggle-arrow\">&#9658;</span> {HtmlEncode(tRow.target.Name)} ({pctHtml}{suffixHtml})</summary>");
 
             var epRows = (tRow.target.ExposurePlans ?? new List<ExposurePlan>())
                 .Select(ep => new {
@@ -203,7 +208,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 sb.AppendLine("                </table>");
             }
 
-            sb.AppendLine("            </div>");
+            sb.AppendLine("            </details>");
         }
 
         private static void AppendEpilogue(StringBuilder sb) {

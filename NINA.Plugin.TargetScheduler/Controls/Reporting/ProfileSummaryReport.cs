@@ -85,7 +85,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 }
             }
 
-            TSLogger.Debug($"generated profile summary report for {}");
+            TSLogger.Debug($"generated profile summary report for profile {profileId}");
             return sb.ToString();
         }
 
