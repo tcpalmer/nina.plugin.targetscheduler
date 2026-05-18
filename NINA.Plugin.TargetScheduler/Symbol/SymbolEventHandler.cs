@@ -1,4 +1,5 @@
 ﻿using NINA.Plugin.TargetScheduler.Sequencer;
+using NINA.Plugin.TargetScheduler.SyncService.Sync;
 using System;
 using System.Reflection;
 
@@ -14,6 +15,9 @@ namespace NINA.Plugin.TargetScheduler.Symbol {
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CONTAINER_RUNNING, false);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CONTAINER_WAITING, false);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CONTAINER_PAUSED, false);
+            //_publisher.AddOrUpdate(SymbolPublisher.SYMBOL_API_ENABLED, ???);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_SYNC_SERVER, SyncManager.Instance.RunningServer);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_SYNC_CLIENT, SyncManager.Instance.RunningClient);
 
             eventMediator.ContainerStarting += EventMediator_ContainerStarting;
             eventMediator.ContainerStopping += EventMediator_ContainerStopping;
@@ -21,11 +25,13 @@ namespace NINA.Plugin.TargetScheduler.Symbol {
             eventMediator.WaitStopping += EventMediator_WaitStopping;
             eventMediator.ContainerPaused += EventMediator_ContainerPaused;
             eventMediator.ContainerUnpaused += EventMediator_ContainerUnpaused;
-            eventMediator.TargetStarting += EventMediator_TargetStarting; ;
+            eventMediator.TargetStarting += EventMediator_TargetStarting;
             eventMediator.TargetStopping += EventMediator_TargetStopping;
             eventMediator.ExposureStarting += EventMediator_ExposureStarting;
             eventMediator.ExposureStopping += EventMediator_ExposureStopping;
             eventMediator.TargetComplete += EventMediator_TargetComplete;
+            eventMediator.APIStarting += EventMediator_APIStarting;
+            eventMediator.APIStopping += EventMediator_APIStopping;
             eventMediator.SymbolReset += EventMediator_SymbolReset;
         }
 
@@ -45,7 +51,8 @@ namespace NINA.Plugin.TargetScheduler.Symbol {
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_NEXT_TARGET_START, e.WaitUntil);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_NAME, null);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_PROJECT_NAME, null);
-            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_COORDINATES, null);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_RA, null);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_DEC, null);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_ROTATION, null);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_STARTED, null);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CONTAINER_WAITING, true);
@@ -69,7 +76,8 @@ namespace NINA.Plugin.TargetScheduler.Symbol {
         private void EventMediator_TargetStarting(object sender, TargetStartingEventArgs e) {
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_NAME, e.Target?.Name);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_PROJECT_NAME, e.Target?.Project?.Name);
-            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_COORDINATES, e.Target?.Coordinates);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_RA, e.Target?.Coordinates.RA);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_DEC, e.Target?.Coordinates.Dec);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_ROTATION, e.Target?.Rotation);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_STARTED, DateTime.Now);
         }
@@ -77,7 +85,8 @@ namespace NINA.Plugin.TargetScheduler.Symbol {
         private void EventMediator_TargetStopping(object sender, EventArgs e) {
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_NAME, null);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_PROJECT_NAME, null);
-            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_COORDINATES, null);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_RA, null);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_DEC, null);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_ROTATION, null);
             _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_CURRENT_TARGET_STARTED, null);
         }
@@ -94,6 +103,16 @@ namespace NINA.Plugin.TargetScheduler.Symbol {
 
         private void EventMediator_TargetComplete(object sender, TargetCompleteEventArgs e) {
             // no-op
+        }
+
+        private void EventMediator_APIStarting(object sender, APIStartingEventArgs e) {
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_API_RUNNING, true);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_API_URL, e.URL);
+        }
+
+        private void EventMediator_APIStopping(object sender, EventArgs e) {
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_API_RUNNING, false);
+            _publisher.AddOrUpdate(SymbolPublisher.SYMBOL_API_URL, null);
         }
 
         private void EventMediator_SymbolReset(object sender, EventArgs e) {

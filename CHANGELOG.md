@@ -3,6 +3,7 @@
 ## 5.10.1.0 - 2026-05-XX
 * Added a button to jump from a target view to the reporting section and display the report for that target.
 * Added ability for sync clients to run an autofocus when the sync server is running one.
+* Updated TS variables (still in a state of flux).
 * Fixed problem with the project max altitude check (merged from 3.2 release).
 
 ## 5.10.0.0 - 2026-05-12

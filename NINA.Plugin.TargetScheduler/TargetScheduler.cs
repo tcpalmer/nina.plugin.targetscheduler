@@ -49,6 +49,7 @@ namespace NINA.Plugin.TargetScheduler {
 
         private IProfileService profileService;
         private IApplicationMediator applicationMediator;
+        private ISymbolBroker symbolBroker;
         private IFramingAssistantVM framingAssistantVM;
         private IDeepSkyObjectSearchVM deepSkyObjectSearchVM;
         private IPlanetariumFactory planetariumFactory;
@@ -74,6 +75,7 @@ namespace NINA.Plugin.TargetScheduler {
 
             this.profileService = profileService;
             this.applicationMediator = applicationMediator;
+            this.symbolBroker = symbolBroker;
             this.framingAssistantVM = framingAssistantVM;
             this.deepSkyObjectSearchVM = deepSkyObjectSearchVM;
             this.focuserMediator = focuserMediator;
@@ -85,8 +87,6 @@ namespace NINA.Plugin.TargetScheduler {
 
             options.AddImagePattern(FlatSessionIdImagePattern);
             options.AddImagePattern(ProjectNameImagePattern);
-
-            SymbolPublisher.Instance.Init(symbolBroker);
         }
 
         public override Task Initialize() {
@@ -102,6 +102,8 @@ namespace NINA.Plugin.TargetScheduler {
                 APIServer = new APIServer(apiPort, prettyPrint, profileService, new SchedulerDatabaseInteraction());
                 APIServer.Start();
             }
+
+            SymbolPublisher.Instance.Init(symbolBroker);
 
             TSLogger.Info("plugin initialized");
             return Task.CompletedTask;

@@ -28,6 +28,10 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         private event EventHandler<TargetCompleteEventArgs> TargetCompleteEvent;
 
+        private event EventHandler<APIStartingEventArgs> APIStartingEvent;
+
+        private event EventHandler APIStoppingEvent;
+
         private event EventHandler SymbolResetEvent;
 
         public TargetSchedulerEventMediator() {
@@ -86,6 +90,16 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public event EventHandler<TargetCompleteEventArgs> TargetComplete {
             add { TargetCompleteEvent += value; }
             remove { TargetCompleteEvent -= value; }
+        }
+
+        public event EventHandler<APIStartingEventArgs> APIStarting {
+            add { APIStartingEvent += value; }
+            remove { APIStartingEvent -= value; }
+        }
+
+        public event EventHandler APIStopping {
+            add { APIStoppingEvent += value; }
+            remove { APIStoppingEvent -= value; }
         }
 
         public event EventHandler SymbolReset {
@@ -148,6 +162,16 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             TargetCompleteEvent?.Invoke(this, new TargetCompleteEventArgs { Target = target });
         }
 
+        public void InvokeAPIStarting(string url) {
+            TSLogger.Trace("invoking event: APIStarting");
+            APIStartingEvent?.Invoke(this, new APIStartingEventArgs { URL = url });
+        }
+
+        public void InvokeAPIStopping() {
+            TSLogger.Trace("invoking event: APIStopping");
+            APIStoppingEvent?.Invoke(this, EventArgs.Empty);
+        }
+
         internal void InvokeSymbolReset() {
             TSLogger.Trace("invoking event: SymbolReset");
             SymbolResetEvent?.Invoke(this, EventArgs.Empty);
@@ -171,5 +195,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
     public class TargetCompleteEventArgs : EventArgs {
         public ITarget Target { get; set; }
+    }
+
+    public class APIStartingEventArgs : EventArgs {
+        public string URL { get; set; }
     }
 }
