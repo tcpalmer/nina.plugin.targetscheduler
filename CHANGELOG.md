@@ -1,8 +1,9 @@
 # Target Scheduler
 
-## 5.10.1.0 - 2026-05-XX
-* Added a button to jump from a target view to the reporting section and display the report for that target.
+## 5.10.1.0 - 2026-05-19
 * Added a new 'profile summary' report to the Reporting section.
+* Added a button to jump from the profiles view to the reporting section and display the summary report for that profile.
+* Added a button to jump from a target view to the reporting section and display the report for that target.
 * Added ability for sync clients to run an autofocus when the sync server is running one.
 * Updated TS variables (still in a state of flux).
 * Fixed problem with the project max altitude check (merged from 3.2 release).

@@ -109,7 +109,26 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             sb.AppendLine("        .pct { color: #8fc8e8; }");
             sb.AppendLine("        .pregrad { color: #e8c864; font-style: italic; }");
             sb.AppendLine("        .grad-disabled { color: #888; font-style: italic; }");
+            sb.AppendLine("        .toggle-btn {");
+            sb.AppendLine("            background: none;");
+            sb.AppendLine("            border: 1px solid #888;");
+            sb.AppendLine("            color: #c7c6c3;");
+            sb.AppendLine("            padding: 4px 12px;");
+            sb.AppendLine("            cursor: pointer;");
+            sb.AppendLine("            font-size: small;");
+            sb.AppendLine("            margin-bottom: 14px;");
+            sb.AppendLine("        }");
+            sb.AppendLine("        .toggle-btn:hover { border-color: #c7c6c3; }");
             sb.AppendLine("    </style>");
+            sb.AppendLine("    <script>");
+            sb.AppendLine("        function toggleAll() {");
+            sb.AppendLine("            var btn = document.getElementById('toggleBtn');");
+            sb.AppendLine("            var expand = btn.dataset.state !== 'expanded';");
+            sb.AppendLine("            document.querySelectorAll('details').forEach(function(d) { d.open = expand; });");
+            sb.AppendLine("            btn.textContent = expand ? 'Collapse All' : 'Expand All';");
+            sb.AppendLine("            btn.dataset.state = expand ? 'expanded' : 'collapsed';");
+            sb.AppendLine("        }");
+            sb.AppendLine("    </script>");
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
             sb.AppendLine("<div class=\"container\">");
@@ -119,6 +138,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             sb.AppendLine($"        <div><i>N.I.N.A. Target Scheduler plugin {version}</i></div>");
             sb.AppendLine("    </div>");
             sb.AppendLine("    <div class=\"report\">");
+            sb.AppendLine("        <button id=\"toggleBtn\" class=\"toggle-btn\" data-state=\"collapsed\" onclick=\"toggleAll()\">Expand All</button>");
         }
 
         private static void AppendProjects(StringBuilder sb, List<Project> projects, ProfilePreference profilePreference) {

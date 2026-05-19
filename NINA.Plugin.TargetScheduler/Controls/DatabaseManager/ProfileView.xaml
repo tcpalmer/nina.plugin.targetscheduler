@@ -38,6 +38,20 @@
                           Stretch="Uniform" />
                 </Grid>
             </Button>
+            <Button Width="25"
+                    Height="25"
+                    Margin="3,0,3,6"
+                    VerticalAlignment="Center"
+                    Command="{Binding NavigateToProfileSummaryCommand}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="View profile summary report">
+                <Grid>
+                    <Path Margin="5"
+                          Data="{StaticResource SS_ReportSVG}"
+                          Fill="{StaticResource ButtonForegroundBrush}"
+                          Stretch="Uniform" />
+                </Grid>
+            </Button>
             <uc:DocumentationLink URL="target-management/profiles.html" />
         </StackPanel>
 

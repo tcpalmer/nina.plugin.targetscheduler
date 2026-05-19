@@ -35,7 +35,11 @@
       "Bash(dotnet build *)",
       "Bash(powershell -Command \"Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/isbeorn/nina/develop/NINA.WPF.Base/Resources/StaticResources/SVGDictionary.xaml' -OutFile 'C:\\\\temp\\\\svgdict.xaml'; Get-Content 'C:\\\\temp\\\\svgdict.xaml' | Measure-Object -Line\")",
       "PowerShell($content = Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/isbeorn/nina/develop/NINA.WPF.Base/Resources/StaticResources/SVGDictionary.xaml' -UseBasicParsing | Select-Object -ExpandProperty Content; $content.Length)",
-      "Bash(xargs grep -l \"class.*SequenceTrigger\")"
+      "Bash(xargs grep -l \"class.*SequenceTrigger\")",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\\\\NINA.Plugin.TargetScheduler\\\\Controls\\\\Reporting\" -Recurse | Where-Object { $_.Extension -in '.cs', '.xaml' } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\\\\NINA.Plugin.TargetScheduler\\\\Controls\\\\Reporting\\\\\" | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\\\\NINA.Plugin.TargetScheduler.Test\\\\Controls\\\\Reporting\\\\\" | ForEach-Object { $_.FullName })",
+      "Bash(findstr /r /n \"NavigateToReportingAction\" *.cs NINA.Plugin.TargetScheduler\\\\*.cs NINA.Plugin.TargetScheduler\\\\Controls\\\\*.cs /s)"
     ]
   }
 }

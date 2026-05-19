@@ -46,6 +46,24 @@
                 Fill="{Binding TargetActive, Converter={StaticResource StatusMarkColorConverter}}"
                 Stretch="Uniform"
                 ToolTip="Target active for planner?" />
+            <Button
+                Width="25"
+                Height="25"
+                Margin="3,0,3,6"
+                VerticalAlignment="Center"
+                Command="{Binding NavigateToReportCommand}"
+                IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                Style="{StaticResource BackgroundButton}"
+                ToolTip="View acquisition report"
+                ToolTipService.ShowOnDisabled="True">
+                <Grid>
+                    <Path
+                        Margin="5"
+                        Data="{StaticResource SS_ReportSVG}"
+                        Fill="{StaticResource ButtonForegroundBrush}"
+                        Stretch="Uniform" />
+                </Grid>
+            </Button>
             <uc:DocumentationLink URL="target-management/targets.html" />
         </StackPanel>
         <StackPanel Orientation="Horizontal">
@@ -85,25 +103,6 @@
                         <Path
                             Margin="5"
                             Data="{StaticResource SS_RefreshSVG}"
-                            Fill="{StaticResource ButtonForegroundBrush}"
-                            Stretch="Uniform" />
-                    </Grid>
-                </Button>
-                <Button
-                    Width="25"
-                    Height="25"
-                    Margin="10,0,0,0"
-                    VerticalAlignment="Center"
-                    HorizontalContentAlignment="Right"
-                    Command="{Binding NavigateToReportCommand}"
-                    IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
-                    Style="{StaticResource BackgroundButton}"
-                    ToolTip="View acquisition report"
-                    ToolTipService.ShowOnDisabled="True">
-                    <Grid>
-                        <Path
-                            Margin="5"
-                            Data="{StaticResource SS_ReportSVG}"
                             Fill="{StaticResource ButtonForegroundBrush}"
                             Stretch="Uniform" />
                     </Grid>

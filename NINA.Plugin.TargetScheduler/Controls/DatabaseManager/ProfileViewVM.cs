@@ -61,6 +61,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             Projects = InitProjects(profileItem);
 
             ProfileSettingsCommand = new RelayCommand(ViewProfilePreferences);
+            NavigateToProfileSummaryCommand = new RelayCommand(NavigateToProfileSummary);
             AddProjectCommand = new RelayCommand(AddProject);
             PasteProjectCommand = new RelayCommand(PasteProject);
             ExportCommand = new RelayCommand(DisplayProfileExport);
@@ -120,6 +121,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         public ICommand ProfileSettingsCommand { get; private set; }
+        public ICommand NavigateToProfileSummaryCommand { get; private set; }
         public ICommand AddProjectCommand { get; private set; }
         public ICommand PasteProjectCommand { get; private set; }
         public ICommand ExportCommand { get; private set; }
@@ -130,6 +132,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         private void ViewProfilePreferences() {
             managerVM.ViewProfilePreferences(Profile);
+        }
+
+        private void NavigateToProfileSummary() {
+            managerVM.NavigateToProfileSummaryAction?.Invoke(Profile.Id.ToString());
         }
 
         private void AddProject() {

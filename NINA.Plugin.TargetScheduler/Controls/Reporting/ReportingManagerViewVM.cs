@@ -234,24 +234,24 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             }
         }
 
-        private string profileSummaryText;
+        private ProfileSummaryViewVM profileSummaryVM;
 
-        public string ProfileSummaryText {
-            get => profileSummaryText;
+        public ProfileSummaryViewVM ProfileSummaryVM {
+            get => profileSummaryVM;
             set {
-                profileSummaryText = value;
-                RaisePropertyChanged(nameof(ProfileSummaryText));
+                profileSummaryVM = value;
+                RaisePropertyChanged(nameof(ProfileSummaryVM));
                 RaisePropertyChanged(nameof(IsShowingProfileSummary));
             }
         }
 
-        public bool IsShowingProfileSummary => !string.IsNullOrEmpty(profileSummaryText);
+        public bool IsShowingProfileSummary => profileSummaryVM != null;
 
         private void ClearProfileSummary() {
             profileSummaryHeader = null;
-            profileSummaryText = null;
+            profileSummaryVM = null;
             RaisePropertyChanged(nameof(ProfileSummaryHeader));
-            RaisePropertyChanged(nameof(ProfileSummaryText));
+            RaisePropertyChanged(nameof(ProfileSummaryVM));
             RaisePropertyChanged(nameof(IsShowingProfileSummary));
         }
 
@@ -277,13 +277,22 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             _ = LoadRecords();
         }
 
-        private void ShowProfileSummary() {
+        public void ShowProfileSummary() {
             var choice = profileChoices?.FirstOrDefault(c => c.Key == selectedProfileId);
             ProfileSummaryHeader = $"Profile Summary: {choice?.Value ?? selectedProfileId}";
 
             _ = Task.Run(() => {
                 try {
-                    ProfileSummaryText = ProfileSummaryReport.Generate(selectedProfileId, database);
+                    ProfilePreference profilePreference;
+                    List<Project> projects;
+                    using (var context = database.GetContext()) {
+                        profilePreference = context.GetProfilePreference(selectedProfileId, true);
+                        projects = context.GetAllProjectsReadOnly(selectedProfileId);
+                    }
+
+                    _dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => {
+                        ProfileSummaryVM = ProfileSummaryViewVM.Build(profilePreference, projects);
+                    }));
                 } catch (Exception ex) {
                     TSLogger.Error($"exception generating profile summary: {ex.Message} {ex.StackTrace}");
                 }

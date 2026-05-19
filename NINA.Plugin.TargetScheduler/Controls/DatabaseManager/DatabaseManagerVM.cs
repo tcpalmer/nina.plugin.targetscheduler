@@ -69,6 +69,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         }
 
         public Action<string, int, int> NavigateToReportingAction { get; set; }
+        public Action<string> NavigateToProfileSummaryAction { get; set; }
 
         public SchedulerDatabaseInteraction Database { get { return database; } }
 
