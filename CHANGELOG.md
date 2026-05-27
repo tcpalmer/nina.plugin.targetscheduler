@@ -1,5 +1,9 @@
 # Target Scheduler
 
+## 5.10.2.0 - 2026-05-XX
+* Fixed problem with target max altitude handling (manifesting as oops twilight exception)
+* Active NINA profile in navigation trees is now marked
+
 ## 5.10.1.0 - 2026-05-19
 * Added a new 'profile summary' report to the Reporting section.
 * Added a button to jump from the profiles view to the reporting section and display the summary report for that profile.
