@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Extensions;
 using Moq;
 using NINA.Equipment.Interfaces.Mediator;
 using NINA.Plugin.TargetScheduler.Astrometry;
@@ -388,7 +389,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             pp.Rejected.Should().BeTrue();
             ITarget pt1 = pp.Targets[0];
             pt1.Rejected.Should().BeTrue();
-            pt1.RejectedReason.Should().Be(Reasons.TargetMaxAltitude);
+            pt1.StartTime.Should().BeCloseTo(new DateTime(2024, 12, 18, 1, 20, 36), 1.Seconds());
+            pt1.EndTime.Should().BeCloseTo(new DateTime(2024, 12, 18, 5, 46, 16), 1.Seconds());
+            pt1.RejectedReason.Should().Be(Reasons.TargetNotYetVisible);
         }
 
         [Test]
