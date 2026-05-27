@@ -416,8 +416,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             rootList.Add(profilesFolder);
 
             using (var context = database.GetContext()) {
+                Guid activeProfileId = profileService.ActiveProfile.Id;
                 foreach (ProfileMeta profile in profileService.Profiles) {
-                    TreeDataItem profileItem = new TreeDataItem(TreeDataType.ProjectProfile, profile.Name, profile, profilesFolder);
+                    TreeDataItem profileItem = new TreeDataItem(TreeDataType.ProjectProfile, profile.Name, profile, profilesFolder) {
+                        IsActiveProfile = profile.Id == activeProfileId
+                    };
                     profilesFolder.Items.Add(profileItem);
 
                     List<Project> projects = context.GetAllProjects(profile.Id.ToString());
@@ -464,8 +467,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             rootList.Add(profilesFolder);
 
             using (var context = database.GetContext()) {
+                Guid activeProfileId = profileService.ActiveProfile.Id;
                 foreach (ProfileMeta profile in profileService.Profiles) {
-                    TreeDataItem profileItem = new TreeDataItem(TreeDataType.ExposureTemplateProfile, profile.Name, profile, profilesFolder);
+                    TreeDataItem profileItem = new TreeDataItem(TreeDataType.ExposureTemplateProfile, profile.Name, profile, profilesFolder) {
+                        IsActiveProfile = profile.Id == activeProfileId
+                    };
                     profilesFolder.Items.Add(profileItem);
 
                     List<ExposureTemplate> exposureTemplates = context.GetExposureTemplates(profile.Id.ToString());
@@ -1176,6 +1182,15 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public TreeDataItem TreeParent { get; }
         public string SortName { get; set; }
         public object Data { get; set; }
+
+        public static readonly DependencyProperty IsActiveProfileProperty =
+            DependencyProperty.Register(nameof(IsActiveProfile), typeof(bool), typeof(TreeDataItem),
+                new PropertyMetadata(false));
+
+        public bool IsActiveProfile {
+            get => (bool)GetValue(IsActiveProfileProperty);
+            set => SetValue(IsActiveProfileProperty, value);
+        }
 
         public TreeDataItem(TreeDataType type, string name, TreeDataItem parent) : this(type, name, null, parent) {
         }

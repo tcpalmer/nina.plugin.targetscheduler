@@ -2,6 +2,7 @@
 
 ## 5.9.2.0 - 2026-05-27
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception)
+* Active NINA profile in navigation trees is now marked
 
 ## 5.9.1.0 - 2026-05-17
 * Fixed problem with the project max altitude check.
