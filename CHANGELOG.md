@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.9.2.0 - 2026-05-27
+* Fixed problem with target max altitude handling (manifesting as oops twilight exception)
+
 ## 5.9.1.0 - 2026-05-17
 * Fixed problem with the project max altitude check.
 * Fixed issue with deleting acquired images but not associated thumbnails

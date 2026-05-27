@@ -267,7 +267,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // But starting at midnight, the max alt clips below the min time
             sut.Visibility(new DateTime(2026, 5, 15, 0, 0, 0), t1, twilightCircumstances, viz).Should().BeFalse();
             t1.Rejected.Should().BeTrue();
-            t1.RejectedReason.Should().Be(Reasons.TargetMaxAltitude);
+            t1.StartTime.Should().Be(new DateTime(2026, 5, 15, 0, 20, 0));
+            t1.EndTime.Should().Be(new DateTime(2026, 5, 15, 0, 50, 0));
+            t1.RejectedReason.Should().Be(Reasons.TargetNotYetVisible);
         }
 
         [Test]

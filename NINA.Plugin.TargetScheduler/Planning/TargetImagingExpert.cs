@@ -118,19 +118,22 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // Check for maximum altitude exceeded
             if (project.MaximumAltitude != 0) {
                 MaximumAltitudeClipper maxAltitudeClipper = targetVisibility.MaxAltitudeClipper;
-                if (maxAltitudeClipper.IsClipped) {
-                    TimeInterval exceedsMaxInterval = maxAltitudeClipper.ClipInterval;
+                TimeInterval maxAltSafeSpan = maxAltitudeClipper.Clip(targetStartTime, targetEndTime);
 
-                    // See if imaging the minimum time is possible before max is exceeded
-                    if (targetStartTime.AddMinutes(project.MinimumTime) < exceedsMaxInterval.StartTime) {
-                        // There is time now before the max is exceeded
-                        targetEndTime = exceedsMaxInterval.StartTime;
-                    } else {
-                        // No time now but might be later
-                        TSLogger.Debug($"Target not visible for min time after max altitude clip: {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}, max alt is {project.MaximumAltitude}");
-                        SetRejected(target, Reasons.TargetMaxAltitude);
-                        return false;
-                    }
+                if (maxAltSafeSpan == null) {
+                    TSLogger.Debug($"Target not visible for min time after max altitude clip: {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}, max alt is {project.MaximumAltitude}");
+                    SetRejected(target, Reasons.TargetMaxAltitude);
+                    return false;
+                }
+
+                targetStartTime = maxAltSafeSpan.StartTime;
+                targetEndTime = maxAltSafeSpan.EndTime;
+
+                // Recheck minimum time after potential max altitude clip
+                if (maxAltSafeSpan.Duration < project.MinimumTime * 60) {
+                    // Shift to end of max alt span
+                    targetStartTime = maxAltSafeSpan.EndTime;
+                    targetEndTime = targetStartTime.AddMinutes(project.MinimumTime);
                 }
             }
 
@@ -330,17 +333,21 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         /// <param name="target"></param>
         public void CheckFuture(ITarget target, IMoonAvoidanceExpert moonExpert) {
             DateTime atTime = target.StartTime;
+
+            // Catch improper target start time and reject
+            if (target.StartTime == DateTime.MinValue) {
+                TSLogger.Warning($"target has bogus start time, rejecting: {target.Project.Name}/{target.Name} (this is likely a bug)");
+                SetRejected(target, Reasons.TargetNotVisible);
+                return;
+            }
+
             TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(observerInfo, atTime);
             TargetVisibility targetVisibility = new(target, observerInfo,
                 twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, targetVisibilitySampleInterval);
 
             // Advance time if currently exceeding a max altitude constraint
             MaximumAltitudeClipper maxAltClipper = targetVisibility.MaxAltitudeClipper;
-            if (maxAltClipper.IsClipped) {
-                if (maxAltClipper.ClipInterval.Contains(atTime)) {
-                    atTime = maxAltClipper.ClipInterval.EndTime;
-                }
-            }
+            atTime = maxAltClipper.NextSafeStart(atTime, atTime.AddMinutes(target.Project.MinimumTime));
 
             while (true) {
                 // Check target for moon avoidance, and twilight at this time

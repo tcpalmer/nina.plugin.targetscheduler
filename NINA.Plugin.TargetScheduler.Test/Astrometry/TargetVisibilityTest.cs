@@ -457,6 +457,17 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
         }
 
         [Test]
+        public void testMaximumAltitudeExceededDisabled() {
+            DateTime dateTime = new DateTime(2024, 12, 1, 13, 0, 0);
+            DateTime sunset = new DateTime(2024, 12, 1, 17, 30, 0);
+            DateTime sunrise = new DateTime(2024, 12, 2, 7, 0, 0);
+
+            TargetVisibility sut = new TargetVisibility("M42", 1, TestData.North_Mid_Lat, TestData.M42, dateTime, sunset, sunrise, 0, 60);
+            sut.ImagingPossible.Should().BeTrue();
+            sut.MaximumAltitudeExceededInterval(sunset, sunrise, TestData.North_Mid_Lat, TestData.M42, 0).Should().BeNull();
+        }
+
+        [Test]
         public void testMaximumAltitudeExceededIntervalSouthTransit() {
             // M42 at 35°N (-79°W), Dec 1 2024. Transit alt = 90 - |35 - (-5.39)| = 49.6°, transit ~01:05 Dec 2.
             // Key altitudes (verified by AstrometryUtils.GetAltitude assertions below):

@@ -177,33 +177,11 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             return TargetPositions[pos].Altitude;
         }
 
-        /// <summary>
-        /// Return true if the maximum altitude is exceeded at any time in the provided time range.
-        /// Otherwise false.
-        /// </summary>
-        /// <param name="fromTime"></param>
-        /// <param name="toTime"></param>
-        /// <param name="maximumAltitude"></param>
-        /// <returns></returns>
-        public (bool maxExceeded, DateTime atTime) XXSCheckMaximumAltitude(DateTime fromTime, DateTime toTime, double maximumAltitude) {
-            if (fromTime > toTime)
-                throw new ArgumentException($"fromTime cannot be after toTime: {fromTime} > {toTime}");
-
-            int pos = FindInterval(fromTime, 0, TargetPositions.Count - 1);
-            PositionAtTime pat = TargetPositions[pos];
-            while (pat.AtTime <= toTime && pos < TargetPositions.Count - 1) {
-                if (pat.Altitude >= maximumAltitude) {
-                    return (true, pat.AtTime);
-                }
-
-                pat = TargetPositions[++pos];
-            }
-
-            return (false, toTime);
-        }
-
         public TimeInterval MaximumAltitudeExceededInterval(DateTime fromTime, DateTime toTime,
             ObserverInfo location, Coordinates coordinates, double maximumAltitude) {
+            // Max clipping off
+            if (maximumAltitude == 0) return null;
+
             if (fromTime > toTime)
                 throw new ArgumentException($"fromTime cannot be after toTime: {fromTime} > {toTime}");
 
