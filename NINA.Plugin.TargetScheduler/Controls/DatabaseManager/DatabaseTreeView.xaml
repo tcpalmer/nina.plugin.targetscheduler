@@ -165,6 +165,26 @@
                 <Style TargetType="{x:Type local:TreeDataItem}">
                     <Setter Property="FontWeight" Value="Bold" />
                     <Setter Property="Margin" Value="0,3,0,3" />
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Path
+                                        Width="14"
+                                        Height="14"
+                                        Margin="0,0,5,0"
+                                        VerticalAlignment="Center"
+                                        Data="{StaticResource SS_CheckedCircledSVG}"
+                                        Fill="{StaticResource ButtonForegroundBrush}"
+                                        Stretch="Uniform"
+                                        Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:TreeDataItem}}, Path=IsActiveProfile, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}" />
+                                    <ContentPresenter
+                                        Content="{Binding}"
+                                        VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
                 </Style>
             </TreeView.Resources>
 
