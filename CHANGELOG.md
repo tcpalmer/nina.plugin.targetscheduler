@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.9.3.0 - 2026-05-29
+* Fixed side-effect problem with target max altitude clipping 
+
 ## 5.9.2.0 - 2026-05-27
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception)
 * Active NINA profile in navigation trees is now marked

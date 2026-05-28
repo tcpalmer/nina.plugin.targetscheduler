@@ -48,6 +48,10 @@ namespace NINA.Plugin.TargetScheduler.Astrometry {
             if (startTime > exceededSpan.EndTime)
                 return new TimeInterval(startTime, endTime);
 
+            // Target span surrounds exceeded span -> clip
+            if (startTime < exceededSpan.StartTime && endTime > exceededSpan.EndTime)
+                return new TimeInterval(startTime, exceededSpan.StartTime);
+
             throw new ArgumentException($"Undetected case in max clip:\nstart={targetStartTime}, end={targetEndTime}, exceeded span={exceededSpan}");
         }
 
