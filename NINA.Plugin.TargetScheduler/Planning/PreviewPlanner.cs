@@ -36,12 +36,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             DitherManagerCache.Clear();
             List<SchedulerPlan> plans = new List<SchedulerPlan>();
             IWeatherDataMediator weatherData = new DisconnectedWeatherDataMediator();
+            PlannerReport plannerReport = profilePreferences.EnablePlannerReports ? new PlannerReport() : null;
             DateTime currentTime = atTime;
             previousTarget = null;
 
             try {
                 SchedulerPlan plan;
-                while ((plan = new Planner(currentTime, profileService.ActiveProfile, profilePreferences, weatherData, false, true, projects).GetPlan(previousTarget)) != null) {
+                while ((plan = new Planner(currentTime, profileService.ActiveProfile, profilePreferences, weatherData, false, true, projects, plannerReport).GetPlan(previousTarget)) != null) {
                     plans.Add(plan);
                     currentTime = plan.IsWait ? (DateTime)plan.WaitForNextTargetTime : plan.EndTime;
                     PrepForNextRun(projects, plan);

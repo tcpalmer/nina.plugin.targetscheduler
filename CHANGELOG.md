@@ -1,10 +1,15 @@
 # Target Scheduler
 
-## 5.10.2.0 - 2026-05-XX
+## 5.10.2.0 - 2026-05-XX (NINA 3.3)
+* Added a planner report
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception)
 * Active NINA profile in navigation trees is now marked
 
-## 5.10.1.0 - 2026-05-19
+## 5.9.2.0 - 2026-05-27
+* Fixed problem with target max altitude handling (manifesting as oops twilight exception)
+* Active NINA profile in navigation trees is now marked
+
+## 5.10.1.0 - 2026-05-19 (NINA 3.3)
 * Added a new 'profile summary' report to the Reporting section.
 * Added a button to jump from the profiles view to the reporting section and display the summary report for that profile.
 * Added a button to jump from a target view to the reporting section and display the report for that target.
@@ -12,7 +17,11 @@
 * Updated TS variables (still in a state of flux).
 * Fixed problem with the project max altitude check (merged from 3.2 release).
 
-## 5.10.0.0 - 2026-05-12
+## 5.9.1.0 - 2026-05-17
+* Fixed problem with the project max altitude check.
+* Fixed issue with deleting acquired images but not associated thumbnails
+
+## 5.10.0.0 - 2026-05-12 (NINA 3.3)
 * Ported to NINA 3.3 (currently the nightly release).
 * Implemented several TS-specific variables for NINA 3.3 expressions.
 * Tree toggles colorize and display all or active only are now persisted for each NINA profile.

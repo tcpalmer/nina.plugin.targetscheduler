@@ -29,12 +29,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private ObserverInfo observerInfo;
         private PreviousTargetExpert previousTargetExpert;
         private List<IProject> projects;
+        private PlannerReport report;
 
         public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, IWeatherDataMediator weatherDataMediator, bool checkCondition, bool isPreview)
             : this(atTime, profile, profilePreferences, weatherDataMediator, checkCondition, isPreview, null) {
         }
 
-        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, IWeatherDataMediator weatherDataMediator, bool checkCondition, bool isPreview, List<IProject> projects) {
+        public Planner(DateTime atTime, IProfile profile, ProfilePreference profilePreferences, IWeatherDataMediator weatherDataMediator, bool checkCondition, bool isPreview, List<IProject> projects, PlannerReport report = null) {
             this.atTime = atTime;
             this.activeProfile = profile;
             this.profilePreferences = profilePreferences;
@@ -42,6 +43,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             this.checkCondition = checkCondition;
             this.isPreview = isPreview;
             this.projects = projects;
+            this.report = report;
             this.observerInfo = new ObserverInfo {
                 Latitude = activeProfile.AstrometrySettings.Latitude,
                 Longitude = activeProfile.AstrometrySettings.Longitude,
@@ -72,19 +74,35 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                     }
 
                     // Filter all targets for suitability
+                    report?.BeginPlan(projects, atTime);
+
                     projects = FilterForIncomplete(projects);
+                    report?.TrackRejections();
                     projects = FilterForVisibility(projects);
+                    report?.TrackRejections();
                     projects = FilterForMoonAvoidance(projects);
+                    report?.TrackRejections();
                     projects = FilterForTwilight(projects);
+                    report?.TrackRejections();
                     projects = FilterForHumidity(projects, weatherDataMediator);
+                    report?.TrackRejections();
 
                     // See if one or more targets are ready to image now
                     List<ITarget> readyTargets = GetTargetsReadyNow(projects);
+                    report?.SetReadyTargets(readyTargets);
+
                     if (readyTargets.Count > 0) {
                         SelectTargetExposures(readyTargets);
                         ITarget selectedTarget = readyTargets.Count == 1
                             ? readyTargets[0]
                             : SelectTargetByScore(readyTargets, new ScoringEngine(activeProfile, profilePreferences, atTime, previousTarget));
+
+                        if (readyTargets.Count > 1) {
+                            report?.SetScoringCandidates(readyTargets, selectedTarget);
+                        }
+                        report?.SetResultTarget(selectedTarget);
+                        report?.Generate();
+
                         List<IInstruction> instructions = new InstructionGenerator().Generate(selectedTarget, previousTarget);
 
                         HandleTargetSwitch(previousTarget, selectedTarget);
@@ -98,11 +116,15 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                             if (profilePreferences.EnableStopOnHumidity) {
                                 TSLogger.Warning("all remaining targets were rejected for unacceptable humidity, ending for the night");
                                 Notification.ShowWarning("Target Scheduler: all remaining targets were rejected for unacceptable humidity, ending for the night");
+                                report?.SetResultDone();
+                                report?.Generate();
                                 return null;
                             } else {
                                 ITarget target = NextRejectedForHumidity(projects);
                                 if (target != null) {
                                     TSLogger.Info("all remaining targets were rejected for unacceptable humidity, waiting 15 minutes and trying again");
+                                    report?.SetResultWait(target, atTime.AddSeconds(15 * 60));
+                                    report?.Generate();
                                     return new SchedulerPlan(atTime, projects, target, 15 * 60, !checkCondition);
                                 }
                             }
@@ -111,10 +133,14 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                         ITarget nextTarget = GetNextPossibleTarget(projects);
                         if (nextTarget != null) {
                             // Wait for next possible target
+                            report?.SetResultWait(nextTarget, nextTarget.StartTime);
+                            report?.Generate();
                             return new SchedulerPlan(atTime, projects, nextTarget, !checkCondition);
                         } else {
                             // Otherwise done for the night
                             TSLogger.Info("Scheduler Planner: no target selected");
+                            report?.SetResultDone();
+                            report?.Generate();
                             return null;
                         }
                     }

@@ -39,7 +39,8 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\\\\NINA.Plugin.TargetScheduler\\\\Controls\\\\Reporting\" -Recurse | Where-Object { $_.Extension -in '.cs', '.xaml' } | Select-Object FullName)",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\\\\NINA.Plugin.TargetScheduler\\\\Controls\\\\Reporting\\\\\" | ForEach-Object { $_.FullName })",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Tom\\\\source\\\\repos\\\\nina.plugin.targetscheduler\\\\NINA.Plugin.TargetScheduler.Test\\\\Controls\\\\Reporting\\\\\" | ForEach-Object { $_.FullName })",
-      "Bash(findstr /r /n \"NavigateToReportingAction\" *.cs NINA.Plugin.TargetScheduler\\\\*.cs NINA.Plugin.TargetScheduler\\\\Controls\\\\*.cs /s)"
+      "Bash(findstr /r /n \"NavigateToReportingAction\" *.cs NINA.Plugin.TargetScheduler\\\\*.cs NINA.Plugin.TargetScheduler\\\\Controls\\\\*.cs /s)",
+      "Bash(powershell -NoProfile -Command \"[System.IO.Path]::Combine\\(\\(Get-ChildItem Env:TEMP\\).Value, 'SchedulerPlugin', 'Logs'\\)\")"
     ]
   }
 }

@@ -18,6 +18,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public int parkOnWait { get; set; }
         public double exposureThrottle { get; set; }
         public int enableSmartPlanWindow { get; set; }
+        public int enablePlannerReports { get; set; }
         public int enableDeleteAcquiredImagesWithTarget { get; set; }
         public int enableSlewCenter { get; set; }
         public int enableStopOnHumidity { get; set; }
@@ -67,6 +68,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             ParkOnWait = false;
             ExposureThrottle = 125;
             EnableSmartPlanWindow = true;
+            EnablePlannerReports = false;
             EnableDeleteAcquiredImagesWithTarget = true;
             EnableSlewCenter = true;
             EnableStopOnHumidity = true;
@@ -146,6 +148,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             set {
                 enableSmartPlanWindow = value ? 1 : 0;
                 RaisePropertyChanged(nameof(EnableSmartPlanWindow));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public bool EnablePlannerReports {
+            get { return enablePlannerReports == 1; }
+            set {
+                enablePlannerReports = value ? 1 : 0;
+                RaisePropertyChanged(nameof(EnablePlannerReports));
             }
         }
 
