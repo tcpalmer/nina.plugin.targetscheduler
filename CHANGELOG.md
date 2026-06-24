@@ -2,8 +2,9 @@
 
 ## 5.10.2.0 - 2026-05-XX (NINA 3.3)
 * Added a planner report
-* Fixed problem with target max altitude handling (manifesting as oops twilight exception)
-* Active NINA profile in navigation trees is now marked
+* Fixed problem with target max altitude handling (manifesting as oops twilight exception).
+* Active NINA profile in navigation trees is now marked.
+* Projects and Exposure Templates in the UI are now maintained in sorted order after additions and renames.
 
 ## 5.9.2.0 - 2026-05-27
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception)

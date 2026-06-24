@@ -492,7 +492,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                         profileItem.Items.Add(exposureTemplateItem);
                     }
 
-                    // We could sort ETs into filter -> filter wheel order
+                    profileItem.SortChildren();
                 }
 
                 // Handle 'orphaned' exposure templates (associated profile has been deleted)
@@ -558,7 +558,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 Project newProject = context.SaveProject(project);
                 if (newProject != null) {
                     TreeDataItem projectItem = new TreeDataItem(TreeDataType.Project, project.Name, project, parentItem);
-                    parentItem.Items.Add(projectItem);
+                    TreeDataItem.InsertSorted(parentItem, projectItem);
                     projectItem.IsSelected = true;
                     parentItem.IsExpanded = true;
                     SetTreeColorizeMode(SelectedColorizeMode);
@@ -578,6 +578,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                     if (textBlock.Text != project.Name) {
                         textBlock.Text = project.Name;
                         activeTreeDataItem.SortName = project.Name;
+                        TreeDataItem.ReinsertSorted(activeTreeDataItem);
                     }
 
                     SetTreeColorizeMode(SelectedColorizeMode);
@@ -601,7 +602,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 Project newProject = context.PasteProject(profile.Id.ToString(), source);
                 if (newProject != null) {
                     TreeDataItem newProjectItem = new TreeDataItem(TreeDataType.Project, newProject.Name, newProject, parentItem);
-                    parentItem.Items.Add(newProjectItem);
+                    TreeDataItem.InsertSorted(parentItem, newProjectItem);
                     newProjectItem.IsSelected = true;
                     parentItem.IsExpanded = true;
 
@@ -638,7 +639,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 if (newProject != null) {
                     TreeDataItem parentItem = GetProfileItem(RootProjectsList, profileId);
                     TreeDataItem newProjectItem = new TreeDataItem(TreeDataType.Project, newProject.Name, newProject, parentItem);
-                    parentItem.Items.Add(newProjectItem);
+                    TreeDataItem.InsertSorted(parentItem, newProjectItem);
 
                     newProject.Targets.ForEach(target => {
                         TreeDataItem targetItem = new TreeDataItem(TreeDataType.Target, target.Name, target, newProjectItem);
@@ -943,7 +944,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 ExposureTemplate newExposureTemplate = context.SaveExposureTemplate(exposureTemplate);
                 if (newExposureTemplate != null) {
                     TreeDataItem exposureTemplateItem = new TreeDataItem(TreeDataType.ExposureTemplate, exposureTemplate.Name, exposureTemplate, parentItem);
-                    parentItem.Items.Add(exposureTemplateItem);
+                    TreeDataItem.InsertSorted(parentItem, exposureTemplateItem);
                     exposureTemplateItem.IsSelected = true;
                     parentItem.IsExpanded = true;
                 } else {
@@ -965,7 +966,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 ExposureTemplate newExposureTemplate = context.PasteExposureTemplate(profile.Id.ToString(), source);
                 if (newExposureTemplate != null) {
                     TreeDataItem newExposureTemplateItem = new TreeDataItem(TreeDataType.ExposureTemplate, newExposureTemplate.Name, newExposureTemplate, parentItem);
-                    parentItem.Items.Add(newExposureTemplateItem);
+                    TreeDataItem.InsertSorted(parentItem, newExposureTemplateItem);
                     newExposureTemplateItem.IsSelected = true;
                     parentItem.IsExpanded = true;
                 } else {
@@ -978,7 +979,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             using (var context = database.GetContext()) {
                 if (context.SaveExposureTemplate(exposureTemplate) != null) {
                     activeTreeDataItem.Data = exposureTemplate;
-                    activeTreeDataItem.Header = exposureTemplate.Name;
+                    if ((string)activeTreeDataItem.Header != exposureTemplate.Name) {
+                        activeTreeDataItem.Header = exposureTemplate.Name;
+                        activeTreeDataItem.SortName = exposureTemplate.Name;
+                        TreeDataItem.ReinsertSorted(activeTreeDataItem);
+                    }
                 } else {
                     Notification.ShowError("Failed to save Scheduler Exposure Template (see log for details)");
                 }
@@ -1003,7 +1008,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 if (newExposureTemplate != null) {
                     TreeDataItem parentItem = GetProfileItem(RootExposureTemplateList, profileId);
                     TreeDataItem newProjectItem = new TreeDataItem(TreeDataType.ExposureTemplate, newExposureTemplate.Name, newExposureTemplate, parentItem);
-                    parentItem.Items.Add(newProjectItem);
+                    TreeDataItem.InsertSorted(parentItem, newProjectItem);
                     return true;
                 } else {
                     Notification.ShowError("Failed to move Scheduler orphaned Exposure Template (see log for details)");
@@ -1267,15 +1272,26 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             return SortName.CompareTo(other.SortName);
         }
 
+        public static void InsertSorted(TreeDataItem parent, TreeDataItem newItem) {
+            int index = 0;
+            foreach (TreeDataItem existing in parent.Items) {
+                if (newItem.CompareTo(existing) <= 0) break;
+                index++;
+            }
+            parent.Items.Insert(index, newItem);
+        }
+
+        public static void ReinsertSorted(TreeDataItem item) {
+            TreeDataItem parent = item.TreeParent;
+            parent.Items.Remove(item);
+            InsertSorted(parent, item);
+            item.IsSelected = true;
+        }
+
         public void SortChildren() {
             if (Items?.Count == 0) {
                 return;
             }
-
-            // This approach works to sort the tree initially.  However, it doesn't when trying to use it to resort
-            // when a new item is added or item is renamed.  I think because rebuilding the list this way horks
-            // the collection for subsequent view access.  I tried to go down the road of getting the ItemCollection
-            // and playing nice with sorting via SortDescriptions but that didn't seem to work for TreeView.
 
             List<TreeDataItem> list = new List<TreeDataItem>(Items.Count);
             foreach (TreeDataItem item in Items) {
