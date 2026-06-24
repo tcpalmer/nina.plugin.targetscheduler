@@ -119,6 +119,42 @@ namespace NINA.Plugin.TargetScheduler.Test.Sequencer {
             }
         }
 
+        [Test, Order(3)]
+        [NonParallelizable]
+        public void testImageSaveNoExposurePlanUpdate() {
+            IProfile profile = GraderExpertTest.GetMockProfile(0, 0);
+            IImageSaveMediator imageSaveMediator = GetImageSaveMediator();
+            Mock<ITarget> t1 = PlanMocks.GetMockPlanTarget("T1", TestData.M42);
+            t1.SetupProperty(t => t.DatabaseId, 1);
+            Mock<IExposure> e1 = PlanMocks.GetMockPlanExposure("SII", 10, 0);
+            e1.SetupProperty(e => e.DatabaseId, 3);
+            CancellationToken token = new CancellationToken();
+
+            int imageId = 24;
+            ImageSavedEventArgs imageData = GraderExpertTest.GetMockImageSavedEventArgs(0, 0, "SII", 0, 0, 1.5, 0);
+            imageData.MetaData.Image.Id = imageId;
+
+            Mock<ImageSaveWatcher> mock = new Mock<ImageSaveWatcher>(profile, imageSaveMediator) { CallBase = true };
+            mock.Setup(m => m.GetSchedulerDatabaseContext()).Returns(db.GetContext());
+            mock.Setup(m => m.GetProfilePreference(It.IsAny<IProfile>())).Returns(new ProfilePreference(profileId));
+            mock.SetupGet(m => m.UpdateExposurePlanCounts).Returns(false);
+
+            ImageSaveWatcher sut = mock.Object;
+            sut.WaitForExposure(imageId, new ExposureWaitData(t1.Object, e1.Object, imageId, token));
+            sut.ImageSaved(null, imageData);
+
+            using (var context = db.GetContext()) {
+                var ep = context.GetExposurePlan(3);
+                ep.Should().NotBeNull();
+                ep.Acquired.Should().Be(0);
+                ep.Accepted.Should().Be(0);
+
+                var ai = context.GetAcquiredImage(3);
+                ai.Should().NotBeNull();
+                ai.GradingStatus.Should().Be(GradingStatus.Accepted);
+            }
+        }
+
         private IImageSaveMediator GetImageSaveMediator() {
             Mock<IImageSaveMediator> mock = new Mock<IImageSaveMediator>();
             mock.SetupAllProperties();

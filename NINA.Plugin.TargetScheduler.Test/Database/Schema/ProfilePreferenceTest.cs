@@ -41,6 +41,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
 
             sut.EnableSynchronization.Should().BeFalse();
             sut.EnableSyncedAutoFocus.Should().BeFalse();
+            sut.EnableClientUpdatesExposurePlan.Should().BeTrue();
             sut.SyncWaitTimeout.Should().Be(300);
             sut.SyncActionTimeout.Should().Be(300);
             sut.SyncSolveRotateTimeout.Should().Be(300);

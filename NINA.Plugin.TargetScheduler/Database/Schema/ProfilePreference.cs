@@ -26,6 +26,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
         public int enableSynchronization { get; set; }
         public int enableSyncedAutoFocus { get; set; }
+        public int enableClientUpdatesExposurePlan { get; set; }
         public int syncWaitTimeout { get; set; }
         public int syncActionTimeout { get; set; }
         public int syncSolveRotateTimeout { get; set; }
@@ -94,6 +95,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
             EnableSynchronization = false;
             EnableSyncedAutoFocus = false;
+            EnableClientUpdatesExposurePlan = true;
             SyncWaitTimeout = SyncManager.DEFAULT_SYNC_WAIT_TIMEOUT;
             SyncActionTimeout = SyncManager.DEFAULT_SYNC_ACTION_TIMEOUT;
             SyncSolveRotateTimeout = SyncManager.DEFAULT_SYNC_SOLVEROTATE_TIMEOUT;
@@ -218,6 +220,16 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             set {
                 enableSyncedAutoFocus = value ? 1 : 0;
                 RaisePropertyChanged(nameof(EnableSyncedAutoFocus));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public bool EnableClientUpdatesExposurePlan {
+            get { return enableClientUpdatesExposurePlan == 1; }
+            set {
+                enableClientUpdatesExposurePlan = value ? 1 : 0;
+                RaisePropertyChanged(nameof(EnableClientUpdatesExposurePlan));
             }
         }
 

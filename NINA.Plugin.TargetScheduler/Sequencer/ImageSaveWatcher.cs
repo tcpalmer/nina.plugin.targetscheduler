@@ -27,7 +27,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
     public class ImageSaveWatcher : IImageSaveWatcher {
         private object lockObj = new object();
         private IProfile profile;
-        private ProfilePreference profilePreference;
+        protected ProfilePreference profilePreference;
         private IImageSaveMediator imageSaveMediator;
         private CancellationToken token;
         private ConcurrentDictionary<int, ExposureWaitData> exposureDictionary;
@@ -157,6 +157,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             exposureDictionary.TryRemove((int)imageId, out old);
         }
 
+        public virtual bool UpdateExposurePlanCounts => true;
+
         public virtual ProfilePreference GetProfilePreference(IProfile profile) {
             return new SchedulerPlanLoader(profile).GetProfilePreferences();
         }
@@ -184,9 +186,11 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                             ExposurePlan exposurePlan = context.GetExposurePlan(exposure.DatabaseId);
 
                             if (exposurePlan != null) {
-                                exposurePlan.Acquired++;
-                                if (accepted) { exposurePlan.Accepted++; }
-                                context.ExposurePlanSet.AddOrUpdate(exposurePlan);
+                                if (UpdateExposurePlanCounts) {
+                                    exposurePlan.Acquired++;
+                                    if (accepted) { exposurePlan.Accepted++; }
+                                    context.ExposurePlanSet.AddOrUpdate(exposurePlan);
+                                }
                             } else {
                                 TSLogger.Warning($"failed to get exposure plan for id={exposure.DatabaseId}");
                             }

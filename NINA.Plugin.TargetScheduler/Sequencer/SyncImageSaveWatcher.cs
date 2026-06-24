@@ -8,6 +8,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public SyncImageSaveWatcher(IProfile profile, IImageSaveMediator imageSaveMediator) : base(profile, imageSaveMediator) {
         }
 
+        public override bool UpdateExposurePlanCounts => profilePreference.EnableClientUpdatesExposurePlan;
+
         public override void ImageSaved(object sender, ImageSavedEventArgs imageSavedEventArgs) {
             if (imageSavedEventArgs.MetaData.Image.ImageType != "LIGHT") {
                 return;
