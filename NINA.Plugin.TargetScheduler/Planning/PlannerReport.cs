@@ -14,6 +14,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
     public class PlannerReport {
         private readonly string _path;
         private readonly string _reportTimestamp;
+        private readonly DateTime _reportTime;
         private readonly List<string> _sectionHtmls;
 
         private List<(IProject Project, ITarget Target)> _currentTargets;
@@ -33,13 +34,14 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public PlannerReport() {
             DateTime now = DateTime.Now;
             _reportTimestamp = now.ToString("yyyy-MM-dd HH:mm:ss");
+            _reportTime = now;
             _sectionHtmls = new List<string>();
 
             string reportDir = Path.Combine(Common.PLUGIN_HOME, "Reports");
             if (!Directory.Exists(reportDir)) {
                 Directory.CreateDirectory(reportDir);
             }
-            _path = Path.Combine(reportDir, $"TS-Planner-Report-{now:yyyyMMdd-HHmmss}.html");
+            _path = Path.Combine(reportDir, $"TS-Planning-Report-{now:yyyyMMdd-HHmmss}.html");
         }
 
         public void BeginPlan(List<IProject> projects, DateTime atTime) {
@@ -104,18 +106,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 var sb = new StringBuilder();
                 AppendPreamble(sb);
 
-                bool first = true;
                 foreach (var sectionHtml in _sectionHtmls) {
-                    if (!first) {
-                        sb.AppendLine("        <hr>");
-                    }
-                    first = false;
                     sb.Append(sectionHtml);
                 }
 
                 AppendEpilogue(sb);
                 File.WriteAllText(_path, sb.ToString(), Encoding.UTF8);
-                TSLogger.Debug($"planner report written: {_path}");
+                TSLogger.Debug($"planning report written: {_path}");
             } catch (Exception ex) {
                 TSLogger.Error($"failed to generate planner report: {ex.Message}");
             }
@@ -123,7 +120,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
         private string RenderSection() {
             var sb = new StringBuilder();
-            sb.AppendLine($"        <h2>Plan Report for {HtmlEncode(_currentAtTime.ToString("yyyy-MM-dd"))} at {HtmlEncode(_currentAtTime.ToString("HH:mm:ss"))}</h2>");
+            sb.AppendLine($"        <details>");
+            sb.AppendLine($"        <summary>Plan Report for {HtmlEncode(_currentAtTime.ToString("yyyy-MM-dd"))} at {HtmlEncode(_currentAtTime.ToString("HH:mm:ss"))}</summary>");
             sb.AppendLine("        <h3>Initial Target Filtering</h3>");
             sb.AppendLine("        <table>");
             sb.AppendLine("            <thead>");
@@ -153,7 +151,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 sb.Append(RenderScoringTable());
             }
 
+            sb.AppendLine("        </details>");
             sb.Append(RenderResult());
+            sb.AppendLine("        <hr>");
             return sb.ToString();
         }
 
@@ -249,7 +249,11 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         }
 
         private static string GetReasonCssClass(string reason) {
-            if (reason == Reasons.TargetNotYetVisible || reason == Reasons.TargetMoonAvoidance) {
+            if (reason == Reasons.TargetNotYetVisible
+                || reason == Reasons.TargetMoonAvoidance
+                || reason == Reasons.TargetBeforeMeridianWindow
+                || reason == Reasons.TargetMeridianFlipClipped
+                || reason == Reasons.TargetMaxAltitude) {
                 return "candidate-later";
             }
             return "filtered";
@@ -257,6 +261,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
         private static string GetReasonDisplayText(string reason) {
             if (reason == Reasons.TargetMoonAvoidance) return "moon avoidance";
+            if (reason == Reasons.TargetMeridianWindowClipped) return "meridian window";
+            if (reason == Reasons.TargetMeridianFlipClipped) return "meridian flip safety";
             if (reason == Reasons.TargetTwilight) return "twilight";
             if (reason == Reasons.TargetHumidity) return "humidity";
             return reason;
@@ -267,7 +273,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             sb.AppendLine("<html lang=\"en\">");
             sb.AppendLine("<head>");
             sb.AppendLine("    <meta charset=\"UTF-8\">");
-            sb.AppendLine($"    <title>TS Planner Report {_reportTimestamp}</title>");
+            sb.AppendLine($"    <title>Planning Report {_reportTimestamp}</title>");
             sb.AppendLine("    <style>");
             sb.AppendLine("        body {");
             sb.AppendLine("            margin: 1cm;");
@@ -276,9 +282,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             sb.AppendLine("            background-color: #1e1e1e;");
             sb.AppendLine("            color: #c7c6c3;");
             sb.AppendLine("        }");
-            sb.AppendLine("        .container { max-width: 800px; margin: auto; }");
-            sb.AppendLine("        h1 { font-size: 1.6em; border-bottom: 1px solid #555; padding-bottom: 6px; }");
-            sb.AppendLine("        h2 { font-size: 1.25em; margin-top: 28px; margin-bottom: 4px; }");
+            sb.AppendLine("        .container { max-width: 832px; margin: auto; }");
+            sb.AppendLine("        .title { border: 1px solid #c7c6c3; padding: 10px 15px; line-height: 1.5em; }");
+            sb.AppendLine("        .report { border: 1px solid #c7c6c3; border-top: none; padding: 15px; }");
+            sb.AppendLine("        .header-table { width: auto; font-style: italic; }");
+            sb.AppendLine("        .header-table td:first-child { color: #aaa; padding-right: 24px; white-space: nowrap; }");
+            sb.AppendLine("        details { margin-top: 28px; }");
+            sb.AppendLine("        details > summary { font-size: 1.25em; cursor: pointer; margin-bottom: 4px; user-select: none; }");
             sb.AppendLine("        h3 { font-size: 1.1em; margin-top: 28px; color: #aaa; }");
             sb.AppendLine("        hr { border: none; border-top: 2px solid #666; margin: 36px 0; }");
             sb.AppendLine("        table { border-collapse: collapse; width: 100%; margin-top: 8px; }");
@@ -291,22 +301,38 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         sb.AppendLine("        .score-table td:nth-child(n+3), .score-table th:nth-child(n+3) { text-align: right; }");
             sb.AppendLine("        .result-table { width: auto; }");
             sb.AppendLine("        .result-table td:first-child { color: #aaa; padding-right: 24px; white-space: nowrap; }");
+            sb.AppendLine("        .toggle-btn { background: none; border: 1px solid #888; color: #c7c6c3; padding: 4px 12px; cursor: pointer; font-size: small; margin-bottom: 14px; }");
+            sb.AppendLine("        .toggle-btn:hover { border-color: #c7c6c3; }");
             sb.AppendLine("    </style>");
+            sb.AppendLine("    <script>");
+            sb.AppendLine("        function toggleAll() {");
+            sb.AppendLine("            var btn = document.getElementById('toggleBtn');");
+            sb.AppendLine("            var expand = btn.dataset.state !== 'expanded';");
+            sb.AppendLine("            document.querySelectorAll('details').forEach(function(d) { d.open = expand; });");
+            sb.AppendLine("            btn.textContent = expand ? 'Collapse All' : 'Expand All';");
+            sb.AppendLine("            btn.dataset.state = expand ? 'expanded' : 'collapsed';");
+            sb.AppendLine("        }");
+            sb.AppendLine("    </script>");
             sb.AppendLine("</head>");
             sb.AppendLine("<body>");
             sb.AppendLine("    <div class=\"container\">");
-            sb.AppendLine("        <h1>TS Planner Report</h1>");
-            sb.AppendLine("        <table class=\"result-table\">");
-            sb.AppendLine("            <tbody>");
-            sb.AppendLine($"                <tr><td>Report run</td><td>{HtmlEncode(_reportTimestamp)}</td></tr>");
-            sb.AppendLine($"                <tr><td>Plan time</td><td>{HtmlEncode(_initialAtTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? string.Empty)}</td></tr>");
-            sb.AppendLine($"                <tr><td>NINA</td><td>{HtmlEncode(CoreUtil.Version)}</td></tr>");
-            sb.AppendLine($"                <tr><td>Target Scheduler</td><td>{HtmlEncode(GetPluginVersion())}</td></tr>");
-            sb.AppendLine("            </tbody>");
-            sb.AppendLine("        </table>");
+            sb.AppendLine("        <div class=\"title\">");
+            sb.AppendLine("            <h1>Planning Report</h1>");
+            sb.AppendLine("            <table class=\"header-table\">");
+            sb.AppendLine("                <tbody>");
+            sb.AppendLine($"                    <tr><td>Report Date</td><td>{HtmlEncode(_reportTime.ToString("MMM d, yyyy HH:mm"))}</td></tr>");
+            sb.AppendLine($"                    <tr><td>Plan time</td><td>{HtmlEncode(_initialAtTime?.ToString("MMM d, yyyy HH:mm") ?? string.Empty)}</td></tr>");
+            sb.AppendLine($"                    <tr><td>NINA</td><td>{HtmlEncode(CoreUtil.Version)}</td></tr>");
+            sb.AppendLine($"                    <tr><td>Target Scheduler</td><td>{HtmlEncode(GetPluginVersion())}</td></tr>");
+            sb.AppendLine("                </tbody>");
+            sb.AppendLine("            </table>");
+            sb.AppendLine("        </div>");
+            sb.AppendLine("        <div class=\"report\">");
+            sb.AppendLine("            <button id=\"toggleBtn\" class=\"toggle-btn\" data-state=\"collapsed\" onclick=\"toggleAll()\">Expand All</button>");
         }
 
         private static void AppendEpilogue(StringBuilder sb) {
+            sb.AppendLine("        </div>");
             sb.AppendLine("    </div>");
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
