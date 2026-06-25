@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.10.2.0 - 2026-06-XX (NINA 3.3)
+## 5.10.2.0 - 2026-06-26 (NINA 3.3)
 * Added a planner report
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception).
 * Active NINA profile in navigation trees is now marked.
