@@ -6,6 +6,7 @@
 * Active NINA profile in navigation trees is now marked.
 * Projects and Exposure Templates in the UI are now maintained in sorted order after additions and renames.
 * Added ability to block sync clients from updating the exposure counts.
+* Fixed long-standing exception in SchedulerProgress
 
 ## 5.9.2.0 - 2026-05-27
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception)
