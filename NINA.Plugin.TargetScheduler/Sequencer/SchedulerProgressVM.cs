@@ -1,7 +1,6 @@
 ﻿using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Util;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -26,15 +25,33 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public ProgressCollection ProgressItemList {
             get {
                 if (progressItemList == null) {
-                    progressItemList = new ProgressCollection();
-                    ItemsView = CollectionViewSource.GetDefaultView(progressItemList);
-                    ItemsView.GroupDescriptions.Add(new PropertyGroupDescription("Group"));
+                    // Create the collection and its default view on the UI thread so the view's
+                    // thread-affinity is always bound to the dispatcher thread, regardless of which
+                    // thread first touches this property (see issue #7).
+                    RunOnUiThread(() => {
+                        progressItemList = new ProgressCollection();
+                        ItemsView = CollectionViewSource.GetDefaultView(progressItemList);
+                        ItemsView.GroupDescriptions.Add(new PropertyGroupDescription("Group"));
+                    });
                 }
 
                 return progressItemList;
             }
             set {
                 progressItemList = value;
+            }
+        }
+
+        /// <summary>
+        /// Run the action on the application dispatcher (UI) thread. Falls back to running inline
+        /// when there is no application/dispatcher (e.g. headless test runs).
+        /// </summary>
+        private static void RunOnUiThread(Action action) {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null) {
+                dispatcher.Invoke(action);
+            } else {
+                action();
             }
         }
 
@@ -68,7 +85,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
 
         public void Add(string name, string filter = "") {
             if (SameSwitchFilter(name, filter)) { return; }
-            Application.Current.Dispatcher.Invoke(() => {
+            RunOnUiThread(() => {
                 EndCurrent();
                 CurrentRow = new SchedulerProgressRow(CurrentGroup, name, filter);
                 ProgressItemList.Add(CurrentRow);
@@ -90,16 +107,8 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
             return false;
         }
 
-        public void Interrupt() {
-            EndCurrent();
-            CurrentGroup = "Interrupted";
-            CurrentRow = new SchedulerProgressRow(CurrentGroup, "", "");
-            ProgressItemList.Add(CurrentRow);
-            RaisePropertyChanged(nameof(ItemsView));
-        }
-
         public void End() {
-            Application.Current.Dispatcher.Invoke(() => {
+            RunOnUiThread(() => {
                 EndCurrent();
                 CurrentRow = null;
                 CurrentGroup = null;
@@ -109,7 +118,7 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
 
         public void Reset() {
-            Application.Current.Dispatcher.Invoke(() => {
+            RunOnUiThread(() => {
                 ProgressItemList.Clear();
             });
 
@@ -117,10 +126,9 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         }
     }
 
-    public class ProgressCollection : ObservableCollection<SchedulerProgressRow> { }
+    public class ProgressCollection : AsyncObservableCollection<SchedulerProgressRow> { }
 
     public class SchedulerProgressRow : BaseINPC {
-        private static GeometryGroup checkMark = (GeometryGroup)Application.Current.Resources["CheckedSVG"];
 
         public SchedulerProgressRow(string group, string itemName, string filterName) {
             this.Group = group;
@@ -143,6 +151,6 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
         public DateTime StartTime { get; private set; }
         public DateTime EndTime { get; set; }
         public bool IsComplete { get; set; }
-        public GeometryGroup Complete { get => checkMark; }
+        public GeometryGroup Complete { get => Application.Current?.TryFindResource("CheckedSVG") as GeometryGroup; }
     }
 }
