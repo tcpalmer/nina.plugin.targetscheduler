@@ -27,6 +27,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
     public class PreviewPlanner {
         private ITarget previousTarget;
 
+        /// <summary>The report captured during the most recent <see cref="GetPlanPreview"/> call.</summary>
+        public PlannerReport Report { get; private set; }
+
         public PreviewPlanner() {
         }
 
@@ -36,7 +39,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             DitherManagerCache.Clear();
             List<SchedulerPlan> plans = new List<SchedulerPlan>();
             IWeatherDataMediator weatherData = new DisconnectedWeatherDataMediator();
-            PlannerReport plannerReport = profilePreferences.EnablePlannerReports ? new PlannerReport() : null;
+            PlannerReport plannerReport = new PlannerReport();
+            Report = plannerReport;
             DateTime currentTime = atTime;
             previousTarget = null;
 

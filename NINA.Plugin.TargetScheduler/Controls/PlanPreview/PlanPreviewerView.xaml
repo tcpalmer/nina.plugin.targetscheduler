@@ -164,8 +164,8 @@
                             Margin="4,3,0,0"
                             HorizontalAlignment="Left"
                             Command="{Binding PlanPreviewResultsCommand}"
-                            Content="View Details"
-                            ToolTip="View planner details" />
+                            Content="View Report"
+                            ToolTip="View the planner report" />
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -216,9 +216,38 @@
             BorderBrush="{StaticResource BorderBrush}"
             BorderThickness="1"
             Visibility="{Binding ShowPlanPreviewResults, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
-            <ScrollViewer Height="300" VerticalScrollBarVisibility="Auto">
-                <TextBlock FontFamily="Courier New" Text="{Binding PlanPreviewResultsLog}" />
-            </ScrollViewer>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Button
+                    Grid.Row="0"
+                    Width="25"
+                    Height="25"
+                    Margin="6,6,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Command="{Binding OpenHtmlReportCommand}"
+                    Style="{StaticResource BackgroundButton}"
+                    ToolTip="Open the full report in your browser"
+                    ToolTipService.ShowOnDisabled="True">
+                    <Grid>
+                        <Path
+                            Margin="4"
+                            Data="{StaticResource SS_HtmlSVG}"
+                            Fill="{StaticResource ButtonForegroundBrush}"
+                            Stretch="Uniform" />
+                    </Grid>
+                </Button>
+                <ScrollViewer
+                    Grid.Row="1"
+                    Height="300"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto">
+                    <ContentControl Content="{Binding ReportContent}" />
+                </ScrollViewer>
+            </Grid>
         </Border>
     </StackPanel>
 </UserControl>

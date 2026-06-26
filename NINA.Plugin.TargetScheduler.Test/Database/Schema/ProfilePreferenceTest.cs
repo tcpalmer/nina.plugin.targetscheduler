@@ -16,7 +16,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
             sut.ParkOnWait.Should().BeFalse();
             sut.ExposureThrottle.Should().BeApproximately(125, 0.001);
             sut.EnableSmartPlanWindow.Should().BeTrue();
+#pragma warning disable CS0618 // EnablePlannerReports is deprecated (unused, to be repurposed)
             sut.EnablePlannerReports.Should().BeFalse();
+#pragma warning restore CS0618
             sut.EnableDeleteAcquiredImagesWithTarget.Should().BeTrue();
             sut.EnableSlewCenter.Should().BeTrue();
             sut.EnableStopOnHumidity.Should().BeTrue();

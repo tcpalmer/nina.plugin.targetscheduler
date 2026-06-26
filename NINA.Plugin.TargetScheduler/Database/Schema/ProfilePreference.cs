@@ -69,7 +69,6 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             ParkOnWait = false;
             ExposureThrottle = 125;
             EnableSmartPlanWindow = true;
-            EnablePlannerReports = false;
             EnableDeleteAcquiredImagesWithTarget = true;
             EnableSlewCenter = true;
             EnableStopOnHumidity = true;
@@ -155,6 +154,7 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
 
         [NotMapped]
         [JsonProperty]
+        [System.Obsolete("unused, will be repurposed in the future")]
         public bool EnablePlannerReports {
             get { return enablePlannerReports == 1; }
             set {

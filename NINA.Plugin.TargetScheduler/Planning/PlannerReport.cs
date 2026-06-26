@@ -1,10 +1,8 @@
 using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
-using NINA.Plugin.TargetScheduler.Shared.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,10 +10,7 @@ using System.Text;
 namespace NINA.Plugin.TargetScheduler.Planning {
 
     public class PlannerReport {
-        private readonly string _path;
-        private readonly string _reportTimestamp;
-        private readonly DateTime _reportTime;
-        private readonly List<string> _sectionHtmls;
+        private readonly PlannerReportModel _model;
 
         private List<(IProject Project, ITarget Target)> _currentTargets;
         private Dictionary<ITarget, string> _currentFilterReasons;
@@ -24,29 +19,26 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private List<ITarget> _scoringCandidates;
         private ITarget _scoringSelected;
 
-        private DateTime? _initialAtTime;
-
-        private enum PlanResult { Target, Wait, Done }
         private PlanResult _planResult;
         private ITarget _resultTarget;
         private DateTime _resultWaitUntil;
 
-        public PlannerReport() {
-            DateTime now = DateTime.Now;
-            _reportTimestamp = now.ToString("yyyy-MM-dd HH:mm:ss");
-            _reportTime = now;
-            _sectionHtmls = new List<string>();
+        private enum PlanResult { Target, Wait, Done }
 
-            string reportDir = Path.Combine(Common.PLUGIN_HOME, "Reports");
-            if (!Directory.Exists(reportDir)) {
-                Directory.CreateDirectory(reportDir);
-            }
-            _path = Path.Combine(reportDir, $"TS-Planning-Report-{now:yyyyMMdd-HHmmss}.html");
+        public PlannerReport() {
+            _model = new PlannerReportModel {
+                ReportTime = DateTime.Now,
+                NinaVersion = CoreUtil.Version,
+                PluginVersion = GetPluginVersion()
+            };
         }
+
+        /// <summary>The structured report captured so far.</summary>
+        public PlannerReportModel Model => _model;
 
         public void BeginPlan(List<IProject> projects, DateTime atTime) {
             _currentAtTime = atTime;
-            _initialAtTime ??= atTime;
+            _model.InitialAtTime ??= atTime;
             _currentTargets = new List<(IProject, ITarget)>();
             _currentFilterReasons = new Dictionary<ITarget, string>(ReferenceEqualityComparer.Instance);
             _readyNowTargets = new HashSet<ITarget>(ReferenceEqualityComparer.Instance);
@@ -99,66 +91,53 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             _planResult = PlanResult.Done;
         }
 
+        /// <summary>
+        /// Finalizes the data captured since the last <see cref="BeginPlan"/> into a report section
+        /// and appends it to the model. Called once per plan result.
+        /// </summary>
         public void Generate() {
-            _sectionHtmls.Add(RenderSection());
-
-            try {
-                var sb = new StringBuilder();
-                AppendPreamble(sb);
-
-                foreach (var sectionHtml in _sectionHtmls) {
-                    sb.Append(sectionHtml);
-                }
-
-                AppendEpilogue(sb);
-                File.WriteAllText(_path, sb.ToString(), Encoding.UTF8);
-                TSLogger.Debug($"planning report written: {_path}");
-            } catch (Exception ex) {
-                TSLogger.Error($"failed to generate planner report: {ex.Message}");
-            }
+            _model.Sections.Add(new PlannerReportSection {
+                PlanTime = _currentAtTime,
+                FilterRows = BuildFilterRows(),
+                Scoring = BuildScoringTable(),
+                Result = BuildResultInfo()
+            });
         }
 
-        private string RenderSection() {
-            var sb = new StringBuilder();
-            sb.AppendLine($"        <details>");
-            sb.AppendLine($"        <summary>Plan Report for {HtmlEncode(_currentAtTime.ToString("yyyy-MM-dd"))} at {HtmlEncode(_currentAtTime.ToString("HH:mm:ss"))}</summary>");
-            sb.AppendLine("        <h3>Initial Target Filtering</h3>");
-            sb.AppendLine("        <table>");
-            sb.AppendLine("            <thead>");
-            sb.AppendLine("                <tr><th>Project</th><th>Target</th><th>Filtered</th></tr>");
-            sb.AppendLine("            </thead>");
-            sb.AppendLine("            <tbody>");
-
+        private List<FilterRow> BuildFilterRows() {
+            var rows = new List<FilterRow>();
             foreach (var (project, target) in _currentTargets.OrderBy(t => t.Project.Name).ThenBy(t => t.Target.Name)) {
                 _currentFilterReasons.TryGetValue(target, out string reason);
-                string filteredCell;
+                FilterKind kind;
+                string text;
                 if (reason != null) {
-                    string cssClass = GetReasonCssClass(reason);
-                    string displayText = GetReasonDisplayText(reason);
-                    filteredCell = $"<td class=\"{cssClass}\">{HtmlEncode(displayText)}</td>";
+                    kind = GetReasonKind(reason);
+                    text = GetReasonDisplayText(reason);
                 } else if (_readyNowTargets.Contains(target)) {
-                    filteredCell = "<td class=\"candidate\">candidate now</td>";
+                    kind = FilterKind.Candidate;
+                    text = "candidate now";
                 } else {
-                    filteredCell = "<td class=\"candidate-later\">candidate later</td>";
+                    kind = FilterKind.CandidateLater;
+                    text = "candidate later";
                 }
-                sb.AppendLine($"                <tr><td>{HtmlEncode(project.Name)}</td><td>{HtmlEncode(target.Name)}</td>{filteredCell}</tr>");
+
+                rows.Add(new FilterRow {
+                    Project = project.Name,
+                    Target = target.Name,
+                    FilteredText = text,
+                    Kind = kind
+                });
             }
 
-            sb.AppendLine("            </tbody>");
-            sb.AppendLine("        </table>");
-
-            if (_scoringCandidates != null) {
-                sb.Append(RenderScoringTable());
-            }
-
-            sb.AppendLine("        </details>");
-            sb.Append(RenderResult());
-            sb.AppendLine("        <hr>");
-            return sb.ToString();
+            return rows;
         }
 
-        private string RenderScoringTable() {
-            var activeRuleNames = _scoringCandidates
+        private ScoringTable BuildScoringTable() {
+            if (_scoringCandidates == null) {
+                return null;
+            }
+
+            var ruleNames = _scoringCandidates
                 .Where(t => t.ScoringResults != null)
                 .SelectMany(t => t.ScoringResults.Results)
                 .Select(r => r.ScoringRule.Name)
@@ -166,97 +145,61 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 .OrderBy(n => n)
                 .ToList();
 
-            var sb = new StringBuilder();
-            sb.AppendLine("        <h3>Target Scoring</h3>");
-            sb.AppendLine("        <table class=\"score-table\">");
-            sb.AppendLine("            <thead>");
-
-            var headerRow = new StringBuilder("                <tr><th>Project</th><th>Target</th>");
-            foreach (var ruleName in activeRuleNames) {
-                headerRow.Append($"<th>{HtmlEncode(ruleName)}</th>");
-            }
-            headerRow.Append("<th>Total</th></tr>");
-            sb.AppendLine(headerRow.ToString());
-            sb.AppendLine("            </thead>");
-            sb.AppendLine("            <tbody>");
+            var table = new ScoringTable { RuleNames = ruleNames };
 
             foreach (var target in _scoringCandidates.OrderBy(t => t.Project.Name).ThenBy(t => t.Name)) {
-                bool isWinner = ReferenceEquals(target, _scoringSelected);
+                var row = new ScoringRow {
+                    Project = target.Project.Name,
+                    Target = target.Name,
+                    Total = target.ScoringResults?.TotalScore ?? 0,
+                    IsWinner = ReferenceEquals(target, _scoringSelected)
+                };
 
-                var ruleScores = new Dictionary<string, double>();
                 if (target.ScoringResults != null) {
                     foreach (var ruleResult in target.ScoringResults.Results) {
-                        ruleScores[ruleResult.ScoringRule.Name] = ruleResult.Weight * ruleResult.Score;
+                        row.RuleScores[ruleResult.ScoringRule.Name] = ruleResult.Weight * ruleResult.Score;
                     }
                 }
 
-                var row = new StringBuilder($"                <tr><td>{HtmlEncode(target.Project.Name)}</td><td>{HtmlEncode(target.Name)}</td>");
-                foreach (var ruleName in activeRuleNames) {
-                    row.Append(ruleScores.TryGetValue(ruleName, out double ruleScore)
-                        ? $"<td>{ruleScore:F2}</td>"
-                        : "<td>-</td>");
-                }
-
-                double total = target.ScoringResults?.TotalScore ?? 0;
-                string totalClass = isWinner ? "candidate" : "filtered";
-                row.Append($"<td class=\"{totalClass}\">{total:F2}</td></tr>");
-                sb.AppendLine(row.ToString());
+                table.Rows.Add(row);
             }
 
-            sb.AppendLine("            </tbody>");
-            sb.AppendLine("        </table>");
-            return sb.ToString();
+            return table;
         }
 
-        private string RenderResult() {
-            var sb = new StringBuilder();
+        private ResultInfo BuildResultInfo() {
             switch (_planResult) {
                 case PlanResult.Target:
-                    sb.AppendLine("        <h3>Selected Target</h3>");
-                    sb.AppendLine("        <table class=\"result-table\">");
-                    sb.AppendLine("            <tbody>");
-                    sb.AppendLine($"                <tr><td>Project</td><td>{HtmlEncode(_resultTarget.Project.Name)}</td></tr>");
-                    sb.AppendLine($"                <tr><td>Target</td><td>{HtmlEncode(_resultTarget.Name)}</td></tr>");
-                    if (_resultTarget.SelectedExposure != null) {
-                        string filterName = HtmlEncode(_resultTarget.SelectedExposure.FilterName ?? string.Empty);
-                        string expLen = _resultTarget.SelectedExposure.ExposureLength > 0
-                            ? $"  {_resultTarget.SelectedExposure.ExposureLength}s"
-                            : string.Empty;
-                        sb.AppendLine($"                <tr><td>Exposure</td><td>{filterName}{expLen}</td></tr>");
-                    }
-                    sb.AppendLine($"                <tr><td>Start</td><td>{HtmlEncode(_currentAtTime.ToString("yyyy-MM-dd HH:mm:ss"))}</td></tr>");
-                    sb.AppendLine($"                <tr><td>End</td><td>{HtmlEncode(_resultTarget.MinimumTimeSpanEnd.ToString("yyyy-MM-dd HH:mm:ss"))}</td></tr>");
-                    sb.AppendLine("            </tbody>");
-                    sb.AppendLine("        </table>");
-                    break;
+                    return new ResultInfo {
+                        Kind = ResultKind.Target,
+                        Project = _resultTarget.Project.Name,
+                        Target = _resultTarget.Name,
+                        ExposureFilterName = _resultTarget.SelectedExposure?.FilterName ?? string.Empty,
+                        ExposureLength = _resultTarget.SelectedExposure != null ? (int)_resultTarget.SelectedExposure.ExposureLength : 0,
+                        StartTime = _currentAtTime,
+                        EndTime = _resultTarget.MinimumTimeSpanEnd
+                    };
                 case PlanResult.Wait:
-                    TimeSpan wait = _resultWaitUntil - _currentAtTime;
-                    string duration = $"{(int)wait.TotalHours}h {wait.Minutes:D2}m {wait.Seconds:D2}s";
-                    sb.AppendLine("        <h3>Wait for Next Target</h3>");
-                    sb.AppendLine("        <table class=\"result-table\">");
-                    sb.AppendLine("            <tbody>");
-                    sb.AppendLine($"                <tr><td>Next Target</td><td>{HtmlEncode(_resultTarget.Project.Name)} / {HtmlEncode(_resultTarget.Name)}</td></tr>");
-                    sb.AppendLine($"                <tr><td>Wait Until</td><td>{HtmlEncode(_resultWaitUntil.ToString("yyyy-MM-dd HH:mm:ss"))} &nbsp;({HtmlEncode(duration)})</td></tr>");
-                    sb.AppendLine("            </tbody>");
-                    sb.AppendLine("        </table>");
-                    break;
-                case PlanResult.Done:
-                    sb.AppendLine("        <h3>Result</h3>");
-                    sb.AppendLine("        <p>No more targets, done for the night.</p>");
-                    break;
+                    return new ResultInfo {
+                        Kind = ResultKind.Wait,
+                        NextProject = _resultTarget.Project.Name,
+                        NextTarget = _resultTarget.Name,
+                        WaitUntil = _resultWaitUntil
+                    };
+                default:
+                    return new ResultInfo { Kind = ResultKind.Done };
             }
-            return sb.ToString();
         }
 
-        private static string GetReasonCssClass(string reason) {
+        private static FilterKind GetReasonKind(string reason) {
             if (reason == Reasons.TargetNotYetVisible
                 || reason == Reasons.TargetMoonAvoidance
                 || reason == Reasons.TargetBeforeMeridianWindow
                 || reason == Reasons.TargetMeridianFlipClipped
                 || reason == Reasons.TargetMaxAltitude) {
-                return "candidate-later";
+                return FilterKind.CandidateLater;
             }
-            return "filtered";
+            return FilterKind.Filtered;
         }
 
         private static string GetReasonDisplayText(string reason) {
@@ -268,12 +211,141 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             return reason;
         }
 
+        private static string GetPluginVersion() {
+            var fvi = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            return fvi.FileVersion ?? string.Empty;
+        }
+
+        // ---------------------------------------------------------------------------------------------
+        // HTML rendering
+        // ---------------------------------------------------------------------------------------------
+
+        /// <summary>Renders the full standalone HTML report from the captured model.</summary>
+        public string GenerateHtml() {
+            var sb = new StringBuilder();
+            AppendPreamble(sb);
+
+            foreach (var section in _model.Sections) {
+                AppendSectionHtml(sb, section);
+            }
+
+            AppendEpilogue(sb);
+            return sb.ToString();
+        }
+
+        private void AppendSectionHtml(StringBuilder sb, PlannerReportSection section) {
+            sb.AppendLine($"        <details>");
+            sb.AppendLine($"        <summary>Plan Report for {HtmlEncode(section.PlanTime.ToString("yyyy-MM-dd"))} at {HtmlEncode(section.PlanTime.ToString("HH:mm:ss"))}</summary>");
+            sb.AppendLine("        <h3>Initial Target Filtering</h3>");
+            sb.AppendLine("        <table>");
+            sb.AppendLine("            <thead>");
+            sb.AppendLine("                <tr><th>Project</th><th>Target</th><th>Filtered</th></tr>");
+            sb.AppendLine("            </thead>");
+            sb.AppendLine("            <tbody>");
+
+            foreach (var row in section.FilterRows) {
+                string cssClass = GetReasonCssClass(row.Kind);
+                string filteredCell = $"<td class=\"{cssClass}\">{HtmlEncode(row.FilteredText)}</td>";
+                sb.AppendLine($"                <tr><td>{HtmlEncode(row.Project)}</td><td>{HtmlEncode(row.Target)}</td>{filteredCell}</tr>");
+            }
+
+            sb.AppendLine("            </tbody>");
+            sb.AppendLine("        </table>");
+
+            if (section.Scoring != null) {
+                AppendScoringTableHtml(sb, section.Scoring);
+            }
+
+            sb.AppendLine("        </details>");
+            AppendResultHtml(sb, section);
+            sb.AppendLine("        <hr>");
+        }
+
+        private void AppendScoringTableHtml(StringBuilder sb, ScoringTable scoring) {
+            sb.AppendLine("        <h3>Target Scoring</h3>");
+            sb.AppendLine("        <table class=\"score-table\">");
+            sb.AppendLine("            <thead>");
+
+            var headerRow = new StringBuilder("                <tr><th>Project</th><th>Target</th>");
+            foreach (var ruleName in scoring.RuleNames) {
+                headerRow.Append($"<th>{HtmlEncode(ruleName)}</th>");
+            }
+            headerRow.Append("<th>Total</th></tr>");
+            sb.AppendLine(headerRow.ToString());
+            sb.AppendLine("            </thead>");
+            sb.AppendLine("            <tbody>");
+
+            foreach (var scoreRow in scoring.Rows) {
+                var row = new StringBuilder($"                <tr><td>{HtmlEncode(scoreRow.Project)}</td><td>{HtmlEncode(scoreRow.Target)}</td>");
+                foreach (var ruleName in scoring.RuleNames) {
+                    row.Append(scoreRow.RuleScores.TryGetValue(ruleName, out double ruleScore)
+                        ? $"<td>{ruleScore:F2}</td>"
+                        : "<td>-</td>");
+                }
+
+                string totalClass = scoreRow.IsWinner ? "candidate" : "filtered";
+                row.Append($"<td class=\"{totalClass}\">{scoreRow.Total:F2}</td></tr>");
+                sb.AppendLine(row.ToString());
+            }
+
+            sb.AppendLine("            </tbody>");
+            sb.AppendLine("        </table>");
+        }
+
+        private void AppendResultHtml(StringBuilder sb, PlannerReportSection section) {
+            ResultInfo result = section.Result;
+            switch (result.Kind) {
+                case ResultKind.Target:
+                    sb.AppendLine("        <h3>Selected Target</h3>");
+                    sb.AppendLine("        <table class=\"result-table\">");
+                    sb.AppendLine("            <tbody>");
+                    sb.AppendLine($"                <tr><td>Project</td><td>{HtmlEncode(result.Project)}</td></tr>");
+                    sb.AppendLine($"                <tr><td>Target</td><td>{HtmlEncode(result.Target)}</td></tr>");
+                    if (!string.IsNullOrEmpty(result.ExposureFilterName) || result.ExposureLength > 0) {
+                        string expLen = result.ExposureLength > 0 ? $"  {result.ExposureLength}s" : string.Empty;
+                        sb.AppendLine($"                <tr><td>Exposure</td><td>{HtmlEncode(result.ExposureFilterName)}{expLen}</td></tr>");
+                    }
+                    sb.AppendLine($"                <tr><td>Start</td><td>{HtmlEncode(result.StartTime.ToString("yyyy-MM-dd HH:mm:ss"))}</td></tr>");
+                    sb.AppendLine($"                <tr><td>End</td><td>{HtmlEncode(result.EndTime.ToString("yyyy-MM-dd HH:mm:ss"))}</td></tr>");
+                    sb.AppendLine("            </tbody>");
+                    sb.AppendLine("        </table>");
+                    break;
+                case ResultKind.Wait:
+                    string duration = FormatWaitDuration(result.WaitUntil - section.PlanTime);
+                    sb.AppendLine("        <h3>Wait for Next Target</h3>");
+                    sb.AppendLine("        <table class=\"result-table\">");
+                    sb.AppendLine("            <tbody>");
+                    sb.AppendLine($"                <tr><td>Next Target</td><td>{HtmlEncode(result.NextProject)} / {HtmlEncode(result.NextTarget)}</td></tr>");
+                    sb.AppendLine($"                <tr><td>Wait Until</td><td>{HtmlEncode(result.WaitUntil.ToString("yyyy-MM-dd HH:mm:ss"))} &nbsp;({HtmlEncode(duration)})</td></tr>");
+                    sb.AppendLine("            </tbody>");
+                    sb.AppendLine("        </table>");
+                    break;
+                case ResultKind.Done:
+                    sb.AppendLine("        <h3>Result</h3>");
+                    sb.AppendLine("        <p>No more targets, done for the night.</p>");
+                    break;
+            }
+        }
+
+        internal static string FormatWaitDuration(TimeSpan wait) {
+            return $"{(int)wait.TotalHours}h {wait.Minutes:D2}m {wait.Seconds:D2}s";
+        }
+
+        private static string GetReasonCssClass(FilterKind kind) {
+            switch (kind) {
+                case FilterKind.Candidate: return "candidate";
+                case FilterKind.CandidateLater: return "candidate-later";
+                default: return "filtered";
+            }
+        }
+
         private void AppendPreamble(StringBuilder sb) {
+            string reportTimestamp = _model.ReportTime.ToString("yyyy-MM-dd HH:mm:ss");
             sb.AppendLine("<!DOCTYPE html>");
             sb.AppendLine("<html lang=\"en\">");
             sb.AppendLine("<head>");
             sb.AppendLine("    <meta charset=\"UTF-8\">");
-            sb.AppendLine($"    <title>Planning Report {_reportTimestamp}</title>");
+            sb.AppendLine($"    <title>Planning Report {reportTimestamp}</title>");
             sb.AppendLine("    <style>");
             sb.AppendLine("        body {");
             sb.AppendLine("            margin: 1cm;");
@@ -296,9 +368,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             sb.AppendLine("        td { padding: 3px 10px; }");
             sb.AppendLine("        tr:nth-of-type(even) { background-color: #282828; }");
             sb.AppendLine("        .filtered { color: #e07070; }");
-        sb.AppendLine("        .candidate { color: #70c070; }");
-        sb.AppendLine("        .candidate-later { color: #b8b820; }");
-        sb.AppendLine("        .score-table td:nth-child(n+3), .score-table th:nth-child(n+3) { text-align: right; }");
+            sb.AppendLine("        .candidate { color: #70c070; }");
+            sb.AppendLine("        .candidate-later { color: #b8b820; }");
+            sb.AppendLine("        .score-table td:nth-child(n+3), .score-table th:nth-child(n+3) { text-align: right; }");
             sb.AppendLine("        .result-table { width: auto; }");
             sb.AppendLine("        .result-table td:first-child { color: #aaa; padding-right: 24px; white-space: nowrap; }");
             sb.AppendLine("        .toggle-btn { background: none; border: 1px solid #888; color: #c7c6c3; padding: 4px 12px; cursor: pointer; font-size: small; margin-bottom: 14px; }");
@@ -320,10 +392,10 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             sb.AppendLine("            <h1>Planning Report</h1>");
             sb.AppendLine("            <table class=\"header-table\">");
             sb.AppendLine("                <tbody>");
-            sb.AppendLine($"                    <tr><td>Report Date</td><td>{HtmlEncode(_reportTime.ToString("MMM d, yyyy HH:mm"))}</td></tr>");
-            sb.AppendLine($"                    <tr><td>Plan time</td><td>{HtmlEncode(_initialAtTime?.ToString("MMM d, yyyy HH:mm") ?? string.Empty)}</td></tr>");
-            sb.AppendLine($"                    <tr><td>NINA</td><td>{HtmlEncode(CoreUtil.Version)}</td></tr>");
-            sb.AppendLine($"                    <tr><td>Target Scheduler</td><td>{HtmlEncode(GetPluginVersion())}</td></tr>");
+            sb.AppendLine($"                    <tr><td>Report Date</td><td>{HtmlEncode(_model.ReportTime.ToString("MMM d, yyyy HH:mm"))}</td></tr>");
+            sb.AppendLine($"                    <tr><td>Plan time</td><td>{HtmlEncode(_model.InitialAtTime?.ToString("MMM d, yyyy HH:mm") ?? string.Empty)}</td></tr>");
+            sb.AppendLine($"                    <tr><td>NINA</td><td>{HtmlEncode(_model.NinaVersion)}</td></tr>");
+            sb.AppendLine($"                    <tr><td>Target Scheduler</td><td>{HtmlEncode(_model.PluginVersion)}</td></tr>");
             sb.AppendLine("                </tbody>");
             sb.AppendLine("            </table>");
             sb.AppendLine("        </div>");
@@ -336,11 +408,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             sb.AppendLine("    </div>");
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
-        }
-
-        private static string GetPluginVersion() {
-            var fvi = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-            return fvi.FileVersion ?? string.Empty;
         }
 
         private static string HtmlEncode(string text) {

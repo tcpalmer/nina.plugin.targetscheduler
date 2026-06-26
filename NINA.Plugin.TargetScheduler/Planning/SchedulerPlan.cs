@@ -25,7 +25,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public DateTime? WaitForNextTargetTime { get; private set; }
         public bool IsWait { get => WaitForNextTargetTime.HasValue; }
         public bool IsEmulator { get; set; }
-        public string DetailsLog { get; private set; }
 
         public SchedulerPlan(DateTime planTime, List<IProject> projects, ITarget target, List<IInstruction> planInstructions, bool logPlan) {
             this.PlanId = Guid.NewGuid().ToString();
@@ -79,17 +78,11 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         private void LogPlan(bool logPlan) {
             if (logPlan) {
                 if (TSLogger.IsEnabled(LogLevelEnum.TRACE)) {
-                    string log = LogPlanResultsTrace();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Trace(log);
+                    TSLogger.Trace(LogPlanResultsTrace());
                 } else if (TSLogger.IsEnabled(LogLevelEnum.DEBUG)) {
-                    string log = LogPlanResultsDebug();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Debug(log);
+                    TSLogger.Debug(LogPlanResultsDebug());
                 } else {
-                    string log = LogPlanResultsInfo();
-                    DetailsLog = DetailsLog + log;
-                    TSLogger.Info(log);
+                    TSLogger.Info(LogPlanResultsInfo());
                 }
             }
         }

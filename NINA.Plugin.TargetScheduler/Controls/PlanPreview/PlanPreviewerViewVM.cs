@@ -19,6 +19,8 @@ using NINA.WPF.Base.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -46,6 +48,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
             SetNowCommand = new RelayCommand(SetPreviewTimeNow);
             PlanPreviewCommand = new RelayCommand(RunPlanPreview);
             PlanPreviewResultsCommand = new RelayCommand(RunPlanPreviewResults);
+            OpenHtmlReportCommand = new RelayCommand(OpenHtmlReport);
         }
 
         private void ProfileService_ProfileChanged(object sender, EventArgs e) {
@@ -153,6 +156,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
         }
 
         private List<SchedulerPlan> SchedulerPlans { get; set; }
+        private PlannerReport plannerReport;
 
         private bool showPlanPreview;
 
@@ -177,6 +181,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
         public ICommand SetNowCommand { get; private set; }
         public ICommand PlanPreviewCommand { get; private set; }
         public ICommand PlanPreviewResultsCommand { get; private set; }
+        public ICommand OpenHtmlReportCommand { get; private set; }
 
         private void LoadSchedulerPlans(DateTime atDateTime, IProfileService profileService) {
             /* While the caching here works and detects changes to the preview parameters (like date/time), it's not picking
@@ -202,25 +207,30 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
 
                     MyMessageBox.Show($"No active projects/targets were returned by the planner for {Utils.FormatDateTimeFull(atDateTime)} and{Environment.NewLine}profile '{profileName}' - or no active targets were found with active exposure plans.", "Oops");
                     SchedulerPlans = null;
+                    plannerReport = null;
                     return;
                 }
 
-                List<SchedulerPlan> schedulerPlans = new PreviewPlanner().GetPlanPreview(atDateTime, profileService, profilePreference, projects);
+                PreviewPlanner previewPlanner = new PreviewPlanner();
+                List<SchedulerPlan> schedulerPlans = previewPlanner.GetPlanPreview(atDateTime, profileService, profilePreference, projects);
                 if (schedulerPlans.Count == 0) {
                     TSLogger.Debug($"no imagable projects for preview at {atDateTime}, profileId={SelectedProfileId}");
                     InstructionList = list;
 
                     MyMessageBox.Show($"No imagable projects/targets were returned by the planner for {Utils.FormatDateTimeFull(atDateTime)} and{Environment.NewLine}profile '{profileName}'.", "Oops");
                     SchedulerPlans = null;
+                    plannerReport = null;
                     return;
                 }
 
                 SchedulerPlans = schedulerPlans;
+                plannerReport = previewPlanner.Report;
                 return;
             } catch (Exception ex) {
                 TSLogger.Error($"failed to run plan preview: {ex.Message} {ex.StackTrace}");
                 MyMessageBox.Show($"Exception running plan preview - see the TS log for details.", "Oops");
                 SchedulerPlans = null;
+                plannerReport = null;
                 return;
             }
         }
@@ -407,13 +417,13 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
             }
         }
 
-        private string planPreviewResultsLog;
+        private FrameworkElement reportContent;
 
-        public string PlanPreviewResultsLog {
-            get => planPreviewResultsLog;
+        public FrameworkElement ReportContent {
+            get => reportContent;
             set {
-                planPreviewResultsLog = value;
-                RaisePropertyChanged(nameof(PlanPreviewResultsLog));
+                reportContent = value;
+                RaisePropertyChanged(nameof(ReportContent));
             }
         }
 
@@ -445,24 +455,34 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
 
                 _dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => {
                     try {
-                        StringBuilder sb = new StringBuilder();
-                        foreach (SchedulerPlan plan in SchedulerPlans) {
-                            sb.Append(plan.DetailsLog);
-                        }
-
-                        sb.AppendLine("\nRUN COMPLETE - NO MORE TARGETS AVAILABLE");
-                        PlanPreviewResultsLog = sb.ToString();
+                        ReportContent = PlanPreviewReportBuilder.Build(plannerReport?.Model);
                         ShowPlanPreview = false;
                         ShowPlanPreviewResults = true;
                     } catch (Exception ex) {
-                        TSLogger.Error($"failed to run plan preview results: {ex.Message} {ex.StackTrace}");
-                        PlanPreviewResultsLog = string.Empty;
+                        TSLogger.Error($"failed to build plan preview report: {ex.Message} {ex.StackTrace}");
+                        ReportContent = null;
                     }
                 }));
 
                 TableLoading = false;
                 return true;
             });
+        }
+
+        private void OpenHtmlReport() {
+            try {
+                if (plannerReport == null) {
+                    MyMessageBox.Show("Run a preview and view the report before opening the HTML version.", "Oops");
+                    return;
+                }
+
+                string path = Path.Combine(Path.GetTempPath(), $"TS-Planning-Report-{DateTime.Now:yyyyMMdd-HHmmss}.html");
+                File.WriteAllText(path, plannerReport.GenerateHtml(), Encoding.UTF8);
+                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            } catch (Exception ex) {
+                TSLogger.Error($"failed to open HTML planner report: {ex.Message} {ex.StackTrace}");
+                MyMessageBox.Show("Failed to open the HTML report - see the TS log for details.", "Oops");
+            }
         }
 
         private AsyncObservableCollection<KeyValuePair<string, string>> GetProfileChoices() {
