@@ -1,7 +1,8 @@
 # Target Scheduler
 
 ## 5.10.2.0 - 2026-06-26 (NINA 3.3)
-* Added a planner report
+* Added an altitude chart to each selected target in the plan preview.
+* Added a planner report.
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception).
 * Active NINA profile in navigation trees is now marked.
 * Projects and Exposure Templates in the UI are now maintained in sorted order after additions and renames.

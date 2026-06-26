@@ -9,6 +9,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Interfaces {
         int DatabaseId { get; set; }
         bool IsEnabled { get; set; }
         string FilterName { get; set; }
+        string ExposureTemplateName { get; set; }
         double ExposureLength { get; set; }
         int? Gain { get; set; }
         int? Offset { get; set; }

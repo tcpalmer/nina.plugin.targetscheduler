@@ -448,6 +448,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning.Exposures {
         public string PlanId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int DatabaseId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string FilterName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string ExposureTemplateName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public double ExposureLength { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int? Gain { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int? Offset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

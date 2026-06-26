@@ -1,12 +1,16 @@
 ﻿using LinqKit;
+using NINA.Astrometry;
+using NINA.Core.Model;
 using NINA.Core.MyMessageBox;
 using NINA.Core.Utility;
+using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Controls.Util;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Plugin.TargetScheduler.Planning;
 using NINA.Plugin.TargetScheduler.Planning.Entities;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
+using NINA.Plugin.TargetScheduler.Controls.PlanPreview.Plot;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
 using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile;
@@ -281,7 +285,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                         TreeViewItem planItem = null;
                         TreeViewItem lastItem = null;
                         SchedulerPlan lastTargetPlan = null;
+                        AltitudeChart currentTargetChart = null;
+                        List<ExposureRun> currentTargetRuns = null;
                         ProfilePreference profilePreference = GetProfilePreference(SelectedProfileId);
+                        IProfile chartProfile = GetProfile(SelectedProfileId);
+                        NighttimeCalculator nighttimeCalculator = new NighttimeCalculator(profileService);
 
                         foreach (SchedulerPlan plan in SchedulerPlans) {
                             if (plan.IsWait) {
@@ -302,7 +310,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                                 planItem.IsExpanded = false;
                                 list.Add(planItem);
                                 lastItem = planItem;
+
+                                currentTargetChart = BuildAltitudeChart(chartProfile, nighttimeCalculator, plan);
+                                currentTargetRuns = new List<ExposureRun>();
+                                planItem.Items.Add(new TreeViewItem { Header = currentTargetChart, Focusable = false });
                             }
+
+                            // Carry the stop line out to the end of the last segment in this target block.
+                            currentTargetChart.ImagingStop = plan.EndTime;
+
+                            // Accumulate the exposure bands, merging consecutive plans that use the same filter.
+                            AppendExposureRun(currentTargetRuns, plan);
+                            currentTargetChart.SetExposureRuns(currentTargetRuns);
 
                             lastTargetPlan = plan;
                             foreach (IInstruction instruction in plan.PlanInstructions) {
@@ -475,6 +494,55 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
             using (var context = database.GetContext()) {
                 return context.GetProfilePreference(profileId, true);
             }
+        }
+
+        private AltitudeChart BuildAltitudeChart(IProfile profile, NighttimeCalculator nighttimeCalculator, SchedulerPlan plan) {
+            DateTime referenceDate = NighttimeCalculator.GetReferenceDate(plan.StartTime);
+            CustomHorizon customHorizon = GetCustomHorizon(profile, plan.PlanTarget.Project);
+
+            DeepSkyObject dso = new DeepSkyObject(string.Empty, plan.PlanTarget.Coordinates, customHorizon);
+            dso.Name = plan.PlanTarget.Name;
+            dso.SetDateAndPosition(referenceDate, profile.AstrometrySettings.Latitude, profile.AstrometrySettings.Longitude);
+            dso.Refresh();
+
+            return new AltitudeChart {
+                Width = 600,
+                Height = 200,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                DataContext = dso,
+                NighttimeData = nighttimeCalculator.Calculate(referenceDate),
+                ImagingStart = plan.StartTime,
+                ImagingStop = plan.EndTime
+            };
+        }
+
+        private void AppendExposureRun(List<ExposureRun> runs, SchedulerPlan plan) {
+            IExposure exposure = plan.PlanInstructions?.OfType<PlanTakeExposure>().FirstOrDefault()?.exposure;
+            if (exposure == null) {
+                return;
+            }
+
+            // Extend the current band while the same filter continues; otherwise start a new band.
+            ExposureRun last = runs.Count > 0 ? runs[runs.Count - 1] : null;
+            if (last != null && string.Equals(last.FilterName, exposure.FilterName, StringComparison.Ordinal)) {
+                last.End = plan.EndTime;
+            } else {
+                runs.Add(new ExposureRun {
+                    Start = plan.StartTime,
+                    End = plan.EndTime,
+                    FilterName = exposure.FilterName,
+                    ExposureTemplateName = exposure.ExposureTemplateName,
+                    Color = ExposureFilterColors.GetColor(exposure.ExposureTemplateName, exposure.FilterName)
+                });
+            }
+        }
+
+        private CustomHorizon GetCustomHorizon(IProfile profile, IProject project) {
+            // Mirrors TargetSchedulerContainer: use the profile's custom horizon when the project opts in,
+            // otherwise generate a constant horizon from the project's minimum altitude.
+            return project.UseCustomHorizon && profile.AstrometrySettings.Horizon != null ?
+                profile.AstrometrySettings.Horizon :
+                HorizonDefinition.GetConstantHorizon(project.MinimumAltitude);
         }
 
         private string GetTargetLabel(SchedulerPlan plan) {

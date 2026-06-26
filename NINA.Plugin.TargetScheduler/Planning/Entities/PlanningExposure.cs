@@ -12,6 +12,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
         public int DatabaseId { get; set; }
         public bool IsEnabled { get; set; }
         public string FilterName { get; set; }
+        public string ExposureTemplateName { get; set; }
         public double ExposureLength { get; set; }
         public int? Gain { get; set; }
         public int? Offset { get; set; }
@@ -47,6 +48,7 @@ namespace NINA.Plugin.TargetScheduler.Planning.Entities {
             this.DatabaseId = exposurePlan.Id;
             this.IsEnabled = exposurePlan.IsEnabled;
             this.FilterName = exposureTemplate.FilterName;
+            this.ExposureTemplateName = exposureTemplate.Name;
             this.ExposureLength = exposurePlan.Exposure != -1 ? exposurePlan.Exposure : exposureTemplate.DefaultExposure;
             this.Gain = GetNullableIntValue(exposureTemplate.Gain);
             this.Offset = GetNullableIntValue(exposureTemplate.Offset);

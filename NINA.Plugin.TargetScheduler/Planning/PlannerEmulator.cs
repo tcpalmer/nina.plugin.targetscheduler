@@ -193,6 +193,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public string PlanId { get; set; }
         public bool IsEnabled { get; set; }
         public string FilterName { get; set; }
+        public string ExposureTemplateName { get; set; }
         public double ExposureLength { get; set; }
         public int? Gain { get; set; }
         public int? Offset { get; set; }
