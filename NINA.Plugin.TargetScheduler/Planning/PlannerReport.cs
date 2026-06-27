@@ -92,6 +92,23 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         }
 
         /// <summary>
+        /// Records that the previous target continued imaging via the planner's "continue" shortcut, which
+        /// returns without a full re-plan (and so without a new section). Extends the most recent target
+        /// section's end time to cover this continuation exposure so the report's target window matches the
+        /// actual imaging span shown by the Run output.
+        /// </summary>
+        public void Continue(ITarget target, DateTime atTime) {
+            if (target == null || _model.Sections.Count == 0) {
+                return;
+            }
+
+            ResultInfo last = _model.Sections[_model.Sections.Count - 1].Result;
+            if (last != null && last.Kind == ResultKind.Target && last.TargetId == target.DatabaseId) {
+                last.EndTime = atTime.AddSeconds(target.SelectedExposure?.ExposureLength ?? 0);
+            }
+        }
+
+        /// <summary>
         /// Finalizes the data captured since the last <see cref="BeginPlan"/> into a report section
         /// and appends it to the model. Called once per plan result.
         /// </summary>
@@ -172,12 +189,13 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 case PlanResult.Target:
                     return new ResultInfo {
                         Kind = ResultKind.Target,
+                        TargetId = _resultTarget.DatabaseId,
                         Project = _resultTarget.Project.Name,
                         Target = _resultTarget.Name,
                         ExposureFilterName = _resultTarget.SelectedExposure?.FilterName ?? string.Empty,
                         ExposureLength = _resultTarget.SelectedExposure != null ? (int)_resultTarget.SelectedExposure.ExposureLength : 0,
                         StartTime = _currentAtTime,
-                        EndTime = _resultTarget.MinimumTimeSpanEnd
+                        EndTime = _currentAtTime.AddSeconds(_resultTarget.SelectedExposure?.ExposureLength ?? 0)
                     };
                 case PlanResult.Wait:
                     return new ResultInfo {
@@ -225,12 +243,31 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             var sb = new StringBuilder();
             AppendPreamble(sb);
 
-            foreach (var section in _model.Sections) {
-                AppendSectionHtml(sb, section);
+            foreach (var group in _model.BuildGroups()) {
+                AppendGroupHtml(sb, group);
+                sb.AppendLine("        <hr>");
             }
 
             AppendEpilogue(sb);
             return sb.ToString();
+        }
+
+        private void AppendGroupHtml(StringBuilder sb, PlannerReportGroup group) {
+            // Wait and Done groups carry a single section and aren't aggregated; render it directly.
+            if (group.Kind != ResultKind.Target) {
+                AppendSectionHtml(sb, group.Sections[0]);
+                return;
+            }
+
+            string window = $"start: {group.StartTime:yyyy-MM-dd HH:mm:ss}, end: {group.EndTime:yyyy-MM-dd HH:mm:ss}";
+            sb.AppendLine("        <details class=\"target-group\">");
+            sb.AppendLine($"        <summary>{HtmlEncode($"{group.Project} / {group.Target}")} &nbsp;&mdash;&nbsp; {HtmlEncode(window)}</summary>");
+
+            foreach (var section in group.Sections) {
+                AppendSectionHtml(sb, section);
+            }
+
+            sb.AppendLine("        </details>");
         }
 
         private void AppendSectionHtml(StringBuilder sb, PlannerReportSection section) {
@@ -258,7 +295,6 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             sb.AppendLine("        </details>");
             AppendResultHtml(sb, section);
-            sb.AppendLine("        <hr>");
         }
 
         private void AppendScoringTableHtml(StringBuilder sb, ScoringTable scoring) {
@@ -361,6 +397,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             sb.AppendLine("        .header-table td:first-child { color: #aaa; padding-right: 24px; white-space: nowrap; }");
             sb.AppendLine("        details { margin-top: 28px; }");
             sb.AppendLine("        details > summary { font-size: 1.25em; cursor: pointer; margin-bottom: 4px; user-select: none; }");
+            sb.AppendLine("        details.target-group > summary { font-size: 1.45em; font-weight: 600; }");
+            sb.AppendLine("        details.target-group { border-left: 2px solid #444; padding-left: 14px; }");
+            sb.AppendLine("        details.target-group > details { margin-top: 18px; }");
             sb.AppendLine("        h3 { font-size: 1.1em; margin-top: 28px; color: #aaa; }");
             sb.AppendLine("        hr { border: none; border-top: 2px solid #666; margin: 36px 0; }");
             sb.AppendLine("        table { border-collapse: collapse; width: 100%; margin-top: 8px; }");

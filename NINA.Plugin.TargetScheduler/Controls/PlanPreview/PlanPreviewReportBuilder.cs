@@ -32,12 +32,35 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
 
             root.Children.Add(BuildHeaderTable(model));
 
-            foreach (PlannerReportSection section in model.Sections) {
-                root.Children.Add(BuildSection(section));
+            foreach (PlannerReportGroup group in model.BuildGroups()) {
+                root.Children.Add(BuildGroup(group));
                 root.Children.Add(BuildRule());
             }
 
             return root;
+        }
+
+        private static UIElement BuildGroup(PlannerReportGroup group) {
+            // Wait and Done groups carry a single section and aren't aggregated; render it directly.
+            if (group.Kind != ResultKind.Target) {
+                return BuildSection(group.Sections[0]);
+            }
+
+            var content = new StackPanel();
+            foreach (PlannerReportSection section in group.Sections) {
+                content.Children.Add(BuildSection(section));
+            }
+
+            return new Expander {
+                IsExpanded = false,
+                Header = new TextBlock {
+                    Text = $"{group.Project} / {group.Target}  —  start: {group.StartTime:yyyy-MM-dd HH:mm:ss}, end: {group.EndTime:yyyy-MM-dd HH:mm:ss}",
+                    FontSize = 15,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = TextBrush
+                },
+                Content = content
+            };
         }
 
         private static UIElement BuildHeaderTable(PlannerReportModel model) {

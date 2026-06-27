@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.10.3.0 - 2026-06-27 (NINA 3.3)
+* Fix for new preview report timing issues
+
 ## 5.10.2.0 - 2026-06-26 (NINA 3.3)
 * Added an altitude chart to each selected target in the plan preview.
 * Added a plan preview report, replacing the old View Details.

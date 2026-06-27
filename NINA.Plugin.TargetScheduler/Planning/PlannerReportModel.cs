@@ -13,6 +13,58 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public string NinaVersion { get; set; }
         public string PluginVersion { get; set; }
         public List<PlannerReportSection> Sections { get; } = new List<PlannerReportSection>();
+
+        /// <summary>
+        /// Collapses consecutive planner runs for the same target into a single group, mirroring how the
+        /// Run output aggregates per-exposure plans under one top-level target block. Wait and Done results
+        /// each form their own single-section group.
+        /// </summary>
+        public List<PlannerReportGroup> BuildGroups() {
+            var groups = new List<PlannerReportGroup>();
+            PlannerReportGroup current = null;
+
+            foreach (PlannerReportSection section in Sections) {
+                ResultInfo result = section.Result;
+
+                if (result.Kind == ResultKind.Target
+                    && current != null
+                    && current.Kind == ResultKind.Target
+                    && current.TargetId == result.TargetId) {
+                    current.Sections.Add(section);
+                    current.EndTime = result.EndTime;
+                    continue;
+                }
+
+                current = new PlannerReportGroup {
+                    Kind = result.Kind,
+                    TargetId = result.TargetId,
+                    Project = result.Kind == ResultKind.Wait ? result.NextProject : result.Project,
+                    Target = result.Kind == ResultKind.Wait ? result.NextTarget : result.Target,
+                    StartTime = section.PlanTime,
+                    EndTime = result.Kind == ResultKind.Target ? result.EndTime
+                        : result.Kind == ResultKind.Wait ? result.WaitUntil
+                        : section.PlanTime
+                };
+                current.Sections.Add(section);
+                groups.Add(current);
+            }
+
+            return groups;
+        }
+    }
+
+    /// <summary>
+    /// One or more consecutive <see cref="PlannerReportSection"/>s aggregated for display. A Target group
+    /// holds every run for the same target between target switches; Wait and Done groups hold a single section.
+    /// </summary>
+    public class PlannerReportGroup {
+        public ResultKind Kind { get; set; }
+        public int TargetId { get; set; }
+        public string Project { get; set; }
+        public string Target { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public List<PlannerReportSection> Sections { get; } = new List<PlannerReportSection>();
     }
 
     public class PlannerReportSection {
@@ -58,6 +110,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         public ResultKind Kind { get; set; }
 
         // Target
+        public int TargetId { get; set; }
         public string Project { get; set; }
         public string Target { get; set; }
         public string ExposureFilterName { get; set; }
