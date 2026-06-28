@@ -238,13 +238,23 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         // HTML rendering
         // ---------------------------------------------------------------------------------------------
 
-        /// <summary>Renders the full standalone HTML report from the captured model.</summary>
-        public string GenerateHtml() {
+        /// <summary>
+        /// Renders the full standalone HTML report from the captured model.  When <paramref name="targetGroupSvgs"/>
+        /// is supplied, the SVG strings are embedded at the top of each Target group in order (one per Target
+        /// group); they align 1:1 with the Target groups produced by <see cref="PlannerReportModel.BuildGroups"/>.
+        /// </summary>
+        public string GenerateHtml(IReadOnlyList<string> targetGroupSvgs = null) {
             var sb = new StringBuilder();
             AppendPreamble(sb);
 
+            int chartIndex = 0;
             foreach (var group in _model.BuildGroups()) {
-                AppendGroupHtml(sb, group);
+                string svg = null;
+                if (group.Kind == ResultKind.Target && targetGroupSvgs != null && chartIndex < targetGroupSvgs.Count) {
+                    svg = targetGroupSvgs[chartIndex++];
+                }
+
+                AppendGroupHtml(sb, group, svg);
                 sb.AppendLine("        <hr>");
             }
 
@@ -252,7 +262,7 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             return sb.ToString();
         }
 
-        private void AppendGroupHtml(StringBuilder sb, PlannerReportGroup group) {
+        private void AppendGroupHtml(StringBuilder sb, PlannerReportGroup group, string svg) {
             // Wait and Done groups carry a single section and aren't aggregated; render it directly.
             if (group.Kind != ResultKind.Target) {
                 AppendSectionHtml(sb, group.Sections[0]);
@@ -262,6 +272,10 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             string window = $"start: {group.StartTime:yyyy-MM-dd HH:mm:ss}, end: {group.EndTime:yyyy-MM-dd HH:mm:ss}";
             sb.AppendLine("        <details class=\"target-group\">");
             sb.AppendLine($"        <summary>{HtmlEncode($"{group.Project} / {group.Target}")} &nbsp;&mdash;&nbsp; {HtmlEncode(window)}</summary>");
+
+            if (!string.IsNullOrEmpty(svg)) {
+                sb.AppendLine($"        <div class=\"altitude-chart\">{svg}</div>");
+            }
 
             foreach (var section in group.Sections) {
                 AppendSectionHtml(sb, section);
@@ -400,6 +414,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             sb.AppendLine("        details.target-group > summary { font-size: 1.45em; font-weight: 600; }");
             sb.AppendLine("        details.target-group { border-left: 2px solid #444; padding-left: 14px; }");
             sb.AppendLine("        details.target-group > details { margin-top: 18px; }");
+            sb.AppendLine("        .altitude-chart { margin: 12px 0 4px; }");
+            sb.AppendLine("        .altitude-chart svg { width: 100%; height: auto; max-width: 760px; }");
             sb.AppendLine("        h3 { font-size: 1.1em; margin-top: 28px; color: #aaa; }");
             sb.AppendLine("        hr { border: none; border-top: 2px solid #666; margin: 36px 0; }");
             sb.AppendLine("        table { border-collapse: collapse; width: 100%; margin-top: 8px; }");

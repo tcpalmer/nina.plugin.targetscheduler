@@ -1,4 +1,6 @@
+using NINA.Plugin.TargetScheduler.Controls.PlanPreview.Plot;
 using NINA.Plugin.TargetScheduler.Planning;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -22,7 +24,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
         private static readonly Brush HeaderLineBrush = Frozen("#555555");
         private static readonly Brush RuleBrush = Frozen("#666666");
 
-        public static FrameworkElement Build(PlannerReportModel model) {
+        public static FrameworkElement Build(PlannerReportModel model, IReadOnlyList<PlannerChartData> chartData = null) {
             var root = new StackPanel { Background = BackgroundBrush, Margin = new Thickness(15) };
             TextElement.SetForeground(root, TextBrush);
 
@@ -32,21 +34,35 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
 
             root.Children.Add(BuildHeaderTable(model));
 
+            // Target groups consume the chart data in order; Wait/Done groups have no chart.
+            int chartIndex = 0;
             foreach (PlannerReportGroup group in model.BuildGroups()) {
-                root.Children.Add(BuildGroup(group));
+                PlannerChartData groupChart = null;
+                if (group.Kind == ResultKind.Target && chartData != null && chartIndex < chartData.Count) {
+                    groupChart = chartData[chartIndex++];
+                }
+
+                root.Children.Add(BuildGroup(group, groupChart));
                 root.Children.Add(BuildRule());
             }
 
             return root;
         }
 
-        private static UIElement BuildGroup(PlannerReportGroup group) {
+        private static UIElement BuildGroup(PlannerReportGroup group, PlannerChartData chartData) {
             // Wait and Done groups carry a single section and aren't aggregated; render it directly.
             if (group.Kind != ResultKind.Target) {
                 return BuildSection(group.Sections[0]);
             }
 
             var content = new StackPanel();
+
+            if (chartData != null) {
+                AltitudeChart chart = AltitudeChart.Create(chartData, 600, 200);
+                chart.Margin = new Thickness(0, 4, 0, 4);
+                content.Children.Add(chart);
+            }
+
             foreach (PlannerReportSection section in group.Sections) {
                 content.Children.Add(BuildSection(section));
             }

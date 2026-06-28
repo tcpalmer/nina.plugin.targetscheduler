@@ -38,6 +38,26 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview.Plot {
             InitializeBandToolTip();
         }
 
+        /// <summary>
+        /// Builds an altitude chart for the supplied <see cref="PlannerChartData"/>, sizing it and binding
+        /// the DSO, nighttime data, imaging window, and exposure bands.  Shared by the Plan Preview tree and
+        /// the in-UI planner report so both render an identical chart.
+        /// </summary>
+        public static AltitudeChart Create(PlannerChartData data, double width, double height) {
+            AltitudeChart chart = new AltitudeChart {
+                Width = width,
+                Height = height,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                DataContext = data.Dso,
+                NighttimeData = data.NighttimeData,
+                ImagingStart = data.ImagingStart,
+                ImagingStop = data.ImagingStop
+            };
+
+            chart.SetExposureRuns(data.ExposureRuns);
+            return chart;
+        }
+
         public static DependencyProperty NighttimeDataProperty = DependencyProperty.Register("NighttimeData", typeof(NighttimeData), typeof(AltitudeChart));
 
         public NighttimeData NighttimeData {

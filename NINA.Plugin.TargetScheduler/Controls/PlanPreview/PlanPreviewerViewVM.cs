@@ -158,6 +158,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
         private List<SchedulerPlan> SchedulerPlans { get; set; }
         private PlannerReport plannerReport;
 
+        // One entry per aggregated target block, in plan order; aligns 1:1 with the Target groups produced
+        // by PlannerReportModel.BuildGroups().  Used by the Plan Preview tree and both report renderers.
+        private List<PlannerChartData> chartDataList;
+
         private bool showPlanPreview;
 
         public bool ShowPlanPreview {
@@ -208,6 +212,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                     MyMessageBox.Show($"No active projects/targets were returned by the planner for {Utils.FormatDateTimeFull(atDateTime)} and{Environment.NewLine}profile '{profileName}' - or no active targets were found with active exposure plans.", "Oops");
                     SchedulerPlans = null;
                     plannerReport = null;
+                    chartDataList = null;
                     return;
                 }
 
@@ -220,17 +225,26 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                     MyMessageBox.Show($"No imagable projects/targets were returned by the planner for {Utils.FormatDateTimeFull(atDateTime)} and{Environment.NewLine}profile '{profileName}'.", "Oops");
                     SchedulerPlans = null;
                     plannerReport = null;
+                    chartDataList = null;
                     return;
                 }
 
                 SchedulerPlans = schedulerPlans;
                 plannerReport = previewPlanner.Report;
+
+                // Build chart data (DeepSkyObject / NighttimeData) on the UI thread to match the original
+                // chart construction and avoid creating the NighttimeData Ticker off the dispatcher thread.
+                IProfile chartProfile = GetProfile(SelectedProfileId);
+                _dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => {
+                    chartDataList = BuildChartDataList(chartProfile, new NighttimeCalculator(profileService));
+                }));
                 return;
             } catch (Exception ex) {
                 TSLogger.Error($"failed to run plan preview: {ex.Message} {ex.StackTrace}");
                 MyMessageBox.Show($"Exception running plan preview - see the TS log for details.", "Oops");
                 SchedulerPlans = null;
                 plannerReport = null;
+                chartDataList = null;
                 return;
             }
         }
@@ -295,11 +309,8 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                         TreeViewItem planItem = null;
                         TreeViewItem lastItem = null;
                         SchedulerPlan lastTargetPlan = null;
-                        AltitudeChart currentTargetChart = null;
-                        List<ExposureRun> currentTargetRuns = null;
+                        int chartIndex = 0;
                         ProfilePreference profilePreference = GetProfilePreference(SelectedProfileId);
-                        IProfile chartProfile = GetProfile(SelectedProfileId);
-                        NighttimeCalculator nighttimeCalculator = new NighttimeCalculator(profileService);
 
                         foreach (SchedulerPlan plan in SchedulerPlans) {
                             if (plan.IsWait) {
@@ -321,17 +332,11 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                                 list.Add(planItem);
                                 lastItem = planItem;
 
-                                currentTargetChart = BuildAltitudeChart(chartProfile, nighttimeCalculator, plan);
-                                currentTargetRuns = new List<ExposureRun>();
-                                planItem.Items.Add(new TreeViewItem { Header = currentTargetChart, Focusable = false });
+                                if (chartDataList != null && chartIndex < chartDataList.Count) {
+                                    AltitudeChart chart = AltitudeChart.Create(chartDataList[chartIndex++], 600, 200);
+                                    planItem.Items.Add(new TreeViewItem { Header = chart, Focusable = false });
+                                }
                             }
-
-                            // Carry the stop line out to the end of the last segment in this target block.
-                            currentTargetChart.ImagingStop = plan.EndTime;
-
-                            // Accumulate the exposure bands, merging consecutive plans that use the same filter.
-                            AppendExposureRun(currentTargetRuns, plan);
-                            currentTargetChart.SetExposureRuns(currentTargetRuns);
 
                             lastTargetPlan = plan;
                             foreach (IInstruction instruction in plan.PlanInstructions) {
@@ -455,7 +460,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
 
                 _dispatcher.Invoke(DispatcherPriority.Normal, new Action(() => {
                     try {
-                        ReportContent = PlanPreviewReportBuilder.Build(plannerReport?.Model);
+                        ReportContent = PlanPreviewReportBuilder.Build(plannerReport?.Model, chartDataList);
                         ShowPlanPreview = false;
                         ShowPlanPreviewResults = true;
                     } catch (Exception ex) {
@@ -476,8 +481,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
                     return;
                 }
 
+                List<string> chartSvgs = chartDataList?.Select(d => AltitudeSvgExporter.Export(d, 760, 220)).ToList();
+
                 string path = Path.Combine(Path.GetTempPath(), $"TS-Planning-Report-{DateTime.Now:yyyyMMdd-HHmmss}.html");
-                File.WriteAllText(path, plannerReport.GenerateHtml(), Encoding.UTF8);
+                File.WriteAllText(path, plannerReport.GenerateHtml(chartSvgs), Encoding.UTF8);
                 Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
             } catch (Exception ex) {
                 TSLogger.Error($"failed to open HTML planner report: {ex.Message} {ex.StackTrace}");
@@ -516,8 +523,48 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
             }
         }
 
-        private AltitudeChart BuildAltitudeChart(IProfile profile, NighttimeCalculator nighttimeCalculator, SchedulerPlan plan) {
-            DateTime referenceDate = NighttimeCalculator.GetReferenceDate(plan.StartTime);
+        /// <summary>
+        /// Builds the per-target chart data for the current <see cref="SchedulerPlans"/>, aggregating
+        /// consecutive plans for the same target into one block (matching how the report and the preview tree
+        /// group targets).  The returned list aligns 1:1, in order, with the Target groups produced by
+        /// <see cref="PlannerReportModel.BuildGroups"/>.
+        /// </summary>
+        private List<PlannerChartData> BuildChartDataList(IProfile profile, NighttimeCalculator nighttimeCalculator) {
+            List<PlannerChartData> result = new List<PlannerChartData>();
+            if (SchedulerPlans == null) {
+                return result;
+            }
+
+            int lastTargetId = -1;
+            PlannerChartData current = null;
+
+            foreach (SchedulerPlan plan in SchedulerPlans) {
+                if (plan.IsWait) {
+                    lastTargetId = -1;
+                    continue;
+                }
+
+                if (plan.PlanTarget.DatabaseId != lastTargetId) {
+                    lastTargetId = plan.PlanTarget.DatabaseId;
+                    DateTime referenceDate = NighttimeCalculator.GetReferenceDate(plan.StartTime);
+                    current = new PlannerChartData {
+                        Dso = BuildDso(profile, plan, referenceDate),
+                        NighttimeData = nighttimeCalculator.Calculate(referenceDate),
+                        ImagingStart = plan.StartTime,
+                        ImagingStop = plan.EndTime
+                    };
+                    result.Add(current);
+                }
+
+                // Carry the stop line out to the end of the last segment, accumulating exposure bands.
+                current.ImagingStop = plan.EndTime;
+                AppendExposureRun(current.ExposureRuns, plan);
+            }
+
+            return result;
+        }
+
+        private DeepSkyObject BuildDso(IProfile profile, SchedulerPlan plan, DateTime referenceDate) {
             CustomHorizon customHorizon = GetCustomHorizon(profile, plan.PlanTarget.Project);
 
             DeepSkyObject dso = new DeepSkyObject(string.Empty, plan.PlanTarget.Coordinates, customHorizon);
@@ -525,15 +572,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.PlanPreview {
             dso.SetDateAndPosition(referenceDate, profile.AstrometrySettings.Latitude, profile.AstrometrySettings.Longitude);
             dso.Refresh();
 
-            return new AltitudeChart {
-                Width = 600,
-                Height = 200,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                DataContext = dso,
-                NighttimeData = nighttimeCalculator.Calculate(referenceDate),
-                ImagingStart = plan.StartTime,
-                ImagingStop = plan.EndTime
-            };
+            return dso;
         }
 
         private void AppendExposureRun(List<ExposureRun> runs, SchedulerPlan plan) {
