@@ -29,6 +29,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             CancelCommand = new RelayCommand(Cancel);
             CopyCommand = new RelayCommand(Copy);
             DeleteCommand = new RelayCommand(Delete);
+            MoonAvoidanceHelperCommand = new RelayCommand(MoonAvoidanceHelper);
 
             InitializeCombos();
         }
@@ -195,6 +196,28 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         public ICommand CancelCommand { get; private set; }
         public ICommand CopyCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
+        public ICommand MoonAvoidanceHelperCommand { get; private set; }
+
+        private void MoonAvoidanceHelper() {
+            ExposureTemplate et = ExposureTemplateProxy.Proxy;
+            MoonAvoidanceHelperVM helperVM = new MoonAvoidanceHelperVM(
+                et.MoonAvoidanceEnabled, et.MoonAvoidanceSeparation, et.MoonAvoidanceWidth,
+                et.MoonRelaxScale, et.MoonRelaxMinAltitude, et.MoonRelaxMaxAltitude, et.MoonDownEnabled);
+            MoonAvoidanceHelperWindow window = new MoonAvoidanceHelperWindow {
+                DataContext = helperVM,
+                Owner = Application.Current.MainWindow
+            };
+
+            if (window.ShowDialog() == true) {
+                MoonAvoidanceEnabledProxy = helperVM.ClassicEnabled;
+                et.MoonAvoidanceSeparation = helperVM.ClassicSeparation;
+                et.MoonAvoidanceWidth = helperVM.ClassicWidth;
+                RelaxScaleProxy = helperVM.RelaxScale;
+                et.MoonRelaxMinAltitude = helperVM.RelaxMinAltitude;
+                et.MoonRelaxMaxAltitude = helperVM.RelaxMaxAltitude;
+                MoonDownEnabledProxy = helperVM.MoonDownEnabled;
+            }
+        }
 
         private void Edit() {
             ExposureTemplateProxy.PropertyChanged += ExposureTemplateProxy_PropertyChanged;
