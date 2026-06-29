@@ -1,11 +1,20 @@
 using NINA.Core.Utility;
 using NINA.Plugin.TargetScheduler.Astrometry;
 using NINA.Plugin.TargetScheduler.Controls.Converters;
+using NINA.Plugin.TargetScheduler.Controls.Util;
+using NINA.Plugin.TargetScheduler.Database;
+using NINA.Plugin.TargetScheduler.Database.Schema;
+using NINA.Plugin.TargetScheduler.Shared.Utility;
+using NINA.Profile.Interfaces;
 using OxyPlot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
+using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
-namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
+namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelper {
 
     /// <summary>
     /// View model for the Moon Avoidance Helper dialog (classic Lorentzian avoidance plus relaxation).
@@ -21,8 +30,18 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         // Days of moon age spanned by the avoidance plot's horizontal axis.
         public const int PlotDays = 30;
 
-        public MoonAvoidanceHelperVM(bool enabled, double separation, int width,
+        // Reference hour of day for the example: defaulting to 1pm makes the calculation target the upcoming night.
+        private const int ReferenceHour = 13;
+
+        private readonly IProfileService profileService;
+        private readonly SchedulerDatabaseInteraction database;
+
+        public MoonAvoidanceHelperVM(IProfileService profileService, string profileId,
+                                     bool enabled, double separation, int width,
                                      double relaxScale, double relaxMinAltitude, double relaxMaxAltitude, bool moonDownEnabled) {
+            this.profileService = profileService;
+            this.database = new SchedulerDatabaseInteraction();
+
             classicEnabled = enabled;
             classicSeparation = separation;
             classicWidth = width;
@@ -39,6 +58,14 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 RelaxScaleChoices.Add(d.ToString());
             }
 
+            exampleDate = DateTime.Now.Date.AddHours(ReferenceHour);
+            PreviousDayCommand = new RelayCommand(() => ExampleDate = ExampleDate.AddDays(-1));
+            NextDayCommand = new RelayCommand(() => ExampleDate = ExampleDate.AddDays(1));
+
+            ProfileChoices = GetProfileChoices();
+            KeyValuePair<string, string> initial = ProfileChoices.FirstOrDefault(p => p.Key == profileId);
+            SelectedProfile = initial.Key != null ? initial : ProfileChoices.FirstOrDefault();
+
             Recompute();
         }
 
@@ -50,6 +77,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 classicEnabled = value;
                 RaisePropertyChanged(nameof(ClassicEnabled));
                 RaisePropertyChanged(nameof(RelaxEnabled));
+                OnAvoidanceParameterChanged();
             }
         }
 
@@ -66,6 +94,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 RaisePropertyChanged(nameof(ClassicSeparation));
                 if (changed) {
                     Recompute();
+                    OnAvoidanceParameterChanged();
                 }
             }
         }
@@ -82,6 +111,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 RaisePropertyChanged(nameof(ClassicWidth));
                 if (changed) {
                     Recompute();
+                    OnAvoidanceParameterChanged();
                 }
             }
         }
@@ -101,6 +131,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 RaisePropertyChanged(nameof(RelaxEnabled));
                 RaisePropertyChanged(nameof(ShowRelaxed));
                 Recompute();
+                OnAvoidanceParameterChanged();
             }
         }
 
@@ -121,6 +152,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 RaisePropertyChanged(nameof(RelaxMinAltitude));
                 if (changed) {
                     Recompute();
+                    OnAvoidanceParameterChanged();
                 }
             }
         }
@@ -136,6 +168,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
                 RaisePropertyChanged(nameof(RelaxMaxAltitude));
                 if (changed) {
                     Recompute();
+                    OnAvoidanceParameterChanged();
                 }
             }
         }
@@ -163,6 +196,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             set {
                 moonDownEnabled = value;
                 RaisePropertyChanged(nameof(MoonDownEnabled));
+                OnAvoidanceParameterChanged();
             }
         }
 
@@ -183,6 +217,209 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             private set {
                 relaxedPoints = value;
                 RaisePropertyChanged(nameof(RelaxedPoints));
+            }
+        }
+
+        // Example selection: cascading Profile -> Project -> Target plus a target
+        // date, used to illustrate moon avoidance for a concrete target on a concrete night.  The chart shows
+        // the moon-to-target separation and the calculated avoidance (rejection) separation - using the same
+        // working avoidance parameters being edited above - across astronomical dusk to dawn.
+
+        // Example chart size (matches the placeholder it replaces in the expander).
+        private const double ExampleChartWidth = 600;
+        private const double ExampleChartHeight = 200;
+
+        public ICommand PreviousDayCommand { get; }
+        public ICommand NextDayCommand { get; }
+
+        private List<KeyValuePair<string, string>> profileChoices;
+
+        public List<KeyValuePair<string, string>> ProfileChoices {
+            get => profileChoices;
+            private set {
+                profileChoices = value;
+                RaisePropertyChanged(nameof(ProfileChoices));
+            }
+        }
+
+        private KeyValuePair<string, string> selectedProfile;
+
+        public KeyValuePair<string, string> SelectedProfile {
+            get => selectedProfile;
+            set {
+                selectedProfile = value;
+                RaisePropertyChanged(nameof(SelectedProfile));
+                ProjectChoices = LoadProjects(value.Key);
+                SelectedProject = ProjectChoices.FirstOrDefault();
+            }
+        }
+
+        private List<Project> projectChoices;
+
+        public List<Project> ProjectChoices {
+            get => projectChoices;
+            private set {
+                projectChoices = value;
+                RaisePropertyChanged(nameof(ProjectChoices));
+            }
+        }
+
+        private Project selectedProject;
+
+        public Project SelectedProject {
+            get => selectedProject;
+            set {
+                selectedProject = value;
+                RaisePropertyChanged(nameof(SelectedProject));
+                TargetChoices = value?.Targets ?? new List<Target>();
+                SelectedTarget = TargetChoices.FirstOrDefault();
+            }
+        }
+
+        private List<Target> targetChoices;
+
+        public List<Target> TargetChoices {
+            get => targetChoices;
+            private set {
+                targetChoices = value;
+                RaisePropertyChanged(nameof(TargetChoices));
+            }
+        }
+
+        private Target selectedTarget;
+
+        public Target SelectedTarget {
+            get => selectedTarget;
+            set {
+                selectedTarget = value;
+                RaisePropertyChanged(nameof(SelectedTarget));
+                InvalidateExample();
+            }
+        }
+
+        private DateTime exampleDate;
+
+        // The example date.  Always normalized to the reference hour so the calculation runs for the upcoming night.
+        public DateTime ExampleDate {
+            get => exampleDate;
+            set {
+                exampleDate = value.Date.AddHours(ReferenceHour);
+                RaisePropertyChanged(nameof(ExampleDate));
+                InvalidateExample();
+            }
+        }
+
+        private List<KeyValuePair<string, string>> GetProfileChoices() {
+            List<KeyValuePair<string, string>> choices = new List<KeyValuePair<string, string>>();
+            foreach (var profile in profileService.Profiles) {
+                choices.Add(new KeyValuePair<string, string>(profile.Id.ToString(), profile.Name));
+            }
+
+            return choices;
+        }
+
+        private List<Project> LoadProjects(string profileId) {
+            if (profileId == null) {
+                return new List<Project>();
+            }
+
+            using (var context = database.GetContext()) {
+                return context.GetAllProjects(profileId);
+            }
+        }
+
+        private bool showExample;
+
+        // Bound to the "Show Example" expander.  Building the chart is deferred until the user opens it.
+        public bool ShowExample {
+            get => showExample;
+            set {
+                showExample = value;
+                RaisePropertyChanged(nameof(ShowExample));
+                if (showExample) {
+                    RebuildExampleChart();
+                }
+            }
+        }
+
+        private FrameworkElement exampleChart;
+
+        public FrameworkElement ExampleChart {
+            get => exampleChart;
+            private set {
+                exampleChart = value;
+                RaisePropertyChanged(nameof(ExampleChart));
+            }
+        }
+
+        // The parameter-independent example data (chart data + moon geometry).  Invalidated when the
+        // target/date/profile changes; reused as the avoidance parameters are tweaked.
+        private AvoidanceExampleData cachedExampleData;
+
+        // The current example chart control, kept so an avoidance-parameter change can refresh just its curves
+        // without rebuilding the whole control on every scrollbar tick.
+        private MoonAvoidExample exampleChartControl;
+
+        private AvoidanceExampleParameters CurrentExampleParameters() {
+            return new AvoidanceExampleParameters {
+                ClassicEnabled = ClassicEnabled,
+                ClassicSeparation = ClassicSeparation,
+                ClassicWidth = ClassicWidth,
+                RelaxScale = RelaxScale,
+                RelaxMinAltitude = RelaxMinAltitude,
+                RelaxMaxAltitude = RelaxMaxAltitude,
+                MoonDownEnabled = MoonDownEnabled
+            };
+        }
+
+        // Drop the cached geometry (target/date/profile changed) and rebuild the chart if it's showing.
+        private void InvalidateExample() {
+            cachedExampleData = null;
+            if (ShowExample) {
+                RebuildExampleChart();
+            }
+        }
+
+        // An avoidance parameter changed; refresh just the example's avoidance curves on the existing chart if
+        // it's showing.  The cached moon geometry is unaffected, so this is cheap.
+        private void OnAvoidanceParameterChanged() {
+            if (!ShowExample) {
+                return;
+            }
+
+            if (exampleChartControl == null || cachedExampleData == null) {
+                RebuildExampleChart();
+                return;
+            }
+
+            try {
+                AvoidanceExampleChartBuilder.ComputeCurves(cachedExampleData, CurrentExampleParameters(),
+                    out IList<DataPoint> separation, out IList<DataPoint> avoidance, out IList<bool> rejected);
+                exampleChartControl.SetAvoidanceCurves(separation, avoidance, rejected);
+            } catch (Exception ex) {
+                TSLogger.Error($"failed to update moon avoidance example curves: {ex.Message} {ex.StackTrace}");
+            }
+        }
+
+        private void RebuildExampleChart() {
+            try {
+                if (cachedExampleData == null) {
+                    IProfile profile = ProfileLoader.GetProfile(profileService, SelectedProfile.Key);
+                    cachedExampleData = AvoidanceExampleChartBuilder.BuildData(profileService, profile, SelectedProject, SelectedTarget, ExampleDate);
+                }
+
+                if (cachedExampleData == null) {
+                    exampleChartControl = null;
+                    ExampleChart = null;
+                    return;
+                }
+
+                exampleChartControl = AvoidanceExampleChartBuilder.BuildChart(cachedExampleData, CurrentExampleParameters(), ExampleChartWidth, ExampleChartHeight);
+                ExampleChart = exampleChartControl;
+            } catch (Exception ex) {
+                TSLogger.Error($"failed to build moon avoidance example chart: {ex.Message} {ex.StackTrace}");
+                exampleChartControl = null;
+                ExampleChart = null;
             }
         }
 

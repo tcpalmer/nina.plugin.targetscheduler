@@ -1,6 +1,8 @@
 <!--
-    This control is copied from N.I.N.A. (NINA.WPF.Base/View/AltitudeChart.xaml) so that
-    Target Scheduler can augment it independently.  The original is governed by the notice below.
+    Forked from the Plan Preview AltitudeChart (itself copied from N.I.N.A.
+    NINA.WPF.Base/View/AltitudeChart.xaml) so the moon avoidance example can diverge freely:
+    a 0-180 altitude axis, full-height twilight bands, and the moon separation / avoidance curves.
+    The original is governed by the notice below.
 
     Copyright (c) 2016 - 2026 Stefan Berg <isbeorn86+NINA@googlemail.com> and the N.I.N.A. contributors
 
@@ -10,14 +12,13 @@
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.-->
 <UserControl
-    x:Class="NINA.Plugin.TargetScheduler.Controls.PlanPreview.Plot.AltitudeChart"
+    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelper.MoonAvoidExample"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ns="clr-namespace:NINA.Core.Locale;assembly=NINA.Core"
     xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Contrib.Wpf"
-    xmlns:plot="clr-namespace:NINA.Plugin.TargetScheduler.Controls.PlanPreview.Plot"
     xmlns:util="clr-namespace:NINA.Core.Utility;assembly=NINA.Core"
     xmlns:wpfutil="clr-namespace:NINA.WPF.Base.Utility;assembly=NINA.WPF.Base"
     x:Name="UC"
@@ -38,7 +39,6 @@
     <Grid>
         <Grid.Resources>
             <util:BindingProxy x:Key="proxy" Data="{Binding ElementName=UC, Path=NighttimeData}" />
-            <plot:DateTimeToOxyPlotConverter x:Key="DateTimeToOxyPlotConverter" />
         </Grid.Resources>
         <oxy:Plot
             x:Name="ExposurePlot"
@@ -48,17 +48,18 @@
             PlotAreaBackground="{StaticResource BackgroundBrush}"
             PlotAreaBorderColor="{Binding Path=Color, Source={StaticResource BorderBrush}}">
             <oxy:Plot.Axes>
+                <!--  Altitude axis runs 0-180 so the moon separation and avoidance curves fit; the target
+                      altitude, horizon, and twilight bands occupy the lower portion in real degrees.  -->
                 <oxy:LinearAxis
                     AxislineColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}}"
                     EndPosition="1"
                     IntervalLength="30"
-                    IsAxisVisible="{Binding AnnotateAltitudeAxis, ElementName=UC}"
                     IsPanEnabled="False"
                     IsZoomEnabled="False"
                     MajorGridlineColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}, Converter={StaticResource SetAlphaToColorConverter}, ConverterParameter=60}"
                     MajorGridlineStyle="LongDash"
                     MajorStep="30"
-                    Maximum="90"
+                    Maximum="180"
                     Minimum="0"
                     Position="Left"
                     StartPosition="0"
@@ -67,7 +68,6 @@
                 <oxy:DateTimeAxis
                     AxislineColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}}"
                     IntervalType="Hours"
-                    IsAxisVisible="{Binding AnnotateTimeAxis, ElementName=UC}"
                     IsPanEnabled="False"
                     IsZoomEnabled="False"
                     MajorStep="0.125"
@@ -80,38 +80,24 @@
             <oxy:Plot.Series>
                 <oxy:AreaSeries
                     Color2="Transparent"
-                    DataFieldX="Key"
-                    DataFieldY="Value"
                     ItemsSource="{Binding Source={StaticResource proxy}, Path=Data.ReferenceDateSpan, UpdateSourceTrigger=PropertyChanged}"
-                    TrackerFormatString="X: {2:HH:mm}h"
                     Color="Transparent" />
+                <!--  Twilight bands, scaled to fill the full 0-180 axis height (see ScaledTwilight in code-behind).  -->
                 <oxy:AreaSeries
                     Color2="Transparent"
-                    DataFieldX="Key"
-                    DataFieldY="Value"
-                    ItemsSource="{Binding Source={StaticResource proxy}, Path=Data.TwilightDuration, UpdateSourceTrigger=PropertyChanged}"
-                    TrackerFormatString="X: {2:HH:mm}h"
+                    ItemsSource="{Binding TwilightDurationFull, ElementName=UC}"
                     Color="#FF73737E" />
                 <oxy:AreaSeries
                     Color2="Transparent"
-                    DataFieldX="Key"
-                    DataFieldY="Value"
-                    ItemsSource="{Binding Source={StaticResource proxy}, Path=Data.CivilTwilightDuration, UpdateSourceTrigger=PropertyChanged}"
-                    TrackerFormatString="X: {2:HH:mm}h"
+                    ItemsSource="{Binding CivilTwilightDurationFull, ElementName=UC}"
                     Color="#FF757E8C" />
                 <oxy:AreaSeries
                     Color2="Transparent"
-                    DataFieldX="Key"
-                    DataFieldY="Value"
-                    ItemsSource="{Binding Source={StaticResource proxy}, Path=Data.NauticalTwilightDuration, UpdateSourceTrigger=PropertyChanged}"
-                    TrackerFormatString="X: {2:HH:mm}h"
+                    ItemsSource="{Binding NauticalTwilightDurationFull, ElementName=UC}"
                     Color="LightSlateGray" />
                 <oxy:AreaSeries
                     Color2="Transparent"
-                    DataFieldX="Key"
-                    DataFieldY="Value"
-                    ItemsSource="{Binding Source={StaticResource proxy}, Path=Data.NightDuration, UpdateSourceTrigger=PropertyChanged}"
-                    TrackerFormatString="X: {2:HH:mm}h"
+                    ItemsSource="{Binding NightDurationFull, ElementName=UC}"
                     Color="Black" />
 
                 <oxy:LineSeries
@@ -124,14 +110,6 @@
                 <oxy:AreaSeries
                     DataFieldX="Key"
                     DataFieldY="Value"
-                    ItemsSource="{Binding Horizon}"
-                    TrackerFormatString="X: {2:HH:mm}h&#x0a;Y: {4:0.00}&#176;"
-                    Color="{Binding Path=Color, Source={StaticResource ButtonBackgroundBrush}}" />
-
-
-                <oxy:AreaSeries
-                    DataFieldX="Key"
-                    DataFieldY="Value"
                     ItemsSource="{Binding Moon.DataPoints}"
                     TrackerFormatString="X: {2:HH:mm}h&#x0a;Y: {4:0.00}&#176;"
                     Visibility="{Binding Moon.DisplayMoon, Converter={StaticResource BooleanToVisibilityHiddenConverter}}"
@@ -140,28 +118,12 @@
             </oxy:Plot.Series>
             <oxy:Plot.Annotations>
                 <oxy:LineAnnotation
-                    MaximumY="90"
+                    MaximumY="180"
                     Text="{ns:Loc LblNow}"
                     TextColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}}"
                     Type="Vertical"
                     X="{Binding Source={StaticResource proxy}, Path=Data.Ticker.OxyNow, UpdateSourceTrigger=PropertyChanged}"
                     Color="{Binding Path=Color, Source={StaticResource PrimaryBrush}}" />
-
-                <oxy:LineAnnotation
-                    LineStyle="Solid"
-                    MaximumY="90"
-                    StrokeThickness="1"
-                    Type="Vertical"
-                    X="{Binding ImagingStart, ElementName=UC, Converter={StaticResource DateTimeToOxyPlotConverter}}"
-                    Color="#FF4CAF50" />
-
-                <oxy:LineAnnotation
-                    LineStyle="Solid"
-                    MaximumY="90"
-                    StrokeThickness="1"
-                    Type="Vertical"
-                    X="{Binding ImagingStop, ElementName=UC, Converter={StaticResource DateTimeToOxyPlotConverter}}"
-                    Color="#FFE57373" />
                 <oxy:PointAnnotation
                     Fill="{Binding Path=Color, Source={StaticResource PrimaryBrush}}"
                     Shape="Circle"
@@ -169,36 +131,6 @@
                     TextColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}}"
                     X="{Binding MaxAltitude.X}"
                     Y="{Binding MaxAltitude.Y}" />
-                <oxy:PointAnnotation
-                    Fill="Transparent"
-                    Shape="Circle"
-                    Size="0"
-                    TextColor="{Binding Path=Color, Source={StaticResource PrimaryBrush}}"
-                    TextVerticalAlignment="Bottom"
-                    Y="{Binding MaxAltitude.Y, Converter={StaticResource ClampDoubleConverter}, ConverterParameter='10|90'}">
-                    <oxy:PointAnnotation.TextHorizontalAlignment>
-                        <MultiBinding Converter="{StaticResource MeridianTextAlignmentConverter}">
-                            <Binding Path="Data.Ticker.OxyNow" Source="{StaticResource proxy}" />
-                            <Binding Path="MaxAltitude.X" />
-                        </MultiBinding>
-                    </oxy:PointAnnotation.TextHorizontalAlignment>
-                    <oxy:PointAnnotation.X>
-                        <MultiBinding Converter="{StaticResource MeridianXPositionConverter}">
-                            <Binding Path="Data.Ticker.OxyNow" Source="{StaticResource proxy}" />
-                            <Binding Path="MaxAltitude.X" />
-                        </MultiBinding>
-                    </oxy:PointAnnotation.X>
-                    <oxy:PointAnnotation.Text>
-                        <MultiBinding StringFormat="{}&#x0a;{0} {1:HH:mm}">
-                            <Binding
-                                Converter="{StaticResource BoolToLabelConverter}"
-                                ConverterParameter="LblSouth|LblNorth"
-                                Mode="OneWay"
-                                Path="DoesTransitSouth" />
-                            <Binding Converter="{StaticResource OxyPlotDateTimeConverter}" Path="MaxAltitude.X" />
-                        </MultiBinding>
-                    </oxy:PointAnnotation.Text>
-                </oxy:PointAnnotation>
             </oxy:Plot.Annotations>
         </oxy:Plot>
 
@@ -208,7 +140,6 @@
             VerticalAlignment="{Binding MoonVerticalAlignment, ElementName=UC}"
             Visibility="{Binding ShowMoon, ElementName=UC, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
             <Grid.RowDefinitions>
-
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>

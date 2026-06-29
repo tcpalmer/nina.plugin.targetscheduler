@@ -1,5 +1,5 @@
 <Window
-    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelperWindow"
+    x:Class="NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelper.MoonAvoidanceHelperWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,23 +7,23 @@
     xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Contrib.Wpf"
     Title="Moon Avoidance Helper"
     Width="720"
-    Height="640"
     MinWidth="540"
-    MinHeight="480"
     Background="{StaticResource BackgroundBrush}"
     Foreground="{StaticResource PrimaryBrush}"
     ResizeMode="CanResize"
     ShowInTaskbar="False"
+    SizeToContent="Height"
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
 
     <Window.Resources>
-        <ResourceDictionary Source="../Resources/Resources.xaml" />
+        <ResourceDictionary Source="../../Resources/Resources.xaml" />
     </Window.Resources>
 
     <Grid Margin="12">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -31,10 +31,11 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!--  Avoidance plot: classic separation across a lunation (moon age 0-30 days)  -->
+        <!--  Avoidance plot: classic separation across a lunation (moon age 0-30 days).  Fixed height so the
+              window (SizeToContent=Height) sizes to its content and the plot is never truncated.  -->
         <oxy:Plot
             Grid.Row="0"
-            MinHeight="280"
+            Height="280"
             Background="{StaticResource BackgroundBrush}"
             PlotAreaBackground="{StaticResource SecondaryBackgroundBrush}"
             PlotAreaBorderColor="{Binding Path=Color, Source={StaticResource BorderBrush}}">
@@ -376,13 +377,14 @@
                 Text="{Binding RelaxMaxAltitude, StringFormat={}{0:0}°}"
                 TextAlignment="Right" />
 
-            <!--  Altitude (preview only)  -->
+            <!--  Altitude (preview only) - labeled in the relaxed-curve color since it previews that curve  -->
             <TextBlock
                 Grid.Row="3"
                 Grid.Column="0"
                 Margin="0,5"
                 VerticalAlignment="Center"
                 FontWeight="Bold"
+                Foreground="#FFED7D31"
                 IsEnabled="{Binding RelaxEnabled}"
                 Text="Altitude"
                 ToolTip="Assumed moon altitude for previewing the relaxed curve (not saved)"
@@ -430,9 +432,130 @@
                 IsEnabled="{Binding RelaxEnabled}" />
         </Grid>
 
+        <!--  Show Example: cascading Profile / Project / Target / Filter selection plus an example date  -->
+        <Expander
+            Grid.Row="5"
+            Margin="0,12,0,0"
+            Header="Show Example"
+            IsExpanded="{Binding ShowExample, Mode=TwoWay}">
+            <Grid Margin="0,8,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!--  Avoidance altitude chart (moon separation + avoidance/rejection across the night)  -->
+                <ContentControl
+                    Grid.Row="0"
+                    Width="600"
+                    Height="200"
+                    Margin="0,0,0,12"
+                    HorizontalAlignment="Center"
+                    Content="{Binding ExampleChart}" />
+
+                <!--  Cascading selection plus example date  -->
+                <Grid Grid.Row="1" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="240" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!--  Profile  -->
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="0,4"
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        Text="Profile" />
+                    <ComboBox
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Height="22"
+                        Margin="0,4"
+                        DisplayMemberPath="Value"
+                        ItemsSource="{Binding ProfileChoices}"
+                        SelectedItem="{Binding SelectedProfile, Mode=TwoWay}" />
+
+                    <!--  Project  -->
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="0,4"
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        Text="Project" />
+                    <ComboBox
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Height="22"
+                        Margin="0,4"
+                        DisplayMemberPath="Name"
+                        ItemsSource="{Binding ProjectChoices}"
+                        SelectedItem="{Binding SelectedProject, Mode=TwoWay}" />
+
+                    <!--  Target  -->
+                    <TextBlock
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Margin="0,4"
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        Text="Target" />
+                    <ComboBox
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Height="22"
+                        Margin="0,4"
+                        DisplayMemberPath="Name"
+                        ItemsSource="{Binding TargetChoices}"
+                        SelectedItem="{Binding SelectedTarget, Mode=TwoWay}" />
+
+                    <!--  Date with decrement / increment arrows and calendar  -->
+                    <TextBlock
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Margin="0,8,0,4"
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        Text="Date" />
+                    <StackPanel
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Margin="0,8,0,4"
+                        Orientation="Horizontal">
+                        <Button
+                            Width="24"
+                            Height="26"
+                            Command="{Binding PreviousDayCommand}"
+                            Content="&#x25C0;"
+                            ToolTip="Previous day" />
+                        <DatePicker
+                            Width="160"
+                            Height="26"
+                            Margin="4,0"
+                            VerticalContentAlignment="Center"
+                            SelectedDate="{Binding ExampleDate, Mode=TwoWay}" />
+                        <Button
+                            Width="24"
+                            Height="26"
+                            Command="{Binding NextDayCommand}"
+                            Content="&#x25B6;"
+                            ToolTip="Next day" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Expander>
+
         <!--  Save / Cancel  -->
         <StackPanel
-            Grid.Row="5"
+            Grid.Row="6"
             Margin="0,16,0,0"
             HorizontalAlignment="Right"
             Orientation="Horizontal">

@@ -1,7 +1,7 @@
 # Target Scheduler
 
 ## 5.10.3.0 - 2026-06-XX (NINA 3.3)
-* Added a Moon Avoidance Helper to assist with understanding behavior and picking avoidance parameters
+* Added a Moon Avoidance Helper to assist with understanding avoidance behavior and selecting parameters
 * Fix for new preview report timing issues
 * Added chart to preview report as well as HTML output
 

@@ -1,6 +1,7 @@
 ﻿using NINA.Core.Model.Equipment;
 using NINA.Core.MyMessageBox;
 using NINA.Plugin.TargetScheduler.Controls.Converters;
+using NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelper;
 using NINA.Plugin.TargetScheduler.Controls.Util;
 using NINA.Plugin.TargetScheduler.Database.Schema;
 using NINA.Profile.Interfaces;
@@ -201,6 +202,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
         private void MoonAvoidanceHelper() {
             ExposureTemplate et = ExposureTemplateProxy.Proxy;
             MoonAvoidanceHelperVM helperVM = new MoonAvoidanceHelperVM(
+                profileService, et.ProfileId,
                 et.MoonAvoidanceEnabled, et.MoonAvoidanceSeparation, et.MoonAvoidanceWidth,
                 et.MoonRelaxScale, et.MoonRelaxMinAltitude, et.MoonRelaxMaxAltitude, et.MoonDownEnabled);
             MoonAvoidanceHelperWindow window = new MoonAvoidanceHelperWindow {
