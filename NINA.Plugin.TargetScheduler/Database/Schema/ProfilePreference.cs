@@ -50,6 +50,9 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
         public double autoAcceptLevelHFR { get; set; }
         public double autoAcceptLevelFWHM { get; set; }
         public double autoAcceptLevelEccentricity { get; set; }
+        public double autoRejectLevelHFR { get; set; }
+        public double autoRejectLevelFWHM { get; set; }
+        public double autoRejectLevelEccentricity { get; set; }
 
         public int enableSimulatedRun { get; set; }
         public int skipSimulatedWaits { get; set; }
@@ -91,6 +94,9 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             autoAcceptLevelHFR = 0;
             autoAcceptLevelFWHM = 0;
             autoAcceptLevelEccentricity = 0;
+            autoRejectLevelHFR = 0;
+            autoRejectLevelFWHM = 0;
+            autoRejectLevelEccentricity = 0;
 
             EnableSynchronization = false;
             EnableSyncedAutoFocus = false;
@@ -440,6 +446,36 @@ namespace NINA.Plugin.TargetScheduler.Database.Schema {
             set {
                 autoAcceptLevelEccentricity = value;
                 RaisePropertyChanged(nameof(AutoAcceptLevelEccentricity));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public double AutoRejectLevelHFR {
+            get { return autoRejectLevelHFR; }
+            set {
+                autoRejectLevelHFR = value;
+                RaisePropertyChanged(nameof(AutoRejectLevelHFR));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public double AutoRejectLevelFWHM {
+            get { return autoRejectLevelFWHM; }
+            set {
+                autoRejectLevelFWHM = value;
+                RaisePropertyChanged(nameof(AutoRejectLevelFWHM));
+            }
+        }
+
+        [NotMapped]
+        [JsonProperty]
+        public double AutoRejectLevelEccentricity {
+            get { return autoRejectLevelEccentricity; }
+            set {
+                autoRejectLevelEccentricity = value;
+                RaisePropertyChanged(nameof(AutoRejectLevelEccentricity));
             }
         }
 

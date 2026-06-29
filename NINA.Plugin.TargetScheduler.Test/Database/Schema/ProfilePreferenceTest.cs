@@ -40,6 +40,9 @@ namespace NINA.Plugin.TargetScheduler.Test.Database.Schema {
             sut.AutoAcceptLevelHFR.Should().Be(0);
             sut.AutoAcceptLevelFWHM.Should().Be(0);
             sut.AutoAcceptLevelEccentricity.Should().Be(0);
+            sut.AutoRejectLevelHFR.Should().Be(0);
+            sut.AutoRejectLevelFWHM.Should().Be(0);
+            sut.AutoRejectLevelEccentricity.Should().Be(0);
 
             sut.EnableSynchronization.Should().BeFalse();
             sut.EnableSyncedAutoFocus.Should().BeFalse();

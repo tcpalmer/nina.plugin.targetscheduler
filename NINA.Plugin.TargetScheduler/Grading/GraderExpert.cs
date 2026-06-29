@@ -77,6 +77,11 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                 return true;
             }
 
+            if (preferences.AutoRejectLevelHFR > 0 && hfr >= preferences.AutoRejectLevelHFR) {
+                TSLogger.Debug($"image grading: HFR auto rejected: actual ({hfr}) >= level ({preferences.AutoRejectLevelHFR})");
+                return false;
+            }
+
             List<double> samples = GetSamples(population, i => { return i.Metadata.HFR; });
             TSLogger.Debug("image grading: HFR ->");
             if (NearZero(hfr) || !WithinAcceptableVariance(samples, hfr, preferences.HFRSigmaFactor, false)) {
@@ -96,6 +101,11 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                 if (preferences.AutoAcceptLevelFWHM > 0 && fwhm <= preferences.AutoAcceptLevelFWHM) {
                     TSLogger.Debug($"image grading: FWHM auto accepted: actual ({fwhm}) <= level ({preferences.AutoAcceptLevelFWHM})");
                     return true;
+                }
+
+                if (preferences.AutoRejectLevelFWHM > 0 && fwhm >= preferences.AutoRejectLevelFWHM) {
+                    TSLogger.Debug($"image grading: FWHM auto rejected: actual ({fwhm}) >= level ({preferences.AutoRejectLevelFWHM})");
+                    return false;
                 }
 
                 List<double> samples = GetSamples(population, i => { return i.Metadata.FWHM; });
@@ -123,6 +133,11 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                 if (preferences.AutoAcceptLevelEccentricity > 0 && eccentricity <= preferences.AutoAcceptLevelEccentricity) {
                     TSLogger.Debug($"image grading: eccentricity auto accepted: actual ({eccentricity}) <= level ({preferences.AutoAcceptLevelEccentricity})");
                     return true;
+                }
+
+                if (preferences.AutoRejectLevelEccentricity > 0 && eccentricity >= preferences.AutoRejectLevelEccentricity) {
+                    TSLogger.Debug($"image grading: eccentricity auto rejected: actual ({eccentricity}) >= level ({preferences.AutoRejectLevelEccentricity})");
+                    return false;
                 }
 
                 List<double> samples = GetSamples(population, i => { return i.Metadata.Eccentricity; });

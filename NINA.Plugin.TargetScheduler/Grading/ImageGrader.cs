@@ -268,6 +268,9 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         double AutoAcceptLevelHFR { get; set; }
         double AutoAcceptLevelFWHM { get; set; }
         double AutoAcceptLevelEccentricity { get; set; }
+        double AutoRejectLevelHFR { get; set; }
+        double AutoRejectLevelFWHM { get; set; }
+        double AutoRejectLevelEccentricity { get; set; }
 
         bool IsDelayEnabled { get; }
     }
@@ -291,6 +294,9 @@ namespace NINA.Plugin.TargetScheduler.Grading {
         public double AutoAcceptLevelHFR { get; set; }
         public double AutoAcceptLevelFWHM { get; set; }
         public double AutoAcceptLevelEccentricity { get; set; }
+        public double AutoRejectLevelHFR { get; set; }
+        public double AutoRejectLevelFWHM { get; set; }
+        public double AutoRejectLevelEccentricity { get; set; }
 
         public bool IsDelayEnabled {
             get { return DelayGradingThreshold > 0; }
@@ -317,6 +323,9 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             AutoAcceptLevelHFR = profilePreference.AutoAcceptLevelHFR;
             AutoAcceptLevelFWHM = profilePreference.AutoAcceptLevelFWHM;
             AutoAcceptLevelEccentricity = profilePreference.AutoAcceptLevelEccentricity;
+            AutoRejectLevelHFR = profilePreference.AutoRejectLevelHFR;
+            AutoRejectLevelFWHM = profilePreference.AutoRejectLevelFWHM;
+            AutoRejectLevelEccentricity = profilePreference.AutoRejectLevelEccentricity;
             EnableMoveRejected = profilePreference.EnableMoveRejected;
         }
 
@@ -345,6 +354,9 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             this.AutoAcceptLevelHFR = 0;
             this.AutoAcceptLevelFWHM = 0;
             this.AutoAcceptLevelEccentricity = 0;
+            this.AutoRejectLevelHFR = 0;
+            this.AutoRejectLevelFWHM = 0;
+            this.AutoRejectLevelEccentricity = 0;
             this.EnableMoveRejected = EnableMoveRejected;
         }
     }

@@ -251,11 +251,11 @@
                             FontWeight="Bold" />
                         <UniformGrid
                             Width="320"
-                            Height="352"
+                            Height="418"
                             Margin="12,0,0,6"
                             HorizontalAlignment="Left"
                             Columns="2"
-                            Rows="16">
+                            Rows="19">
 
                             <TextBlock
                                 VerticalAlignment="Center"
@@ -556,6 +556,30 @@
                             <TextBlock
                                 VerticalAlignment="Center"
                                 FontWeight="Bold"
+                                Text="HFR Auto Reject Level"
+                                ToolTip="HFR test will always fail if measured value is greater than or equal to this value (disabled if zero)" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                                <TextBox.Text>
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoRejectLevelHFR" UpdateSourceTrigger="LostFocus">
+                                        <Binding.ValidationRules>
+                                            <rules:DoubleRangeRule>
+                                                <rules:DoubleRangeRule.ValidRange>
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
+                                                </rules:DoubleRangeRule.ValidRange>
+                                            </rules:DoubleRangeRule>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoRejectLevelHFR}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
                                 Text="FWHM Auto Accept Level"
                                 ToolTip="FWHM test will always pass if measured value is less than or equal to this value (disabled if zero)" />
                             <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
@@ -580,6 +604,30 @@
                             <TextBlock
                                 VerticalAlignment="Center"
                                 FontWeight="Bold"
+                                Text="FWHM Auto Reject Level"
+                                ToolTip="FWHM test will always fail if measured value is greater than or equal to this value (disabled if zero)" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                                <TextBox.Text>
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoRejectLevelFWHM" UpdateSourceTrigger="LostFocus">
+                                        <Binding.ValidationRules>
+                                            <rules:DoubleRangeRule>
+                                                <rules:DoubleRangeRule.ValidRange>
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
+                                                </rules:DoubleRangeRule.ValidRange>
+                                            </rules:DoubleRangeRule>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoRejectLevelFWHM}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
                                 Text="Ecc Auto Accept Level"
                                 ToolTip="Eccentricity test will always pass if measured value is less than or equal to this value (disabled if zero)" />
                             <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
@@ -599,6 +647,30 @@
                                 MaxHeight="20"
                                 Margin="3,3,0,0"
                                 Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoAcceptLevelEccentricity}"
+                                Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
+
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="Ecc Auto Reject Level"
+                                ToolTip="Eccentricity test will always fail if measured value is greater than or equal to this value (disabled if zero)" />
+                            <TextBox MaxHeight="20" Visibility="{Binding ShowEditView, Converter={StaticResource BooleanToVisibilityCollapsedConverter}}">
+                                <TextBox.Text>
+                                    <Binding Path="ProfilePreferenceProxy.ProfilePreference.AutoRejectLevelEccentricity" UpdateSourceTrigger="LostFocus">
+                                        <Binding.ValidationRules>
+                                            <rules:DoubleRangeRule>
+                                                <rules:DoubleRangeRule.ValidRange>
+                                                    <rules:DoubleRangeChecker Maximum="10" Minimum="0" />
+                                                </rules:DoubleRangeRule.ValidRange>
+                                            </rules:DoubleRangeRule>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <TextBlock
+                                MaxHeight="20"
+                                Margin="3,3,0,0"
+                                Text="{Binding ProfilePreferenceProxy.ProfilePreference.AutoRejectLevelEccentricity}"
                                 Visibility="{Binding ShowEditView, Converter={StaticResource InverseBooleanToVisibilityCollapsedConverter}}" />
                         </UniformGrid>
 

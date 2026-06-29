@@ -262,6 +262,80 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             sut.GradeEccentricity(pop).Should().BeFalse();
         }
 
+        [Test]
+        public void testAutoRejectLevelHFR() {
+            Mock<IImageGraderPreferences> mock = new Mock<IImageGraderPreferences>();
+            mock.SetupAllProperties();
+            mock.SetupProperty(m => m.EnableGradeHFR, true);
+            mock.SetupProperty(m => m.HFRSigmaFactor, 2);
+            List<AcquiredImage> pop = GetTestImages(10, 1, "L", 60); // HFR mean 1.45
+
+            // auto disabled: image (1.5) passes normal variance grading
+            mock.SetupProperty(m => m.AutoRejectLevelHFR, 0);
+            GraderExpert sut = new GraderExpert(mock.Object, GetMockImageData(0, 0, "L", 0, 1.5));
+            sut.GradeHFR(pop).Should().BeTrue();
+
+            // auto enabled and triggered: rejected even though it would pass variance
+            mock.SetupProperty(m => m.AutoRejectLevelHFR, 1.4);
+            sut = new GraderExpert(mock.Object, GetMockImageData(0, 0, "L", 0, 1.5));
+            sut.GradeHFR(pop).Should().BeFalse();
+
+            // auto enabled but not triggered: image below level, passes variance
+            mock.SetupProperty(m => m.AutoRejectLevelHFR, 2);
+            sut = new GraderExpert(mock.Object, GetMockImageData(0, 0, "L", 0, 1.5));
+            sut.GradeHFR(pop).Should().BeTrue();
+        }
+
+        [Test]
+        public void testAutoRejectLevelFWHM() {
+            Mock<IImageGraderPreferences> mockPrefs = new Mock<IImageGraderPreferences>();
+            mockPrefs.SetupAllProperties();
+            mockPrefs.SetupProperty(m => m.EnableGradeFWHM, true);
+            mockPrefs.SetupProperty(m => m.FWHMSigmaFactor, 2);
+            List<AcquiredImage> pop = GetTestImages(10, 1, "L", 60); // FWHM mean 2.45
+            ImageMetadata imageData = GetMockImageData(0, 0, "L", 0, 0, 2.5, 0);
+
+            // auto disabled: image (2.5) passes normal variance grading
+            mockPrefs.SetupProperty(m => m.AutoRejectLevelFWHM, 0);
+            GraderExpert sut = new GraderExpert(mockPrefs.Object, imageData);
+            sut.GradeFWHM(pop).Should().BeTrue();
+
+            // auto enabled and triggered: rejected even though it would pass variance
+            mockPrefs.SetupProperty(m => m.AutoRejectLevelFWHM, 2.4);
+            sut = new GraderExpert(mockPrefs.Object, imageData);
+            sut.GradeFWHM(pop).Should().BeFalse();
+
+            // auto enabled but not triggered: image below level, passes variance
+            mockPrefs.SetupProperty(m => m.AutoRejectLevelFWHM, 3);
+            sut = new GraderExpert(mockPrefs.Object, imageData);
+            sut.GradeFWHM(pop).Should().BeTrue();
+        }
+
+        [Test]
+        public void testAutoRejectLevelEccentricity() {
+            Mock<IImageGraderPreferences> mockPrefs = new Mock<IImageGraderPreferences>();
+            mockPrefs.SetupAllProperties();
+            mockPrefs.SetupProperty(m => m.EnableGradeEccentricity, true);
+            mockPrefs.SetupProperty(m => m.EccentricitySigmaFactor, 2);
+            List<AcquiredImage> pop = GetTestImages(10, 1, "L", 60); // Eccentricity mean 3.45
+            ImageMetadata imageData = GetMockImageData(0, 0, "L", 0, 0, 0, 3.5);
+
+            // auto disabled: image (3.5) passes normal variance grading
+            mockPrefs.SetupProperty(m => m.AutoRejectLevelEccentricity, 0);
+            GraderExpert sut = new GraderExpert(mockPrefs.Object, imageData);
+            sut.GradeEccentricity(pop).Should().BeTrue();
+
+            // auto enabled and triggered: rejected even though it would pass variance
+            mockPrefs.SetupProperty(m => m.AutoRejectLevelEccentricity, 3.4);
+            sut = new GraderExpert(mockPrefs.Object, imageData);
+            sut.GradeEccentricity(pop).Should().BeFalse();
+
+            // auto enabled but not triggered: image below level, passes variance
+            mockPrefs.SetupProperty(m => m.AutoRejectLevelEccentricity, 4);
+            sut = new GraderExpert(mockPrefs.Object, imageData);
+            sut.GradeEccentricity(pop).Should().BeTrue();
+        }
+
         public static IProfile GetMockProfile(double pixelSize, double focalLength) {
             Mock<IProfileService> mock = new Mock<IProfileService>();
             mock.SetupProperty(m => m.ActiveProfile.Id, DefaultProfileId);
