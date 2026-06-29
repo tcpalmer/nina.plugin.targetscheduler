@@ -493,6 +493,68 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             t1.StartTime.Should().BeCloseTo(new DateTime(2024, 10, 16, 1, 57, 8), 1.Seconds());
         }
 
+        // NGC 7331 (Dec +34.4°) transits at ~87° from ~31.5°N, just after astronomical twilight ends on this
+        // summer date - so once the target climbs above the project max altitude there is no dark time left below
+        // it. This reproduces the endless-loop bug where the max altitude clip rejected without advancing the
+        // target start time (https://github.com/tcpalmer/nina-scheduler issue: max alt / min time after twilight).
+        private static readonly Coordinates NGC7331 = new Coordinates(AstroUtil.HMSToDegrees("22:37:04"), AstroUtil.DMSToDegrees("34:24:57"), Epoch.J2000, Coordinates.RAType.Degrees);
+
+        private static readonly ObserverInfo NGC7331_Loc = new ObserverInfo { Latitude = 31.546944, Longitude = -94.7, Elevation = 0 };
+
+        [Test]
+        public void testVisibilityMaxAltClipAdvancesStartTime() {
+            // The remaining dark window (until astronomical twilight ends ~06:15) is entirely above the 80° max
+            // altitude, so the target is rejected - but its start time must be advanced past the exceeded span so
+            // that CheckFuture makes forward progress rather than looping forever.
+            IProfile profile = GetProfileService(NGC7331_Loc);
+            DateTime atTime = new DateTime(2026, 6, 30, 5, 40, 0);
+            TwilightCircumstances twilightCircumstances = TwilightCircumstances.AdjustTwilightCircumstances(NGC7331_Loc, atTime);
+
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 30;
+            p1.MaximumAltitude = 80;
+            ITarget t1 = PlanMocks.GetMockPlanTarget("NGC7331", NGC7331).Object;
+            t1.StartTime = DateTime.MinValue;
+            t1.Project = p1;
+            IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            e1.TwilightLevel = TwilightLevel.Astronomical;
+            t1.ExposurePlans.Add(e1);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+            TargetVisibility viz = new TargetVisibility(t1, NGC7331_Loc, twilightCircumstances.OnDate, twilightCircumstances.Sunset, twilightCircumstances.Sunrise, 60);
+
+            sut.Visibility(atTime, t1, twilightCircumstances, viz).Should().BeFalse();
+            t1.Rejected.Should().BeTrue();
+            t1.RejectedReason.Should().Be(Reasons.TargetMaxAltitude);
+            // The fix: start time is advanced past the max altitude exceeded span (forward progress), not left stale
+            t1.StartTime.Should().BeAfter(atTime);
+        }
+
+        [Test, Timeout(15000)]
+        public void testCheckFutureMaxAltitudeNoTimeLeft() {
+            // Regression for the endless loop: target is below max altitude at start but moon-rejected, so CheckFuture
+            // walks forward until the target climbs above max altitude with no dark time remaining below it. Without
+            // the fix, the max altitude clip rejection left the start time stale and CheckFuture looped indefinitely.
+            IProfile profile = GetProfileService(NGC7331_Loc);
+            IProject p1 = PlanMocks.GetMockPlanProject("P1", ProjectState.Active).Object;
+            p1.MinimumTime = 30;
+            p1.MaximumAltitude = 80;
+            ITarget t1 = PlanMocks.GetMockPlanTarget("NGC7331", NGC7331).Object;
+            t1.StartTime = new DateTime(2026, 6, 30, 5, 0, 0);
+            t1.Project = p1;
+            IExposure e1 = PlanMocks.GetMockPlanExposure("L", 10, 0).Object;
+            e1.TwilightLevel = TwilightLevel.Astronomical;
+            t1.ExposurePlans.Add(e1);
+
+            TargetImagingExpert sut = new TargetImagingExpert(profile, GetPrefs(), false);
+
+            // Moon rejects past the point where the target clips against max altitude with no time left
+            IMoonAvoidanceExpert moonExpert = GetMoonAvoidanceExpert(null, new DateTime(2026, 6, 30, 6, 0, 0));
+            sut.CheckFuture(t1, moonExpert);
+
+            t1.Rejected.Should().BeTrue();
+        }
+
         [Test]
         public void testCheckFutureMoonAllNight() {
             IProfile profile = GetProfileService();
@@ -587,6 +649,12 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
 
             t1.RejectedReason = Reasons.TargetBeforeMeridianWindow;
             sut.VisibleLater(t1).Should().BeTrue();
+
+            t1.RejectedReason = Reasons.TargetMeridianFlipClipped;
+            sut.VisibleLater(t1).Should().BeTrue();
+
+            t1.RejectedReason = Reasons.TargetMaxAltitude;
+            sut.VisibleLater(t1).Should().BeTrue();
         }
 
         [Test]
@@ -670,7 +738,11 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         }
 
         private IProfile GetProfileService(double pauseMinutes = 0, double minutesAfter = 0) {
-            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(TestData.Pittsboro_NC);
+            return GetProfileService(TestData.Pittsboro_NC, pauseMinutes, minutesAfter);
+        }
+
+        private IProfile GetProfileService(ObserverInfo location, double pauseMinutes = 0, double minutesAfter = 0) {
+            Mock<IProfileService> profileMock = PlanMocks.GetMockProfileService(location);
             profileMock.SetupProperty(m => m.ActiveProfile.MeridianFlipSettings.PauseTimeBeforeMeridian, pauseMinutes);
             profileMock.SetupProperty(m => m.ActiveProfile.MeridianFlipSettings.MinutesAfterMeridian, minutesAfter);
             return profileMock.Object.ActiveProfile;

@@ -1,7 +1,8 @@
 # Target Scheduler
 
-## 5.9.4.0 - 2026-06-26
+## 5.9.4.0 - 2026-06-29
 * Fixed long-standing exception in SchedulerProgress
+* Fixed problem with targets that have a max altitude and hit end-of-night not long after rejected for max
 
 ## 5.9.3.0 - 2026-05-29
 * Fixed side-effect problem with target max altitude clipping 

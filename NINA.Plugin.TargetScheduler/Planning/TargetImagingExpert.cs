@@ -122,6 +122,9 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
                 if (maxAltSafeSpan == null) {
                     TSLogger.Debug($"Target not visible for min time after max altitude clip: {project.Name}/{target.Name} on {Utils.FormatDateTimeFull(atTime)} at latitude {observerInfo.Latitude}, max alt is {project.MaximumAltitude}");
+                    // Advance the start time past the max altitude exceeded span so CheckFuture makes forward progress
+                    // (otherwise atTime is reset to a stale start time, causing an endless loop).
+                    target.StartTime = maxAltitudeClipper.NextSafeStart(targetStartTime, targetEndTime);
                     SetRejected(target, Reasons.TargetMaxAltitude);
                     return false;
                 }
@@ -377,7 +380,8 @@ namespace NINA.Plugin.TargetScheduler.Planning {
                 ClearRejections(target);
                 if (Visibility(atTime, target, twilightCircumstances, targetVisibility)) {
                     atTime = target.StartTime;
-                } else if (VisibleLater(target)) {
+                } else if (VisibleLater(target) && target.StartTime > atTime) {
+                    // Only follow a 'visible later' start time if it actually advances time; otherwise we'd loop forever
                     atTime = target.StartTime;
                 } else {
                     return; // no more visibility this night
