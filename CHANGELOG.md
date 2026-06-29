@@ -5,6 +5,12 @@
 * Added new image grader preferences: auto reject levels for HFR, FWHM, and Eccentricity.
 * Fix for new preview report timing issues
 * Added chart to preview report as well as HTML output
+* Fixed side-effect problem with target max altitude clipping (merged from 3.2 release)
+* Fixed problem with targets that have a max altitude and hit end-of-night not long after rejected for max (merged from 3.2 release)
+
+## 5.9.4.0 - 2026-06-29
+* Fixed long-standing exception in SchedulerProgress
+* Fixed problem with targets that have a max altitude and hit end-of-night not long after rejected for max
 
 ## 5.10.2.0 - 2026-06-26 (NINA 3.3)
 * Added an altitude chart to each selected target in the plan preview.
@@ -14,6 +20,9 @@
 * Projects and Exposure Templates in the UI are now maintained in sorted order after additions and renames.
 * Added ability to block sync clients from updating the exposure counts.
 * Fixed long-standing exception in SchedulerProgress
+
+## 5.9.3.0 - 2026-05-29
+* Fixed side-effect problem with target max altitude clipping 
 
 ## 5.9.2.0 - 2026-05-27
 * Fixed problem with target max altitude handling (manifesting as oops twilight exception)

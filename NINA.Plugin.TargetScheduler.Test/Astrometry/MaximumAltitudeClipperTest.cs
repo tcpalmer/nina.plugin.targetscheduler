@@ -106,6 +106,25 @@ namespace NINA.Plugin.TargetScheduler.Test.Astrometry {
         }
 
         [Test]
+        public void testTargetSurroundsSpan() {
+            DateTime dateTime = new DateTime(2024, 12, 1, 13, 0, 0);
+            DateTime sunset = new DateTime(2024, 12, 1, 17, 30, 0);
+            DateTime sunrise = new DateTime(2024, 12, 2, 7, 0, 0);
+
+            DateTime maxStart = new DateTime(2024, 12, 1, 23, 0, 0);
+
+            TargetVisibility targetVisibility = new TargetVisibility("M42", 1, TestData.North_Upper_Lat, TestData.M42, dateTime, sunset, sunrise, 30, 60);
+            MaximumAltitudeClipper sut = targetVisibility.MaxAltitudeClipper;
+            DateTime start = new DateTime(2024, 12, 1, 20, 0, 0);
+            DateTime end = new DateTime(2024, 12, 2, 4, 0, 0);
+            TimeInterval clipped = sut.Clip(start, end);
+            clipped.StartTime.Should().Be(start);
+            clipped.EndTime.Should().Be(maxStart);
+
+            sut.NextSafeStart(start, end).Should().Be(start);
+        }
+
+        [Test]
         public void testTargetAllAfter() {
             DateTime dateTime = new DateTime(2024, 12, 1, 13, 0, 0);
             DateTime sunset = new DateTime(2024, 12, 1, 17, 30, 0);
