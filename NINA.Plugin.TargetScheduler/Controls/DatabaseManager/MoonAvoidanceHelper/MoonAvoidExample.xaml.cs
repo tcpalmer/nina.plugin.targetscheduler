@@ -165,7 +165,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelp
         private static readonly Color AcceptedColor = Color.FromRgb(0x4C, 0xAF, 0x50);
         private static readonly Color RejectedColor = Colors.Red;
 
-        private readonly List<LineSeries> avoidanceSeries = new List<LineSeries>();
+        // The three avoidance curves (separation/accepted/rejected) are created once and reused: each update just
+        // swaps their ItemsSource.  Removing and re-adding fresh LineSeries on the OxyPlot.Wpf Plot on every update
+        // leaves stale rendering (the second update doesn't take), so the series objects are kept stable instead.
+        private LineSeries separationSeries;
+        private LineSeries acceptedSeries;
+        private LineSeries rejectedSeries;
 
         // Per-sample curve data retained for the hover tooltip (parallel lists, ascending X).
         private IList<DataPoint> hoverSeparation;
@@ -177,25 +182,37 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelp
         /// the calculated avoidance (rejection) separation, drawn green where the exposure would be accepted and red
         /// where it would be rejected.  <paramref name="separation"/> and <paramref name="avoidance"/> are parallel
         /// per-sample lists (X = OxyPlot DateTime double, Y = degrees); <paramref name="rejected"/> gives the avoidance
-        /// color per sample.  Replaces any previously added avoidance curves.
+        /// color per sample.  Refreshes the existing avoidance curves in place.
         /// </summary>
         public void SetAvoidanceCurves(IList<DataPoint> separation, IList<DataPoint> avoidance, IList<bool> rejected) {
             hoverSeparation = separation;
             hoverAvoidance = avoidance;
             hoverRejected = rejected;
 
-            foreach (LineSeries series in avoidanceSeries) {
-                ExposurePlot.Series.Remove(series);
-            }
-            avoidanceSeries.Clear();
-
-            AddAvoidanceCurve(separation, SeparationColor);
+            EnsureAvoidanceSeries();
 
             SplitByRejection(avoidance, rejected, out IList<DataPoint> accepted, out IList<DataPoint> rejectedPoints);
-            AddAvoidanceCurve(accepted, AcceptedColor);
-            AddAvoidanceCurve(rejectedPoints, RejectedColor);
+
+            separationSeries.ItemsSource = separation;
+            acceptedSeries.ItemsSource = accepted;
+            rejectedSeries.ItemsSource = rejectedPoints;
 
             ExposurePlot.InvalidatePlot(true);
+        }
+
+        // Create the avoidance curves once (on the first update) and add them on top of the chart's base series.
+        private void EnsureAvoidanceSeries() {
+            if (separationSeries != null) {
+                return;
+            }
+
+            separationSeries = CreateAvoidanceSeries(SeparationColor);
+            acceptedSeries = CreateAvoidanceSeries(AcceptedColor);
+            rejectedSeries = CreateAvoidanceSeries(RejectedColor);
+
+            ExposurePlot.Series.Add(separationSeries);
+            ExposurePlot.Series.Add(acceptedSeries);
+            ExposurePlot.Series.Add(rejectedSeries);
         }
 
         // Split the single avoidance curve into accepted (green) and rejected (red) segments that share their boundary
@@ -230,22 +247,14 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager.MoonAvoidanceHelp
             rejectedPoints = rej;
         }
 
-        private void AddAvoidanceCurve(IList<DataPoint> points, Color color) {
-            if (points == null || points.Count == 0) {
-                return;
-            }
-
-            LineSeries series = new LineSeries {
-                ItemsSource = points,
+        private static LineSeries CreateAvoidanceSeries(Color color) {
+            return new LineSeries {
                 DataFieldX = nameof(DataPoint.X),
                 DataFieldY = nameof(DataPoint.Y),
                 Color = color,
                 StrokeThickness = 2,
                 MarkerType = MarkerType.None
             };
-
-            avoidanceSeries.Add(series);
-            ExposurePlot.Series.Add(series);
         }
 
         // Cursor must be within this many screen pixels (vertically) of a curve for its hover label to show.

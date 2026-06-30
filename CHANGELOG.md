@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.10.3.0 - 2026-06-XX (NINA 3.3)
+## 5.10.3.0 - 2026-06-30 (NINA 3.3)
 * Added a Moon Avoidance Helper to assist with understanding avoidance behavior and selecting parameters
 * Added new image grader preferences: auto reject levels for HFR, FWHM, and Eccentricity.
 * Fix for new preview report timing issues
