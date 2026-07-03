@@ -345,8 +345,21 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             foreach (ITarget target in potentialTargets) {
                 targetExpert.ClearRejections(target);
+
+                // A currently-visible target that is rejected now (e.g. moon avoidance or max altitude) still
+                // carries its original visibility StartTime, which can be at or before the current planning time.
+                // Floor it to atTime so CheckFuture searches forward from now rather than re-validating the target
+                // at a stale, in-the-past time - which would yield a past StartTime and an invalid WAIT interval in
+                // the SchedulerPlan ctor (the 'startTime must be before endTime' crash).
+                if (target.StartTime < atTime) {
+                    target.StartTime = atTime;
+                }
+
                 targetExpert.CheckFuture(target, moonExpert);
-                if (!target.Rejected) {
+
+                // Only accept a target whose next opportunity is strictly in the future; a StartTime at or before
+                // now cannot form a valid wait interval.
+                if (!target.Rejected && target.StartTime > atTime) {
                     imagableTargets.Add(target);
                 }
             }
