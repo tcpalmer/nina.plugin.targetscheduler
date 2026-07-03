@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.10.4.0 - 2026-07-XX (NINA 3.3)
+Fixed 'startTime must be before endTime' problem (merged from 3.2 release)
+
 ## 5.10.3.0 - 2026-06-30 (NINA 3.3)
 * Added a Moon Avoidance Helper to assist with understanding avoidance behavior and selecting parameters
 * Added new image grader preferences: auto reject levels for HFR, FWHM, and Eccentricity.
