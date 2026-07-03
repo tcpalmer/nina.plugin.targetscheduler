@@ -111,6 +111,34 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             AssertFilterCadence(list[2], 3, false, FilterCadenceAction.Dither, -1);
         }
 
+        [Test]
+        public void testRegenerateOnCorruptPersistedCadence() {
+            Mock<IProject> pp1 = PlanMocks.GetMockPlanProject("pp1", ProjectState.Active);
+            Mock<ITarget> pt = PlanMocks.GetMockPlanTarget("IC1805", TestData.IC1805);
+            SetEPs(pt);
+            PlanMocks.AddMockPlanTarget(pp1, pt);
+
+            pp1.SetupProperty(m => m.FilterSwitchFrequency, 2);
+            pp1.SetupProperty(m => m.DitherEvery, 0);
+            pp1.SetupProperty(m => m.SmartExposureOrder, false);
+
+            // Corrupt persisted cadence: orders 1,2 duplicated with two next=true (the write-race symptom).
+            Target target = new Target();
+            target.FilterCadences = new List<FilterCadenceItem> {
+                new FilterCadenceItem(101, 1, true, FilterCadenceAction.Exposure, 0),
+                new FilterCadenceItem(101, 2, false, FilterCadenceAction.Exposure, 1),
+                new FilterCadenceItem(101, 1, true, FilterCadenceAction.Exposure, 0),
+                new FilterCadenceItem(101, 2, false, FilterCadenceAction.Exposure, 1),
+            };
+
+            // Invalid persisted cadence is discarded and regenerated from filter switch frequency.
+            FilterCadenceFactory sut = new FilterCadenceFactory();
+            var list = sut.Generate(pp1.Object, pt.Object, target).List;
+            list.Should().HaveCount(8);
+            AssertFilterCadence(list[0], 1, true, FilterCadenceAction.Exposure, 0);
+            AssertFilterCadence(list[7], 8, false, FilterCadenceAction.Exposure, 3);
+        }
+
         private void SetEPs(Mock<ITarget> pt) {
             Mock<IExposure> Lpf = PlanMocks.GetMockPlanExposure("L", 10, 0);
             Mock<IExposure> Rpf = PlanMocks.GetMockPlanExposure("R", 10, 0);

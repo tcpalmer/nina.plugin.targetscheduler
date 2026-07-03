@@ -51,6 +51,10 @@ namespace NINA.Plugin.TargetScheduler.Planning.Exposures {
         /// </summary>
         /// <param name="filterCadence"></param>
         public void UpdateFilterCadences(FilterCadence filterCadence) {
+            // Preview runs advance the in-memory FilterCadence (see the caller's ExposureTaken /
+            // PreviewPlanner) but must never persist it to the live database.
+            if (Target.IsPreview) { return; }
+
             List<FilterCadenceItem> items = new List<FilterCadenceItem>(filterCadence.Count);
             filterCadence.List.ForEach(fci => {
                 items.Add(new FilterCadenceItem {

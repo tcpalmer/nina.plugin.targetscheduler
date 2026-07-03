@@ -48,6 +48,25 @@ The TS database code is under the Database folder. Subfolders include:
 
 The `SchedulerDatabaseContext` class handles virtually all database operations as well as automatically detecting the need to run new migration scripts.
 
+User databases live in `%LOCALAPPDATA%\NINA\SchedulerPlugin\User Databases\*.sqlite`.
+
+#### Running SQLite queries locally
+
+There is no `sqlite3` CLI on this machine, and the Bash `python`/`python3` shims resolve to the Windows Store stub. Use the `py` launcher with Python's built-in `sqlite3` module instead — from PowerShell, pipe a script into `py -3 -`:
+
+```powershell
+$code = @'
+import sqlite3
+db = r"C:\Users\Tom\AppData\Local\NINA\SchedulerPlugin\User Databases\<name>.sqlite"
+c = sqlite3.connect(db)
+for r in c.execute('SELECT ...').fetchall():
+    print(r)
+'@
+$code | py -3 -
+```
+
+`"order"` and `"action"` are reserved-ish column names — quote them in SQL. Queries are read-only unless you commit; safe for inspecting live user databases.
+
 ### Planning Engine
 
 TS's core planning logic lives in `Planning/`.
@@ -106,3 +125,5 @@ Tests live in `NINA.Plugin.TargetScheduler.Test/`.
 - **Assertions:** FluentAssertions (`.Should()`, `.Be()`, etc.)
 
 Coverage spans: planning engine, scoring rules, astrometry, database schema/migrations, sequencer logic, API. External native DLLs (NOVAS, SOFA, SQLite x64) required by tests are bundled under `Test/External/`.
+
+**Running `SchedulerDatabaseTest` (and other DB-backed fixtures):** these must be run as part of the **full** test assembly — do not narrow to them with `dotnet test --filter`. In isolation they fail in `OneTimeSetUp` with an EF6 error (`GetProviderInvariantName` / provider-not-registered), because the System.Data.SQLite EF6 provider only gets registered when the whole suite loads. Run without a filter (or filter to a broad enough set that the provider registration runs) to exercise these tests. DB-independent fixtures like `FilterCadenceFactoryTest` can be run in isolation with `--filter` normally.

@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.9.6.0 - 2026-07-04
+* Fixed a problem with filter cadence table corruption
+
 ## 5.9.5.0 - 2026-07-03
 * Fixed 'startTime must be before endTime' problem
 

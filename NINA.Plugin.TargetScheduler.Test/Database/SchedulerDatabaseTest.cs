@@ -508,6 +508,25 @@ namespace NINA.Plugin.TargetScheduler.Test.Database {
                 fc1.Equals(t2.FilterCadences[0]).Should().BeTrue();
                 fc2.Equals(t2.FilterCadences[1]).Should().BeTrue();
 
+                // Replacing must overwrite, not accumulate: a repeated replace yields exactly the new set.
+                List<FilterCadenceItem> bigger = new List<FilterCadenceItem>() {
+                    new(2, 1, true, FilterCadenceAction.Exposure, 0),
+                    new(2, 2, false, FilterCadenceAction.Exposure, 1),
+                    new(2, 3, false, FilterCadenceAction.Exposure, 2),
+                };
+                context.ReplaceFilterCadences(2, bigger);
+                context.SaveChanges();
+                context.GetFilterCadences(2).Count.Should().Be(3);
+
+                List<FilterCadenceItem> smaller = new List<FilterCadenceItem>() {
+                    new(2, 1, true, FilterCadenceAction.Exposure, 0),
+                };
+                context.ReplaceFilterCadences(2, smaller);
+                context.SaveChanges();
+                var replaced = context.GetFilterCadences(2);
+                replaced.Count.Should().Be(1);
+                replaced[0].next.Should().BeTrue();
+
                 context.ClearExistingFilterCadences(2);
                 context.SaveChanges();
 

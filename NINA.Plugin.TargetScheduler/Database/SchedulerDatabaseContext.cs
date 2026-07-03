@@ -210,6 +210,10 @@ namespace NINA.Plugin.TargetScheduler.Database {
     public class SchedulerDatabaseContext : DbContext, ISchedulerDatabaseContext {
         private const int DEFAULT_BUSYLOCK_SECS = 5;
 
+        // Serializes filter cadence replacements across contexts in this process so the live planner
+        // and a plan preview can't interleave their delete/insert steps and duplicate rows.
+        private static readonly object filterCadenceWriteLock = new object();
+
         public DbSet<ProfilePreference> ProfilePreferenceSet { get; set; }
         public DbSet<AcquiredImage> AcquiredImageSet { get; set; }
         public DbSet<Project> ProjectSet { get; set; }
@@ -462,20 +466,28 @@ namespace NINA.Plugin.TargetScheduler.Database {
         }
 
         public void ReplaceFilterCadences(int targetId, List<FilterCadenceItem> items, bool impactingChange = true) {
-            ClearExistingFilterCadences(targetId, impactingChange);
+            // The clear and the add must happen in a single transaction.  Otherwise two writers for the
+            // same target (e.g. the live planner and a plan preview) can interleave their delete/insert
+            // steps and leave a duplicated set of rows.  A single write transaction lets SQLite serialize
+            // concurrent writers so the second one either blocks until the first commits or rolls back cleanly.
+            lock (filterCadenceWriteLock) {
+                using (var transaction = Database.BeginTransaction()) {
+                    try {
+                        var predicate = PredicateBuilder.New<FilterCadenceItem>();
+                        predicate = predicate.And(fc => fc.TargetId == targetId);
+                        FilterCadenceSet.RemoveRange(FilterCadenceSet.Where(predicate));
 
-            if (Common.IsEmpty(items)) {
-                return;
-            }
+                        if (Common.IsNotEmpty(items)) {
+                            items.ForEach(item => { FilterCadenceSet.Add(item); });
+                        }
 
-            using (var transaction = Database.BeginTransaction()) {
-                try {
-                    items.ForEach(item => { FilterCadenceSet.Add(item); });
-                    SaveChanges();
-                    transaction.Commit();
-                } catch (Exception e) {
-                    TSLogger.Error($"error adding filter cadence items for target ID {targetId}: {e.Message} {e.StackTrace}");
-                    RollbackTransaction(transaction);
+                        SaveChanges();
+                        transaction.Commit();
+                        if (impactingChange) { TargetEditGuard.Instance.MarkEdited(targetId); }
+                    } catch (Exception e) {
+                        TSLogger.Error($"error replacing filter cadence items for target ID {targetId}: {e.Message} {e.StackTrace}");
+                        RollbackTransaction(transaction);
+                    }
                 }
             }
         }
