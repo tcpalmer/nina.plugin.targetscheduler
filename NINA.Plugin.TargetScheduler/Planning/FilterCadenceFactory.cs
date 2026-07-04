@@ -2,6 +2,7 @@
 using NINA.Plugin.TargetScheduler.Planning.Entities;
 using NINA.Plugin.TargetScheduler.Planning.Interfaces;
 using NINA.Plugin.TargetScheduler.Shared.Utility;
+using System;
 using System.Collections.Generic;
 
 namespace NINA.Plugin.TargetScheduler.Planning {
@@ -16,8 +17,15 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
             // Restore from database records if available
             if (Common.IsNotEmpty(databaseTarget.FilterCadences)) {
-                databaseTarget.FilterCadences.ForEach(fc => { filterCadences.Add(new PlanningFilterCadence(fc)); });
-                return new FilterCadence(filterCadences);
+                try {
+                    databaseTarget.FilterCadences.ForEach(fc => { filterCadences.Add(new PlanningFilterCadence(fc)); });
+                    return new FilterCadence(filterCadences);
+                } catch (ArgumentException ex) {
+                    // Persisted cadence is corrupt (e.g. duplicated rows from a prior write race).  Discard it
+                    // and regenerate below; the next persisted update will overwrite the bad rows with a clean set.
+                    TSLogger.Warning($"invalid persisted filter cadence for target {databaseTarget.Id}, regenerating: {ex.Message}");
+                    filterCadences.Clear();
+                }
             }
 
             // Generate from override list

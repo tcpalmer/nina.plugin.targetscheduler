@@ -197,6 +197,8 @@ Tests live in `NINA.Plugin.TargetScheduler.Test/`.
 
 Coverage spans: planning engine, scoring rules, astrometry, database schema/migrations, sequencer logic, API. External native DLLs (NOVAS, SOFA, SQLite x64) required by tests are bundled under `Test/External/`.
 
+**Running `SchedulerDatabaseTest` (and other DB-backed fixtures):** these must be run as part of the **full** test assembly — do not narrow to them with `dotnet test --filter`. In isolation they fail in `OneTimeSetUp` with an EF6 error (`GetProviderInvariantName` / provider-not-registered), because the System.Data.SQLite EF6 provider only gets registered when the whole suite loads. Run without a filter (or filter to a broad enough set that the provider registration runs) to exercise these tests. DB-independent fixtures like `FilterCadenceFactoryTest` can be run in isolation with `--filter` normally.
+
 ## Release Process
 
 The three PowerShell scripts in `Utilities/` automate the multi-step TS release workflow. All three accept a single mandatory `-Version` parameter (e.g. `'6.1.2.3'`) and must be run in order. Do **not** suggest running these scripts or run them yourself without explicit permission from the user.
