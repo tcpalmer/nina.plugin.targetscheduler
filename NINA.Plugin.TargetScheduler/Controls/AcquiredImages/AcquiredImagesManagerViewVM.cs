@@ -726,6 +726,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
         public string FWHM { get { return Utils.FormatHF(acquiredImage.Metadata.FWHM); } }
         public string Eccentricity { get { return Utils.FormatHF(acquiredImage.Metadata.Eccentricity); } }
 
+        // Raw values used for column sorting (the display properties above are formatted strings)
+        public int DetectedStarsSort { get { return acquiredImage.Metadata.DetectedStars; } }
+        public double HFRSort { get { return acquiredImage.Metadata.HFR; } }
+        public double FWHMSort { get { return acquiredImage.Metadata.FWHM; } }
+        public double EccentricitySort { get { return acquiredImage.Metadata.Eccentricity; } }
+
         public string ADUStDev { get { return Utils.FormatDbl(acquiredImage.Metadata.ADUStDev); } }
         public string ADUMean { get { return Utils.FormatDbl(acquiredImage.Metadata.ADUMean); } }
         public string ADUMedian { get { return Utils.FormatDbl(acquiredImage.Metadata.ADUMedian); } }

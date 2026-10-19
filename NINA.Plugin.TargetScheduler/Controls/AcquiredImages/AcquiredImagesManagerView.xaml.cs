@@ -42,10 +42,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
                 case "Project": return "ProjectName";
                 case "Target": return "TargetName";
                 case "Filter": return "FilterName";
-                case "Stars": return "DetectedStars";
-                case "HFR": return "HFR";
-                case "FWHM": return "FWHM";
-                case "Eccentricity": return "Eccentricity";
+                case "Stars": return "DetectedStarsSort";
+                case "HFR": return "HFRSort";
+                case "FWHM": return "FWHMSort";
+                case "Eccentricity": return "EccentricitySort";
                 case "Accepted": return "Accepted";
                 case "Reject Reason": return "RejectReason";
                 default: return null;
