@@ -181,6 +181,81 @@ namespace NINA.Plugin.TargetScheduler.Test.Grading {
             File.Exists(expectedPath).Should().BeTrue();
         }
 
+        private static string NewTestDir(string name) {
+            string dir = Path.Combine(Path.GetTempPath(), name);
+            if (Directory.Exists(dir)) { Directory.Delete(dir, true); }
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        [Test]
+        public void testTryMoveToRejectedAndBack() {
+            string dir = NewTestDir("imageGraderTryMove");
+            string src = Path.Combine(dir, "image.fits");
+            string rejected = Path.Combine(dir, ImageGrader.REJECTED_SUBDIR, "image.fits");
+            File.Create(src).Close();
+
+            ImageGrader.TryMoveToRejected(src).Should().BeTrue();
+            File.Exists(src).Should().BeFalse();
+            File.Exists(rejected).Should().BeTrue();
+
+            ImageGrader.TryMoveFromRejected(src).Should().BeTrue();
+            File.Exists(src).Should().BeTrue();
+            File.Exists(rejected).Should().BeFalse();
+        }
+
+        [Test]
+        public void testTryMoveToRejectedAborts() {
+            string dir = NewTestDir("imageGraderTryMoveToAbort");
+            string src = Path.Combine(dir, "image.fits");
+
+            // no source file
+            ImageGrader.TryMoveToRejected(src).Should().BeFalse();
+            ImageGrader.TryMoveToRejected(null).Should().BeFalse();
+
+            // destination already exists
+            File.Create(src).Close();
+            Directory.CreateDirectory(Path.Combine(dir, ImageGrader.REJECTED_SUBDIR));
+            string dst = Path.Combine(dir, ImageGrader.REJECTED_SUBDIR, "image.fits");
+            File.Create(dst).Close();
+            ImageGrader.TryMoveToRejected(src).Should().BeFalse();
+            File.Exists(src).Should().BeTrue();
+
+            // already in a rejected directory
+            ImageGrader.TryMoveToRejected(dst).Should().BeFalse();
+            File.Exists(dst).Should().BeTrue();
+
+            // 'rejected' is a file, not a directory
+            string dir2 = NewTestDir("imageGraderTryMoveToAbort2");
+            string src2 = Path.Combine(dir2, "image.fits");
+            File.Create(src2).Close();
+            File.Create(Path.Combine(dir2, ImageGrader.REJECTED_SUBDIR)).Close();
+            ImageGrader.TryMoveToRejected(src2).Should().BeFalse();
+            File.Exists(src2).Should().BeTrue();
+        }
+
+        [Test]
+        public void testTryMoveFromRejectedAborts() {
+            string dir = NewTestDir("imageGraderTryMoveFromAbort");
+            string orig = Path.Combine(dir, "image.fits");
+
+            // no rejected directory
+            ImageGrader.TryMoveFromRejected(orig).Should().BeFalse();
+            ImageGrader.TryMoveFromRejected(null).Should().BeFalse();
+
+            // rejected directory but no file
+            Directory.CreateDirectory(Path.Combine(dir, ImageGrader.REJECTED_SUBDIR));
+            ImageGrader.TryMoveFromRejected(orig).Should().BeFalse();
+
+            // file exists at both locations
+            string rejected = Path.Combine(dir, ImageGrader.REJECTED_SUBDIR, "image.fits");
+            File.Create(rejected).Close();
+            File.Create(orig).Close();
+            ImageGrader.TryMoveFromRejected(orig).Should().BeFalse();
+            File.Exists(rejected).Should().BeTrue();
+            File.Exists(orig).Should().BeTrue();
+        }
+
         [Test]
         public void testGradingResultToStatus() {
             ImageGrader sut = new ImageGrader();

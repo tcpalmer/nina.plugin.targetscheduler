@@ -3,6 +3,7 @@ using Moq;
 using NINA.Core.Model;
 using NINA.Core.Model.Equipment;
 using NINA.Core.Utility;
+using NINA.Plugin.TargetScheduler.Grading;
 using NINA.Plugin.TargetScheduler.Test.Astrometry;
 using NINA.Plugin.TargetScheduler.Util;
 using NINA.Profile.Interfaces;
@@ -209,7 +210,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Util {
                 string srcFile2 = Path.Combine(tempDir, "test2.txt");
                 File.WriteAllText(srcFile2, "this is test file 2");
 
-                string dstDir = Path.Combine(Path.GetDirectoryName(srcFile1), "rejected");
+                string dstDir = Path.Combine(Path.GetDirectoryName(srcFile1), ImageGrader.REJECTED_SUBDIR);
                 Utils.MoveFile(srcFile1, dstDir).Should().BeTrue();
                 Utils.MoveFile(srcFile2, dstDir).Should().BeTrue();
 

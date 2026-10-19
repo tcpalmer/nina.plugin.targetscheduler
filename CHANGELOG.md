@@ -1,6 +1,7 @@
 # Target Scheduler
 
-## 5.10.4.0 - 2026-07-XX (NINA 3.3)
+## 5.10.4.0 - 2026-10-20 (NINA 3.3)
+* Updating the grading status manually will now handle the 'rejected' folder correctly.
 * Fixed 'startTime must be before endTime' problem (merged from 3.2 release)
 * Fixed problem with filter cadence table corruption (merged from 3.2 release)
 

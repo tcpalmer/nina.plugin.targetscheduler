@@ -148,6 +148,103 @@ namespace NINA.Plugin.TargetScheduler.Grading {
             Utils.MoveFile(fileLocalPath, dstDir);
         }
 
+        /// <summary>
+        /// Move an image from its original location into the rejected subdirectory, aborting if anything
+        /// about the file or directory state is not exactly as expected.
+        /// </summary>
+        public static bool TryMoveToRejected(string originalPath) {
+            string error = null;
+            try {
+                if (string.IsNullOrWhiteSpace(originalPath)) {
+                    error = "no file name recorded for image";
+                } else {
+                    string srcDir = Path.GetDirectoryName(originalPath);
+                    string fileName = Path.GetFileName(originalPath);
+
+                    if (string.IsNullOrEmpty(srcDir) || string.IsNullOrEmpty(fileName)) {
+                        error = "file name is not a full path";
+                    } else if (!Directory.Exists(srcDir)) {
+                        error = "source directory does not exist";
+                    } else if (!File.Exists(originalPath)) {
+                        error = "source file does not exist";
+                    } else if (string.Equals(Path.GetFileName(srcDir), REJECTED_SUBDIR, StringComparison.OrdinalIgnoreCase)) {
+                        error = $"source file is already in a '{REJECTED_SUBDIR}' directory";
+                    } else {
+                        string dstDir = Path.Combine(srcDir, REJECTED_SUBDIR);
+                        string dstPath = Path.Combine(dstDir, fileName);
+
+                        if (File.Exists(dstDir)) {
+                            error = $"'{REJECTED_SUBDIR}' exists but is a file, not a directory";
+                        } else if (File.Exists(dstPath) || Directory.Exists(dstPath)) {
+                            error = "destination already exists";
+                        } else {
+                            Directory.CreateDirectory(dstDir);
+                            File.Move(originalPath, dstPath);
+
+                            if (!File.Exists(dstPath) || File.Exists(originalPath)) {
+                                error = "file state after move is not as expected";
+                            } else {
+                                TSLogger.Info($"manual grading: moved image {originalPath} to {dstPath}");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                error = $"exception: {ex.Message}";
+            }
+
+            TSLogger.Warning($"manual grading: move to '{REJECTED_SUBDIR}' ABORTED for {originalPath}: {error}");
+            return false;
+        }
+
+        /// <summary>
+        /// Move an image from the rejected subdirectory back to its original location, aborting if anything
+        /// about the file or directory state is not exactly as expected.
+        /// </summary>
+        public static bool TryMoveFromRejected(string originalPath) {
+            string error = null;
+            try {
+                if (string.IsNullOrWhiteSpace(originalPath)) {
+                    error = "no file name recorded for image";
+                } else {
+                    string origDir = Path.GetDirectoryName(originalPath);
+                    string fileName = Path.GetFileName(originalPath);
+
+                    if (string.IsNullOrEmpty(origDir) || string.IsNullOrEmpty(fileName)) {
+                        error = "file name is not a full path";
+                    } else {
+                        string rejectedDir = Path.Combine(origDir, REJECTED_SUBDIR);
+                        string rejectedPath = Path.Combine(rejectedDir, fileName);
+
+                        if (!Directory.Exists(origDir)) {
+                            error = "original directory does not exist";
+                        } else if (!Directory.Exists(rejectedDir)) {
+                            error = $"'{REJECTED_SUBDIR}' directory does not exist";
+                        } else if (!File.Exists(rejectedPath)) {
+                            error = $"file not found in '{REJECTED_SUBDIR}' directory";
+                        } else if (File.Exists(originalPath) || Directory.Exists(originalPath)) {
+                            error = "a file already exists at the original location";
+                        } else {
+                            File.Move(rejectedPath, originalPath);
+
+                            if (!File.Exists(originalPath) || File.Exists(rejectedPath)) {
+                                error = "file state after move is not as expected";
+                            } else {
+                                TSLogger.Info($"manual grading: moved image {rejectedPath} back to {originalPath}");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                error = $"exception: {ex.Message}";
+            }
+
+            TSLogger.Warning($"manual grading: move from '{REJECTED_SUBDIR}' ABORTED for {originalPath}: {error}");
+            return false;
+        }
+
         public virtual void UpdateDatabase(GradingResult result, ExposurePlan exposurePlan, AcquiredImage acquiredImage) {
             using (var context = new SchedulerDatabaseInteraction().GetContext()) {
                 using (var transaction = context.Database.BeginTransaction()) {

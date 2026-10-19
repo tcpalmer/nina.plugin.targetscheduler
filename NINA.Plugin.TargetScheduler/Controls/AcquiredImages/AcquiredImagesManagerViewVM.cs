@@ -791,7 +791,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
             if (File.Exists(fileName)) return fileName;
             string dir = Path.GetDirectoryName(fileName);
             if (dir == null) return null;
-            string rejected = Path.Combine(dir, "rejected", Path.GetFileName(fileName));
+            string rejected = Path.Combine(dir, ImageGrader.REJECTED_SUBDIR, Path.GetFileName(fileName));
             return File.Exists(rejected) ? rejected : null;
         }
 
@@ -831,7 +831,24 @@ namespace NINA.Plugin.TargetScheduler.Controls.AcquiredImages {
                     GradingStatusValue = (int)newStatus;
                     RaiseAllPropertiesChanged();
                     TSLogger.Debug($"updated grading status from {oldStatus} to {newStatus} for record ai={acquiredImage.Id}");
+                    MoveImageForGrading(context, oldStatus, newStatus);
                 }
+            }
+        }
+
+        private void MoveImageForGrading(ISchedulerDatabaseContext context, GradingStatus oldStatus, GradingStatus newStatus) {
+            bool toRejected = newStatus == Grading.GradingStatus.Rejected && oldStatus != Grading.GradingStatus.Rejected;
+            bool fromRejected = oldStatus == Grading.GradingStatus.Rejected && newStatus != Grading.GradingStatus.Rejected;
+            if (!toRejected && !fromRejected) return;
+
+            ProfilePreference profilePreference = context.GetProfilePreference(acquiredImage.ProfileId);
+            if (profilePreference == null || !profilePreference.EnableMoveRejected) return;
+
+            string fileName = acquiredImage.Metadata?.FileName;
+            if (toRejected) {
+                ImageGrader.TryMoveToRejected(fileName);
+            } else {
+                ImageGrader.TryMoveFromRejected(fileName);
             }
         }
 
