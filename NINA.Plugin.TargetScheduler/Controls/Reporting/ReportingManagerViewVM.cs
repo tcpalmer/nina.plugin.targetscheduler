@@ -460,6 +460,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
         public string Eccentricity { get; }
         public string GuidingRMS { get; }
 
+        // Raw values used for column sorting (the display properties above are formatted strings)
+        public double HFRSort { get; }
+        public double FWHMSort { get; }
+        public double EccentricitySort { get; }
+        public double GuidingRMSSort { get; }
+
         public ImageData ImageData { get; }
         public ImageSource Thumbnail { get; }
 
@@ -480,6 +486,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
             FWHM = Utils.FormatHF(acquiredImage.Metadata.FWHM);
             Eccentricity = Utils.FormatHF(acquiredImage.Metadata.Eccentricity);
             GuidingRMS = Utils.FormatDbl(acquiredImage.Metadata.GuidingRMS);
+            HFRSort = acquiredImage.Metadata.HFR;
+            FWHMSort = acquiredImage.Metadata.FWHM;
+            EccentricitySort = acquiredImage.Metadata.Eccentricity;
+            GuidingRMSSort = acquiredImage.Metadata.GuidingRMS;
 
             using (var context = database.GetContext()) {
                 ImageData = context.GetImageData(acquiredImage.Id);

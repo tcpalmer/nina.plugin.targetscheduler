@@ -46,10 +46,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.Reporting {
                 case "Date": return "AcquiredDate";
                 case "Filter": return "FilterName";
                 case "Stars": return "DetectedStars";
-                case "HFR": return "HFR";
-                case "FWHM": return "FWHM";
-                case "Eccentricity": return "Eccentricity";
-                case "Guiding RMS": return "GuidingRMS";
+                case "HFR": return "HFRSort";
+                case "FWHM": return "FWHMSort";
+                case "Eccentricity": return "EccentricitySort";
+                case "Guiding RMS": return "GuidingRMSSort";
                 case "Grading": return "GradingStatus";
                 case "Reject Reason": return "RejectReason";
                 default: return null;
