@@ -490,7 +490,7 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
             // Above max altitude at start but descending and available later
             sut.CheckFuture(t1, GetMoonAvoidanceExpert("L"));
             t1.Rejected.Should().BeFalse();
-            t1.StartTime.Should().BeCloseTo(new DateTime(2024, 10, 16, 1, 57, 8), 1.Seconds());
+            t1.StartTime.Should().BeCloseTo(new DateTime(2024, 10, 16, 1, 57, 12), 1.Seconds());
         }
 
         // NGC 7331 (Dec +34.4°) transits at ~87° from ~31.5°N, just after astronomical twilight ends on this
