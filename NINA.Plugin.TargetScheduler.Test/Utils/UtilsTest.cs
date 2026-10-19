@@ -199,6 +199,52 @@ namespace NINA.Plugin.TargetScheduler.Test.Util {
         }
 
         [Test]
+        public void TestMoveFileWithRetryTransientLock() {
+            string tempDir = Path.Combine(Path.GetTempPath(), "movefileretrytest1");
+            if (Directory.Exists(tempDir)) { Directory.Delete(tempDir, true); }
+            Directory.CreateDirectory(tempDir);
+            try {
+                string src = Path.Combine(tempDir, "test.txt");
+                string dst = Path.Combine(tempDir, "moved.txt");
+                File.WriteAllText(src, "test");
+
+                // Hold the file open (blocks the move) and release it after a short delay
+                FileStream locked = new FileStream(src, FileMode.Open, FileAccess.Read, FileShare.None);
+                Task.Run(async () => { await Task.Delay(300); locked.Dispose(); });
+
+                Utils.MoveFileWithRetry(src, dst, 5, 200);
+                File.Exists(dst).Should().BeTrue();
+                File.Exists(src).Should().BeFalse();
+            } finally {
+                Directory.Delete(tempDir, true);
+            }
+        }
+
+        [Test]
+        public void TestMoveFileWithRetryPersistentLock() {
+            string tempDir = Path.Combine(Path.GetTempPath(), "movefileretrytest2");
+            if (Directory.Exists(tempDir)) { Directory.Delete(tempDir, true); }
+            Directory.CreateDirectory(tempDir);
+            try {
+                string src = Path.Combine(tempDir, "test.txt");
+                string dst = Path.Combine(tempDir, "moved.txt");
+                File.WriteAllText(src, "test");
+
+                using (new FileStream(src, FileMode.Open, FileAccess.Read, FileShare.None)) {
+                    Action act = () => Utils.MoveFileWithRetry(src, dst, 3, 50);
+                    act.Should().Throw<IOException>();
+                    Utils.MoveFile(src, tempDir + "2").Should().BeFalse();
+                }
+
+                File.Exists(src).Should().BeTrue();
+                File.Exists(dst).Should().BeFalse();
+            } finally {
+                Directory.Delete(tempDir, true);
+                if (Directory.Exists(tempDir + "2")) { Directory.Delete(tempDir + "2", true); }
+            }
+        }
+
+        [Test]
         public void TestMoveFile() {
             string tempDir = null;
             try {

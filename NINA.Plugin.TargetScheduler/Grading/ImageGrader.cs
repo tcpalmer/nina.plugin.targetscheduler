@@ -179,7 +179,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                             error = "destination already exists";
                         } else {
                             Directory.CreateDirectory(dstDir);
-                            File.Move(originalPath, dstPath);
+                            Utils.MoveFileWithRetry(originalPath, dstPath);
 
                             if (!File.Exists(dstPath) || File.Exists(originalPath)) {
                                 error = "file state after move is not as expected";
@@ -226,7 +226,7 @@ namespace NINA.Plugin.TargetScheduler.Grading {
                         } else if (File.Exists(originalPath) || Directory.Exists(originalPath)) {
                             error = "a file already exists at the original location";
                         } else {
-                            File.Move(rejectedPath, originalPath);
+                            Utils.MoveFileWithRetry(rejectedPath, originalPath);
 
                             if (!File.Exists(originalPath) || File.Exists(rejectedPath)) {
                                 error = "file state after move is not as expected";

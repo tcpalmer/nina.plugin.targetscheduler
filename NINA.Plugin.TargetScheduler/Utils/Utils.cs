@@ -219,11 +219,31 @@ namespace NINA.Plugin.TargetScheduler.Util {
                     Directory.CreateDirectory(dstDir);
                 }
 
-                File.Move(srcFile, Path.Combine(dstDir, Path.GetFileName(srcFile)));
+                MoveFileWithRetry(srcFile, Path.Combine(dstDir, Path.GetFileName(srcFile)));
                 return true;
             } catch (Exception ex) {
                 TSLogger.Error($"failed to move file {srcFile} to {dstDir}: {ex.Message}");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Move a file, retrying on IOException (e.g. a sharing violation from a transient lock, common on
+        /// network shares). Retries stop if the source disappears or the destination appears. Throws the last
+        /// exception if all attempts fail.
+        /// </summary>
+        public static void MoveFileWithRetry(string srcFile, string dstFile, int maxAttempts = 5, int delayMs = 500) {
+            for (int attempt = 1; ; attempt++) {
+                try {
+                    File.Move(srcFile, dstFile);
+                    if (attempt > 1) {
+                        TSLogger.Info($"moved file {srcFile} to {dstFile} on attempt {attempt}");
+                    }
+                    return;
+                } catch (IOException ex) when (attempt < maxAttempts && File.Exists(srcFile) && !File.Exists(dstFile)) {
+                    TSLogger.Warning($"move of {srcFile} failed (attempt {attempt}/{maxAttempts}), retrying: {ex.Message}");
+                    Thread.Sleep(delayMs);
+                }
             }
         }
 
