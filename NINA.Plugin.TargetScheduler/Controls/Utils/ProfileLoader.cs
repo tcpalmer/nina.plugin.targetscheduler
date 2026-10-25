@@ -2,6 +2,7 @@
 using NINA.Profile;
 using NINA.Profile.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
@@ -14,6 +15,12 @@ namespace NINA.Plugin.TargetScheduler.Controls.Util {
         private static readonly ProfileLoader Instance = new ProfileLoader();
         private static bool initialized = false;
         private ProfileCache cache;
+
+        private static readonly ConcurrentDictionary<string, IProfile> lastLoaded = new ConcurrentDictionary<string, IProfile>();
+
+        public static IProfile GetLastLoaded(string profileId) {
+            return profileId != null && lastLoaded.TryGetValue(profileId, out IProfile profile) ? profile : null;
+        }
 
         public static IProfile GetProfile(IProfileService profileService, string profileId) {
             ProfileMeta profileMeta = profileService.Profiles.Where(p => p.Id.ToString() == profileId).FirstOrDefault();
@@ -39,6 +46,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Util {
             string cacheKey = Instance.GetCacheKey(profileMeta.Location);
             IProfile profile = Instance.cache.Get(cacheKey);
             if (profile != null) {
+                lastLoaded[profileMeta.Id.ToString()] = profile;
                 return profile;
             }
 
@@ -47,6 +55,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.Util {
                 var serializer = new DataContractSerializer(typeof(Profile.Profile));
                 profile = (Profile.Profile)serializer.ReadObject(fs);
                 Instance.cache.Put(profile, cacheKey);
+                lastLoaded[profileMeta.Id.ToString()] = profile;
                 return profile;
             } catch (Exception e) {
                 TSLogger.Error($"failed to read profile at {profileMeta.Location}: {e.Message} {e.StackTrace}");
