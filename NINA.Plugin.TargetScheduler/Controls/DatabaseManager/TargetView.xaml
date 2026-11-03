@@ -49,6 +49,24 @@
             <Button
                 Width="25"
                 Height="25"
+                Margin="6,0,0,6"
+                VerticalAlignment="Center"
+                Command="{Binding NavigateToTargetPlanningCommand}"
+                IsEnabled="{Binding ShowEditView, Converter={StaticResource InverseBooleanConverter}}"
+                Style="{StaticResource BackgroundButton}"
+                ToolTip="Open in Target Planning"
+                ToolTipService.ShowOnDisabled="True">
+                <Grid>
+                    <Path
+                        Margin="5"
+                        Data="{StaticResource SS_PlanningSVG}"
+                        Fill="{StaticResource ButtonForegroundBrush}"
+                        Stretch="Uniform" />
+                </Grid>
+            </Button>
+            <Button
+                Width="25"
+                Height="25"
                 Margin="3,0,3,6"
                 VerticalAlignment="Center"
                 Command="{Binding NavigateToReportCommand}"

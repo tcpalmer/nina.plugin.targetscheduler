@@ -9,6 +9,7 @@ using NINA.Plugin.TargetScheduler.API;
 using NINA.Plugin.TargetScheduler.Controls.AcquiredImages;
 using NINA.Plugin.TargetScheduler.Controls.DatabaseManager;
 using NINA.Plugin.TargetScheduler.Controls.PlanPreview;
+using NINA.Plugin.TargetScheduler.Controls.Planning;
 using NINA.Plugin.TargetScheduler.Controls.Reporting;
 using NINA.Plugin.TargetScheduler.Database;
 using NINA.Plugin.TargetScheduler.Database.Schema;
@@ -165,6 +166,16 @@ namespace NINA.Plugin.TargetScheduler {
             }
         }
 
+        private TargetPlanningViewVM targetPlanningViewVM;
+
+        public TargetPlanningViewVM TargetPlanningViewVM {
+            get => targetPlanningViewVM;
+            set {
+                targetPlanningViewVM = value;
+                RaisePropertyChanged(nameof(TargetPlanningViewVM));
+            }
+        }
+
         private ReportingManagerViewVM reportingManagerViewVM;
 
         public ReportingManagerViewVM ReportingManagerViewVM {
@@ -194,6 +205,7 @@ namespace NINA.Plugin.TargetScheduler {
                 if (value && DatabaseManagerVM == null) {
                     DatabaseManagerVM = new DatabaseManagerVM(profileService, applicationMediator, framingAssistantVM, deepSkyObjectSearchVM, planetariumFactory);
                     DatabaseManagerVM.NavigateToReportingAction = NavigateToReporting;
+                    DatabaseManagerVM.NavigateToTargetPlanningAction = NavigateToTargetPlanning;
                     DatabaseManagerVM.NavigateToProfileSummaryAction = NavigateToProfileSummary;
                 }
             }
@@ -208,6 +220,19 @@ namespace NINA.Plugin.TargetScheduler {
                 if (value && PlanPreviewerViewVM == null) {
                     PlanPreviewerViewVM = new PlanPreviewerViewVM(profileService);
                 }
+            }
+        }
+
+        private bool targetPlanningIsExpanded = false;
+
+        public bool TargetPlanningIsExpanded {
+            get { return targetPlanningIsExpanded; }
+            set {
+                targetPlanningIsExpanded = value;
+                if (value && TargetPlanningViewVM == null) {
+                    TargetPlanningViewVM = new TargetPlanningViewVM(profileService, deepSkyObjectSearchVM);
+                }
+                RaisePropertyChanged(nameof(TargetPlanningIsExpanded));
             }
         }
 
@@ -241,6 +266,11 @@ namespace NINA.Plugin.TargetScheduler {
             ReportingManagerViewVM.SelectedProfileId = profileId;
             ReportingManagerViewVM.SelectedProjectId = projectId;
             ReportingManagerViewVM.SelectedTargetId = targetId;
+        }
+
+        private void NavigateToTargetPlanning(string profileId, int projectId, int targetId) {
+            TargetPlanningIsExpanded = true;
+            TargetPlanningViewVM.SelectExistingTarget(profileId, projectId, targetId);
         }
 
         private void NavigateToProfileSummary(string profileId) {
@@ -278,12 +308,15 @@ namespace NINA.Plugin.TargetScheduler {
 
             DatabaseManagerVM = new DatabaseManagerVM(profileService, applicationMediator, framingAssistantVM, deepSkyObjectSearchVM, planetariumFactory);
             DatabaseManagerVM.NavigateToReportingAction = NavigateToReporting;
+            DatabaseManagerVM.NavigateToTargetPlanningAction = NavigateToTargetPlanning;
             DatabaseManagerVM.NavigateToProfileSummaryAction = NavigateToProfileSummary;
             PlanPreviewerViewVM = new PlanPreviewerViewVM(profileService);
+            TargetPlanningViewVM = new TargetPlanningViewVM(profileService, deepSkyObjectSearchVM);
             AcquiredImagesManagerViewVM = new AcquiredImagesManagerViewVM(profileService);
 
             RaisePropertyChanged(nameof(DatabaseManagerVM));
             RaisePropertyChanged(nameof(PlanPreviewerViewVM));
+            RaisePropertyChanged(nameof(TargetPlanningViewVM));
             RaisePropertyChanged(nameof(AcquiredImagesManagerViewVM));
 
             if (profileService.ActiveProfile != null) {

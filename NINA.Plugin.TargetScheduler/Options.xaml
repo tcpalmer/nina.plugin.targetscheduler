@@ -5,7 +5,8 @@
     xmlns:ai="clr-namespace:NINA.Plugin.TargetScheduler.Controls.AcquiredImages"
     xmlns:dm="clr-namespace:NINA.Plugin.TargetScheduler.Controls.DatabaseManager"
     xmlns:pp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.PlanPreview"
-    xmlns:rp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.Reporting">
+    xmlns:rp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.Reporting"
+    xmlns:tp="clr-namespace:NINA.Plugin.TargetScheduler.Controls.Planning">
 
     <DataTemplate x:Key="Target Scheduler_Options">
         <StackPanel DataContext="{Binding}" Orientation="Vertical">
@@ -25,6 +26,22 @@
                     </StackPanel>
                 </Expander.Header>
                 <dm:DatabaseManagerView DataContext="{Binding DatabaseManagerVM}" />
+            </Expander>
+
+            <Expander
+                Margin="0,0,0,10"
+                ExpandDirection="Down"
+                IsExpanded="{Binding TargetPlanningIsExpanded}">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="Target Planning"
+                            ToolTip="Plan future imaging targets" />
+                    </StackPanel>
+                </Expander.Header>
+                <tp:TargetPlanningView DataContext="{Binding TargetPlanningViewVM}" />
             </Expander>
 
             <Expander

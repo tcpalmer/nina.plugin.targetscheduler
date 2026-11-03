@@ -39,6 +39,36 @@ namespace NINA.Plugin.TargetScheduler.Test.Planning {
         }
 
         [Test]
+        public void testEvaluateAvoidanceSeparation() {
+            ITarget planTarget = GetPlanTarget();
+            DateTime atTime = DateTime.Now;
+
+            // Avoidance disabled: not rejected, no separation
+            MoonAvoidanceExpert sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 14, SeparationAngle = 20 };
+            MoonAvoidanceDetermination determination = sut.Evaluate(atTime, planTarget, GetPlanExposure(false, 120, 14, 0, 5, -15, false));
+            determination.Rejected.Should().BeFalse();
+            determination.AvoidanceSeparation.Should().BeNull();
+
+            // Full moon: separation is (nearly) the full avoidance separation parameter, rejection agrees with IsRejected
+            IExposure planExposure = GetPlanExposure(true, 120, 14, 0, 5, -15, false);
+            determination = sut.Evaluate(atTime, planTarget, planExposure);
+            determination.Rejected.Should().BeTrue();
+            determination.AvoidanceSeparation.Should().BeApproximately(120, 1);
+            sut.IsRejected(atTime, planTarget, planExposure).Should().BeTrue();
+
+            sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = 20, MoonAge = 14, SeparationAngle = 125 };
+            determination = sut.Evaluate(atTime, planTarget, planExposure);
+            determination.Rejected.Should().BeFalse();
+            determination.AvoidanceSeparation.Should().BeApproximately(120, 1);
+
+            // Moon below relax min altitude: avoidance off, no separation
+            sut = new MoonAvoidanceExpertMock(TestData.North_Mid_Lat) { Altitude = -20, MoonAge = 14, SeparationAngle = 20 };
+            determination = sut.Evaluate(atTime, planTarget, GetPlanExposure(true, 120, 14, 2, 5, -15, false));
+            determination.Rejected.Should().BeFalse();
+            determination.AvoidanceSeparation.Should().BeNull();
+        }
+
+        [Test]
         public void testClassicNotRelaxZone() {
             ITarget planTarget = GetPlanTarget();
             IExposure planExposure = GetPlanExposure(true, 120, 14, 2, 5, -15, false);

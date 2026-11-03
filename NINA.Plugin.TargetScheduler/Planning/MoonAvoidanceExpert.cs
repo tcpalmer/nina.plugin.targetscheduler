@@ -38,9 +38,21 @@ namespace NINA.Plugin.TargetScheduler.Planning {
         }
 
         public bool IsRejected(DateTime atTime, ITarget target, IExposure exposure) {
+            return Evaluate(atTime, target, exposure).Rejected;
+        }
+
+        /// <summary>
+        /// Determine moon avoidance as for <see cref="IsRejected"/>, also returning the calculated avoidance separation
+        /// (null when avoidance doesn't apply at the provided time).
+        /// </summary>
+        /// <param name="atTime"></param>
+        /// <param name="target"></param>
+        /// <param name="exposure"></param>
+        /// <returns></returns>
+        public MoonAvoidanceDetermination Evaluate(DateTime atTime, ITarget target, IExposure exposure) {
             if (!exposure.MoonAvoidanceEnabled) {
                 exposure.MoonAvoidanceScore = SCORE_OFF;
-                return false;
+                return new MoonAvoidanceDetermination(false, null);
             }
 
             DateTime evaluationTime = atTime;
@@ -64,24 +76,24 @@ namespace NINA.Plugin.TargetScheduler.Planning {
             // Avoidance is completely off if the moon is below the relaxation min altitude and relaxation applies
             if (moonAltitude <= exposure.MoonRelaxMinAltitude && exposure.MoonRelaxScale > 0) {
                 TSLogger.Trace($"moon avoidance off: moon altitude ({moonAltitude}) is below relax min altitude ({exposure.MoonRelaxMinAltitude})");
-                return false;
+                return new MoonAvoidanceDetermination(false, null);
             }
 
             // Avoidance is absolute regardless of moon phase or separation if Moon Must Be Down is enabled
             if (moonAltitude >= exposure.MoonRelaxMaxAltitude && exposure.MoonDownEnabled) {
                 TSLogger.Trace($"moon avoidance absolute: moon altitude ({moonAltitude}) is above relax max altitude ({exposure.MoonRelaxMaxAltitude}) with Moon Must Be Down enabled");
-                return true;
+                return new MoonAvoidanceDetermination(true, moonAvoidanceSeparation);
             }
 
             // If the separation was relaxed into oblivion, avoidance is off
             if (moonSeparationParameter <= 0) {
                 TSLogger.Trace($"moon avoidance separation was relaxed below zero, avoidance off");
-                return false;
+                return new MoonAvoidanceDetermination(false, null);
             }
 
             bool rejected = moonSeparation < moonAvoidanceSeparation;
             TSLogger.Trace($"moon avoidance {target.Name}/{exposure.FilterName} rejected={rejected}, eval time={evaluationTime}, moon alt={moonAltitude}, moonSep={moonSeparation}, moonAvoidSep={moonAvoidanceSeparation}");
-            return rejected;
+            return new MoonAvoidanceDetermination(rejected, moonAvoidanceSeparation);
         }
 
         /// <summary>
@@ -115,6 +127,16 @@ namespace NINA.Plugin.TargetScheduler.Planning {
 
         public virtual double GetMoonSeparationAngle(ObserverInfo location, DateTime atTime, Coordinates coordinates) {
             return AstrometryUtils.GetMoonSeparationAngle(observerInfo, atTime, coordinates);
+        }
+    }
+
+    public class MoonAvoidanceDetermination {
+        public bool Rejected { get; private set; }
+        public double? AvoidanceSeparation { get; private set; }
+
+        public MoonAvoidanceDetermination(bool rejected, double? avoidanceSeparation) {
+            Rejected = rejected;
+            AvoidanceSeparation = avoidanceSeparation;
         }
     }
 

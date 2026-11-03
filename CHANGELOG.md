@@ -1,5 +1,8 @@
 # Target Scheduler
 
+## 5.11.0.0 - 2026-11-XX (NINA 3.3)
+* Migrated the Target Planning plugin capability to TS
+
 ## 5.10.4.1 - 2026-10-25 (NINA 3.3)
 * Fixed an issue with profile loading deadlocks (merged from 3.2 release)
 

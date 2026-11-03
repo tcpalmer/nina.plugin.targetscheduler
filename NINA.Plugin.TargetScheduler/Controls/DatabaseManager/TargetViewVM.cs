@@ -83,6 +83,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
             CancelOverrideExposureOrderCommand = new RelayCommand(CancelOverrideExposureOrder);
             SendCoordinatesToFramingAssistantCommand = new AsyncRelayCommand(SendCoordinatesToFramingAssistant);
             NavigateToReportCommand = new RelayCommand(NavigateToReport);
+            NavigateToTargetPlanningCommand = new RelayCommand(NavigateToTargetPlanning);
 
             TargetImportVM = new TargetImportVM(deepSkyObjectSearchVM, framingAssistantVM, planetariumFactory);
             TargetImportVM.PropertyChanged += ImportTarget_PropertyChanged;
@@ -278,6 +279,7 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         public ICommand SendCoordinatesToFramingAssistantCommand { get; private set; }
         public ICommand NavigateToReportCommand { get; private set; }
+        public ICommand NavigateToTargetPlanningCommand { get; private set; }
         public ICommand ShowTargetImportViewCommand { get; private set; }
 
         public ICommand AddExposurePlanCommand { get; private set; }
@@ -653,6 +655,10 @@ namespace NINA.Plugin.TargetScheduler.Controls.DatabaseManager {
 
         private void NavigateToReport() {
             managerVM.NavigateToReportingAction?.Invoke(profileId, project.Id, TargetProxy.Target.Id);
+        }
+
+        private void NavigateToTargetPlanning() {
+            managerVM.NavigateToTargetPlanningAction?.Invoke(profileId, project.Id, TargetProxy.Target.Id);
         }
     }
 
