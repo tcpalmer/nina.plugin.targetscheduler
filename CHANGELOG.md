@@ -1,6 +1,6 @@
 # Target Scheduler
 
-## 5.11.0.0 - 2026-11-XX (NINA 3.3)
+## 5.11.0.0 - 2026-11-5 (NINA 3.3)
 * Migrated the Target Planning plugin capability to TS
 * Fixed issue sequencing issue with setting symbol values
 
