@@ -357,11 +357,13 @@ namespace NINA.Plugin.TargetScheduler.Sequencer {
                     try {
                         ITarget target = plan.PlanTarget;
 
-                        if (previousPlanTarget != null && !target.Equals(previousPlanTarget)) {
-                            await ExecuteEventContainer(AfterTargetContainer, progress, token);
-                            await ExecuteEventContainer(AfterAllTargetsContainer, progress, token);
-                            TargetScheduler.EventMediator.InvokeTargetStopping();
-                        } else {
+                        if (!target.Equals(previousPlanTarget)) {
+                            if (previousPlanTarget != null) {
+                                await ExecuteEventContainer(AfterTargetContainer, progress, token);
+                                await ExecuteEventContainer(AfterAllTargetsContainer, progress, token);
+                                TargetScheduler.EventMediator.InvokeTargetStopping();
+                            }
+
                             TargetScheduler.EventMediator.InvokeTargetStarting(target);
                         }
 
